@@ -59,22 +59,23 @@ const notification = [
 const profile = [
   {
     color: "error",
-    icon: "dollar-sign",
+    icon: "settings",
     title: "My Profile",
     desc: "Account Settings",
+    to:"/user/profile"
   },
-  {
-    color: "success",
-    icon: "shield",
-    title: "My Inbox",
-    desc: "Messages & Emails",
-  },
-  {
-    color: "secondary",
-    icon: "credit-card",
-    title: "My Tasks",
-    desc: "To-do and Daily Tasks",
-  },
+  // {
+  //   color: "success",
+  //   icon: "shield",
+  //   title: "My Inbox",
+  //   desc: "Messages & Emails",
+  // },
+  // {
+  //   color: "secondary",
+  //   icon: "credit-card",
+  //   title: "My Tasks",
+  //   desc: "To-do and Daily Tasks",
+  // },
 ];
 
 export { message, profile, notification };

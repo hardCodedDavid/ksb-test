@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import WelcomeCard from "../dashboardComponents/analytical/welcome-card/WelcomeCard.vue";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 import TheEarnings from "@/views/dashboards/dashboardComponents/analytical/earnings/TheEarnings.vue";
@@ -10,6 +10,11 @@ import ProductMonthTable from "@/views/dashboards/dashboardComponents/analytical
 import BlogCard from "@/views/dashboards/dashboardComponents/analytical/blog-card/BlogCard.vue";
 import WeeklyStats from "@/views/dashboards/dashboardComponents/analytical/weekly-stats/WeeklyStats.vue";
 import DailyActivities from "@/views/dashboards/dashboardComponents/analytical/daily-activities/DailyActivities.vue";
+
+
+import  { useAuthStore } from '../../../stores/auth'
+
+const action = useAuthStore()
 
 const page = ref({ title: "Dashboard Analytics" });
 const breadcrumbs = ref([
@@ -24,6 +29,11 @@ const breadcrumbs = ref([
     href: "#",
   },
 ]);
+
+onMounted(async ()=> {
+  await action.GetProfile()
+  await action.getPermissions()
+})
 </script>
 
 <template>

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useCustomizerStore } from "../../../stores/customizer";
+import  { useAuthStore } from '../../../stores/auth'
 import { message, notification, profile } from "../vertical-header/data";
 import LogoLight from "../logo/LogoLight.vue";
 import LogoDark from "../logo/LogoDark.vue";
 
 const customizer = useCustomizerStore();
+const action = useAuthStore()
 const showSearch = ref(false);
 const href = ref(undefined);
 const messages = ref(message);
@@ -217,6 +219,7 @@ function searchbox() {
         </v-list-item>
         <v-btn
           block
+         
           color="secondary"
           href="/authentication/boxedlogin"
           variant="flat"

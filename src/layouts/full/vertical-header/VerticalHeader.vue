@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { useCustomizerStore } from "../../../stores/customizer";
+import { storeToRefs } from "pinia";
+import { useAuthStore } from "../../../stores/auth";
 import { message, notification, profile } from "./data";
+
 const customizer = useCustomizerStore();
 
+const action = useAuthStore();
+const { user } = storeToRefs(action);
 const showSearch = ref(false);
-const href = ref(undefined);
+
 const messages = ref(message);
 const notifications = ref(notification);
 const userprofile = ref(profile);
@@ -14,8 +19,13 @@ function searchbox() {
   showSearch.value = !showSearch.value;
 }
 watch(priority, (newPriority) => {
-  // yes, console.log() is a side effect
   priority.value = newPriority;
+});
+
+const userAvatar = computed(() => {
+  return user.value.avatar == null
+    ? "https://via.placeholder.com/150"
+    : user.value.avatar;
 });
 </script>
 
@@ -70,55 +80,7 @@ watch(priority, (newPriority) => {
     <!---/Search part -->
 
     <v-spacer />
-    <!-- ---------------------------------------------- -->
-    <!---right part -->
-    <!-- ---------------------------------------------- -->
 
-    <!-- ---------------------------------------------- -->
-    <!-- Messages -->
-    <!-- ---------------------------------------------- -->
-    <!-- <v-menu anchor="bottom end" origin="auto" max-width="300">
-      <template v-slot:activator="{ props }">
-        <v-btn color="inherit" icon v-bind="props">
-          <v-badge color="secondary" dot>
-            <vue-feather type="message-square" class="feather-sm"></vue-feather>
-          </v-badge>
-        </v-btn>
-      </template>
-
-      <v-list class="pa-5" elevation="10" rounded="lg">
-        <h4 class="d-flex">
-          Messages
-          <v-chip label small color="secondary" class="ml-auto"> 5 new </v-chip>
-        </h4>
-
-        <v-list-item
-          v-for="(item, i) in messages"
-          class="my-2 pa-3"
-          :key="i"
-          rounded="lg"
-          :value="item"
-          @click="href"
-          :title="item.title"
-          :subtitle="item.desc"
-        >
-          <template v-slot:prepend>
-            <v-avatar size="50">
-              <v-img
-                :src="`/assets/images/users/${item.image}`"
-                :alt="item.image"
-                width="50"
-              ></v-img
-            ></v-avatar>
-          </template>
-        </v-list-item>
-        <v-btn variant="flat" color="primary" class="mt-4" block>See all Messages</v-btn>
-      </v-list>
-    </v-menu> -->
-
-    <!-- ---------------------------------------------- -->
-    <!-- Notification -->
-    <!-- ---------------------------------------------- -->
     <v-menu anchor="bottom end" origin="auto">
       <template v-slot:activator="{ props }">
         <v-btn color="inherit" icon v-bind="props">
@@ -138,7 +100,6 @@ watch(priority, (newPriority) => {
           v-for="(item, i) in notifications"
           :key="i"
           :value="item"
-          @click="href"
           rounded="lg"
           :title="item.title"
           :subtitle="item.desc"
@@ -169,7 +130,7 @@ watch(priority, (newPriority) => {
           :ripple="false"
         >
           <v-avatar size="35">
-            <img src="@/assets/images/users/user2.jpg" alt="Julia" />
+            <img :src="userAvatar" alt="Julia" />
           </v-avatar>
         </v-btn>
       </template>
@@ -178,13 +139,15 @@ watch(priority, (newPriority) => {
         <h4 class="font-weight-medium fs-18">User Profile</h4>
         <div class="d-flex align-center my-4">
           <img
-            src="@/assets/images/users/user2.jpg"
+            :src="userAvatar"
             alt="Julia"
             class="rounded-circle"
             width="90"
           />
           <div class="ml-4">
-            <h4 class="font-weight-medium fs-18">Julia Roberts</h4>
+            <h4 class="font-weight-medium fs-18">
+              {{ user.firstname }} {{ user.lastname }}
+            </h4>
             <span class="subtitle-2 font-weight-light">Administrator</span>
             <div class="d-flex align-center">
               <vue-feather
@@ -192,9 +155,9 @@ watch(priority, (newPriority) => {
                 size="16"
                 class="d-flex grey--text"
               ></vue-feather>
-              <span class="subtitle-2 font-weight-light ml-1"
-                >info@flexy.com</span
-              >
+              <span class="subtitle-2 font-weight-light ml-1">{{
+                user.email
+              }}</span>
             </div>
           </div>
         </div>
@@ -202,10 +165,10 @@ watch(priority, (newPriority) => {
           class="pa-3 mb-2"
           v-for="(item, i) in userprofile"
           :key="i"
-          @click="href"
           :value="item"
           :title="item.title"
           :subtitle="item.desc"
+          :to="item.to"
           rounded="lg"
         >
           <template v-slot:prepend>
@@ -225,6 +188,8 @@ watch(priority, (newPriority) => {
         </v-list-item>
         <v-btn
           block
+          @click="action.ksbTechLogout()"
+          :loading="action.loggingOut"
           color="secondary"
           to="/authentication/boxedlogin"
           variant="flat"

@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from '../stores/auth'
 
 const router = createRouter({
-  //history: createWebHistory(import.meta.env.BASE_URL),
+
   history: createWebHistory("/"),
   routes: [
     {
@@ -16,9 +17,9 @@ const router = createRouter({
             import("@/views/dashboards/analytical/Analytical.vue"),
         },
         {
-          name: "Ecommerce",
-          path: "/dashboards/ecommerce",
-          component: () => import("@/views/dashboards/ecommerce/Ecommerce.vue"),
+          name: "Profile",
+          path: "/user/profile",
+          component: () => import("@/views/profile.vue"),
         },
         {
           name: "Modern",
@@ -353,6 +354,7 @@ const router = createRouter({
           name: "Login",
           path: "/authentication/fulllogin",
           component: () => import("@/views/authentication/FullLogin.vue"),
+
         },
         {
           name: "Boxed Login",
@@ -378,5 +380,19 @@ const router = createRouter({
     },
   ],
 });
+
+
+router.beforeEach(async (to, from) => {
+  const store  = useAuthStore()
+  if (
+    
+    !store.isLoggedIn &&
+   
+    to.name !== 'Login'
+  ) {
+  
+    return { name: 'Login' }
+  }
+})
 
 export default router;
