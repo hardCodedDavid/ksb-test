@@ -1,31 +1,40 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, reactive } from "vue";
 import { useAuthStore } from "../stores/auth";
 import { storeToRefs } from "pinia";
-const { user } = storeToRefs(useAuthStore());
+const { user, updating, twoFALoading ,twoFA} = storeToRefs(useAuthStore());
+const action = useAuthStore();
 
+// Get profile
+onMounted(async () => {
+  await action.GetProfile();
+});
+// user initials
 const userInitials = computed(() => {
   return user.value.email.slice(0, 2);
 });
+//
 
+// tab values
 const tab = ref(null);
-
-const model = ref(false);
+//
 
 // FILE SELECTION
 const file = ref<null | any>(null);
+const blobImage = ref<string | URL>("");
 const image = ref<string | URL>("");
 const openFile = () => {
   file.value.click();
 };
 const selectFile = (e: any) => {
-  image.value = URL.createObjectURL(e.target.files[0]);
+  image.value = e.target.files[0];
+  console.log(image.value);
+  blobImage.value = URL.createObjectURL(e.target.files[0]);
 };
 
 const ImageOrBlob = computed(() => {
-  return user.value.avatar === null ? image.value : user.value.avatar;
+  return user.value.avatar === null ? blobImage.value : user.value.avatar;
 });
-//
 </script>
 
 <template>
@@ -100,21 +109,29 @@ const ImageOrBlob = computed(() => {
                     color="secondary"
                   ></v-text-field>
                   <v-text-field
-                    v-model="user.phonenumber"
+                    v-model="user.phone_number"
                     label="Phone number"
                     variant="outlined"
                     color="secondary"
                   ></v-text-field>
 
                   <v-switch
-                    v-model="model"
+                    v-model="twoFA"
                     hide-details
+                    @input="action.two_Factor_Auth()"
                     inset
+                    :loading="twoFALoading"
                     color="secondary"
-                    :label="`Two factor Authentication: ${model.toString()}`"
+                    :label="`Two factor Authentication: ${twoFA.toString()}`"
                   ></v-switch>
 
-                  <v-btn block color="secondary" class="my-4">
+                  <v-btn
+                    @click="action.updateProfile(image)"
+                    block
+                    :loading="updating"
+                    color="secondary"
+                    class="my-4"
+                  >
                     update profile
                   </v-btn>
                 </v-form>
