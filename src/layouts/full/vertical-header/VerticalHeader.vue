@@ -51,9 +51,9 @@ watch(priority, (newPriority) => {
     <!---Search part -->
     <!-- ---------------------------------------------- -->
 
-    <v-btn text icon color="lighten-2" @click="searchbox">
+    <!-- <v-btn text icon color="lighten-2" @click="searchbox">
       <vue-feather type="search" class="feather-sm"></vue-feather>
-    </v-btn>
+    </v-btn> -->
     <v-sheet v-if="showSearch" class="searchinput pa-2" elevation="10">
       <v-text-field
         color="success"
@@ -77,7 +77,7 @@ watch(priority, (newPriority) => {
     <!-- ---------------------------------------------- -->
     <!-- Messages -->
     <!-- ---------------------------------------------- -->
-    <v-menu anchor="bottom end" origin="auto" max-width="300">
+    <!-- <v-menu anchor="bottom end" origin="auto" max-width="300">
       <template v-slot:activator="{ props }">
         <v-btn color="inherit" icon v-bind="props">
           <v-badge color="secondary" dot>
@@ -114,7 +114,7 @@ watch(priority, (newPriority) => {
         </v-list-item>
         <v-btn variant="flat" color="primary" class="mt-4" block>See all Messages</v-btn>
       </v-list>
-    </v-menu>
+    </v-menu> -->
 
     <!-- ---------------------------------------------- -->
     <!-- Notification -->

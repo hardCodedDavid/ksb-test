@@ -1,10 +1,10 @@
 <script setup lang="ts"></script>
 
 <template>
-  <v-card class="bg-primary">
+  <v-card class="bg-secondary">
     <v-card-text>
       <div class="d-flex align-start">
-        <h2 class="font-weight-medium title text-white mt-1">Earnings</h2>
+        <h2 class="font-weight-medium title text-white mt-1">Total Sales</h2>
         <v-spacer></v-spacer>
         <div class="ml-auto">
           <v-btn depressed color="white" class="btn-custom-sm" small icon>

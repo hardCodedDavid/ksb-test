@@ -25,37 +25,7 @@ const emailRules = ref([
       xl="6"
       class="bg-secondary d-none d-md-flex align-center justify-center"
     >
-      <v-container>
-        <div class="pa-10">
-          <v-row justify="center" >
-            <v-col cols="8" xl="5">
-              <div>
-                <h2 class="text-h4 text-white font-weight-medium">
-                  Elegant Design with unlimited features, built with love
-                </h2>
-                <h6
-                  class="
-                    text-subtitle-1 text-high-emphasis
-                    mt-4
-                    text-white
-                    font-weight-regular
-                  "
-                >
-                  Wrappixel helps developers to build organized and well-coded
-                  admin dashboards full of beautiful and feature rich modules.
-                </h6>
-                <v-btn
-                  class="mt-6 text-capitalize"
-                  size="x-large"
-                  variant="outlined"
-                  color="white"
-                  >Learn More</v-btn
-                >
-              </div>
-            </v-col>
-          </v-row>
-        </div>
-      </v-container>
+      
     </v-col>
     <v-col cols="12" lg="5" xl="6" class="d-flex align-center">
       <v-container>

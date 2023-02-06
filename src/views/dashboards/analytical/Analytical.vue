@@ -11,7 +11,7 @@ import BlogCard from "@/views/dashboards/dashboardComponents/analytical/blog-car
 import WeeklyStats from "@/views/dashboards/dashboardComponents/analytical/weekly-stats/WeeklyStats.vue";
 import DailyActivities from "@/views/dashboards/dashboardComponents/analytical/daily-activities/DailyActivities.vue";
 
-const page = ref({ title: "Analytical" });
+const page = ref({ title: "Dashboard Analytics" });
 const breadcrumbs = ref([
   {
     text: "Dashboard",
@@ -32,18 +32,48 @@ const breadcrumbs = ref([
     :breadcrumbs="breadcrumbs"
   ></BaseBreadcrumb>
   <v-row>
-    <v-col cols="12" sm="12" lg="6">
-      <WelcomeCard />
+    <v-col cols="12" sm="12" lg="12">
+      <v-row>
+        <v-col cols="12" sm="8" lg="6">
+          <WelcomeCard />
+        </v-col>
+        <v-col cols="12" sm="8" lg="6">
+          <v-card class="py-4 px-6">
+            <v-layout align-center justify-space-between class="ml-6">
+              <div
+                v-for="(item, index) in 3"
+                :key="index"
+                class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
+              >
+                <v-avatar color="#e5fafb" size="x-large">
+                  <vue-feather
+                    type="gift"
+                    class="text-dark text-success"
+                  ></vue-feather>
+                </v-avatar>
+
+                <div class="pl-3 my-5">
+                  <h3 class="mb-2">0</h3>
+                  <span>Monthly Sales</span>
+                </div>
+              </div>
+            </v-layout>
+          </v-card>
+        </v-col>
+      </v-row>
       <v-row class="mt-4">
-        <v-col cols="12" sm="6" lg="6" class="">
+        <v-col cols="12" sm="6" lg="4" class="">
           <TheEarnings></TheEarnings>
         </v-col>
-        <v-col cols="12" sm="6" lg="6" class="">
+        <v-col cols="12" sm="6" lg="4" class="">
           <MonthlyRevenue></MonthlyRevenue>
+        </v-col>
+        <v-col cols="12" sm="6" lg="4" class="">
+          <TheEarnings></TheEarnings>
         </v-col>
       </v-row>
     </v-col>
-    <v-col cols="12" sm="12" lg="6">
+    <!-- <v-col cols="12" sm="12" lg="6">
       <TheSalesOverview></TheSalesOverview>
     </v-col>
     <v-col cols="12" sm="12" lg="4">
@@ -60,6 +90,6 @@ const breadcrumbs = ref([
     </v-col>
     <v-col cols="12" sm="12" lg="4">
       <DailyActivities></DailyActivities>
-    </v-col>
+    </v-col> -->
   </v-row>
 </template>

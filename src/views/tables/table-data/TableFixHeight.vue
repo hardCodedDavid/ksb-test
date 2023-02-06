@@ -54,7 +54,7 @@ const desserts = ref([
       Use the height prop to set the height of the table.
     </p>
     <div class="mt-4">
-      <v-table height="300px">
+      <v-table>
         <thead>
           <tr>
             <th class="text-left">Name</th>

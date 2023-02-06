@@ -9,7 +9,7 @@
       <h3 class="h3 title overlay-title font-weight-medium mb-1">
         Hey John, <br />Download latest report
       </h3>
-      <v-btn color="secondary" class="mt-4"> Download </v-btn>
+      <v-btn color="secondary" size="large" class="mt-4"> Download Latest Report</v-btn>
     </v-card-text>
   </v-card>
 </template>

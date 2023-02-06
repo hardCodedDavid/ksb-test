@@ -27,38 +27,43 @@ const router = createRouter({
         },
         {
           name: "Apps",
-          path: "apps/chat",
-          component: () => import("@/views/apps/chat/Chat.vue"),
+          path: "/withdrawals/all",
+          component: () => import("@/views/withdrawals/all.vue"),
+        },
+        // {
+        //   name: "ContactList",
+        //   path: "apps/contact-list",
+        //   component: () => import("@/views/apps/contact-list/ContactList.vue"),
+        // },
+        // {
+        //   name: "ContactGrid",
+        //   path: "apps/contact-grid",
+        //   component: () => import("@/views/apps/contact-grid/ContactGrid.vue"),
+        // },
+        // {
+        //   name: "Ecommerce-shop",
+        //   path: "apps/shop",
+        //   component: () => import("@/views/apps/ecommerce/Listing.vue"),
+        // },
+        // {
+        //   name: "Calendar",
+        //   path: "apps/fullcalendar",
+        //   component: () => import("@/views/apps/calendar/VCalendar.vue"),
+        // },
+        // {
+        //   name: "Todo",
+        //   path: "apps/todo",
+        //   component: () => import("@/views/apps/todo/Todo.vue"),
+        // },
+        {
+          name: "GiftCardTransaction",
+          path: "/giftcards/transaction",
+          component: () => import("@/views/giftcards/transaction.vue"),
         },
         {
-          name: "ContactList",
-          path: "apps/contact-list",
-          component: () => import("@/views/apps/contact-list/ContactList.vue"),
-        },
-        {
-          name: "ContactGrid",
-          path: "apps/contact-grid",
-          component: () => import("@/views/apps/contact-grid/ContactGrid.vue"),
-        },
-        {
-          name: "Ecommerce-shop",
-          path: "apps/shop",
-          component: () => import("@/views/apps/ecommerce/Listing.vue"),
-        },
-        {
-          name: "Calendar",
-          path: "apps/fullcalendar",
-          component: () => import("@/views/apps/calendar/VCalendar.vue"),
-        },
-        {
-          name: "Todo",
-          path: "apps/todo",
-          component: () => import("@/views/apps/todo/Todo.vue"),
-        },
-        {
-          name: "ApexChart",
-          path: "charts/apexcharts",
-          component: () => import("@/views/charts/apexcharts/ApexCharts.vue"),
+          name: "GiftCardManagement",
+          path: "/giftcards/management",
+          component: () => import("@/views/giftcards/management.vue"),
         },
         {
           name: "Alert",

@@ -37,7 +37,7 @@ const sidebarMenu = ref(sidebarItems);
     <!---Navigation -->
     <!-- ---------------------------------------------- -->
     <perfect-scrollbar class="scrollnavbar">
-      <v-list class="pa-4" color="#34384">
+      <v-list class="pa-4" color="#34384f">
         <!-- ---------------------------------------------- -->
         <!---Menu Loop -->
         <!-- ---------------------------------------------- -->
@@ -51,7 +51,7 @@ const sidebarMenu = ref(sidebarItems);
           <!-- ---------------------------------------------- -->
           <!---If Has Child -->
           <!-- ---------------------------------------------- -->
-          <v-list-group v-else-if="item.children" class="">
+          <v-list-group v-else-if="item.children">
             <!-- ---------------------------------------------- -->
             <!---Dropdown  -->
             <!-- ---------------------------------------------- -->
@@ -82,6 +82,7 @@ const sidebarMenu = ref(sidebarItems);
               :value="subitem.to"
               :to="subitem.to"
               rounded="lg"
+              color="#34384f"
               class="first-level-item mb-1"
             >
               <template v-slot:prepend>
@@ -90,7 +91,7 @@ const sidebarMenu = ref(sidebarItems);
                   class="feather-sm v-icon"
                 ></vue-feather>
               </template>
-              <v-list-item-title v-text="subitem.title"></v-list-item-title>
+              <v-list-item-title  v-text="subitem.title"></v-list-item-title>
             </v-list-item>
           </v-list-group>
           <!-- ---------------------------------------------- -->

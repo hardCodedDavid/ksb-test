@@ -31,7 +31,7 @@ const sidebarItem: menu[] = [
   {
     title: "Withdrawals",
     icon: "credit-card",
-    to: "/apps/chat",
+    to: "/withdrawals/all",
   },
   // {
   //   title: "Calendar",
@@ -262,12 +262,13 @@ const sidebarItem: menu[] = [
   {
     title: "Giftcard Transactions ",
     icon: "gift",
-    to: "/charts/apexcharts",
+    to: "/giftcards/transaction",
   },
   {
     title: "Giftcard Management",
     icon: "users",
-    to: "/charts/apexcharts",
+    to: "/giftcards/management",
+   
   },
   { header: "Crypto" },
   // {

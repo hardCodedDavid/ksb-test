@@ -9,16 +9,16 @@ const Lighttheme: ThemeDefinition = {
   dark: false,
   variables: {},
   colors: {
-    primary: "#ee8a6a",
+    primary: "#e4b12e",
     info: "#03c9d7",
-    success: "#05b187",
+    success: "#5cb85c",
     accent: "#fc4b6c",
     warning: "#fec90f",
     error: "#fc4b6c",
-    secondary: "#34384",
+    secondary: "#34384f", 
   },
 };
-
+// #34384
 const Darktheme: ThemeDefinition = {
   dark: true,
   colors: {
