@@ -23,6 +23,7 @@
     "vue-instantsearch": "4.4.2",
     "vue-router": "4.1.4",
     "vue3-apexcharts": "1.4.1",
+    "vue3-otp-input": "^0.3.6",
     "vue3-perfect-scrollbar": "1.6.0",
     "vuetify": "3.0.1"
   },

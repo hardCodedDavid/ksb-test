@@ -12,6 +12,9 @@ import VCalendar from "v-calendar";
 import Notifications from '@kyvg/vue3-notification'
 import VueFeather from "vue-feather";
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import VOtpInput from "vue3-otp-input";
+
+
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
@@ -31,3 +34,5 @@ app.use(VueApexCharts);
 app.use(router);
 app.use(Notifications)
 app.use(vuetify).mount("#app");
+
+app.component('v-otp-input', VOtpInput)

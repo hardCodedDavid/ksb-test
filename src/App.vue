@@ -1,6 +1,6 @@
 <template>
   <RouterView></RouterView>
-  <notifications position="top right" />
+  <notifications  width="400" position="top right" class="mt-4" />
 </template>
 
 <script setup lang="ts">

@@ -1,6 +1,19 @@
 import { defineStore } from "pinia";
 import ksbTechApi from "../../axios";
-import { login, logout, profile, permissions, update_profile, two_FA } from "../../apiRoute";
+import {
+  login,
+  logout,
+  profile,
+  permissions,
+  update_profile,
+  two_FA,
+  verify_two_FA,
+  resend_two_fa,
+  update_password,
+  requestCode,
+  verifyCodeAndEmail,
+  resetPassword,
+} from "../../apiRoute";
 import { useNotification } from "@kyvg/vue3-notification";
 
 interface ksbTechAuth {
@@ -8,27 +21,31 @@ interface ksbTechAuth {
   loginLoading: boolean;
   LoggingOut: boolean;
   twoFALoading: boolean;
+  verifyTwoFALoading: boolean;
   updating: boolean;
   user: object | any;
   token: string;
-  permissions:object | any;
-  twoFA:boolean 
+  permissions: object | any;
+  twoFA: boolean;
+  email:string
 }
 
 export const useAuthStore = defineStore("auth", {
-  state: ():ksbTechAuth => ({
+  state: (): ksbTechAuth => ({
     isLoggedIn: false,
     loginLoading: false,
     LoggingOut: false,
     updating: false,
     twoFALoading: false,
+    verifyTwoFALoading: false,
     user: {},
     token: "",
-    permissions:{},
-    twoFA:false
+    permissions: {},
+    twoFA: false,
+    email:""
   }),
   getters: {
-    userInitials: (state) => state.user
+    userInitials: (state) => state.user,
   },
   actions: {
     async ksbTechLogin(loginDetails: { email: string; password: string }) {
@@ -36,6 +53,7 @@ export const useAuthStore = defineStore("auth", {
       formData.append("email", loginDetails.email);
       formData.append("password", loginDetails.password);
       this.loginLoading = true;
+      const { notify } = useNotification();
       try {
         await ksbTechApi
           .post(login, formData, {
@@ -68,12 +86,149 @@ export const useAuthStore = defineStore("auth", {
               this.user = res.data.data.admin;
             }
           );
-      } catch (error) {
+      } catch (error: any) {
         this.loginLoading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
+      }
+    },
+    async ksbTechRequestCode(data: string) {
+      const formData = new FormData();
+      formData.append("email", data);
+
+      this.loginLoading = true;
+      const { notify } = useNotification();
+      try {
+        await ksbTechApi
+          .post(requestCode, formData, {
+            headers: {
+              Accept: "application/json",
+            },
+            redirect: "follow",
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+              message: string;
+            }) => {
+              const { notify } = useNotification();
+
+              notify({
+                title: "Login Successful",
+                text: res.data.message,
+                type: "success",
+              });
+
+              this.loginLoading = false;
+              this.$router.push("/authentication/reset-password");
+            }
+          );
+      } catch (error: any) {
+        this.loginLoading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
+      }
+    },
+    async ksbTechVerifyCode(code: any) {
+      const formData = new FormData();
+      formData.append("code", code);
+      formData.append("email", this.email);
+
+      this.loginLoading = true;
+      const { notify } = useNotification();
+      try {
+        await ksbTechApi
+          .post(verifyCodeAndEmail, formData, {
+            headers: {
+              Accept: "application/json",
+            },
+            redirect: "follow",
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+              message: string;
+            }) => {
+            
+              this.loginLoading = false;
+              this.$router.push("/authentication/reset-password");
+            }
+          );
+      } catch (error: any) {
+        this.loginLoading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
+      }
+    },
+    async ksbTechResetPassword(data: {
+      email: string;
+      code: any;
+      password: any;
+      password_confirmation: any;
+    }) {
+      const formData = new FormData();
+      formData.append("email", data.email);
+      formData.append("code", data.code);
+      formData.append("password", data.password);
+      formData.append("password_confirmation", data.password_confirmation);
+
+      this.loginLoading = true;
+      const { notify } = useNotification();
+      try {
+        await ksbTechApi
+          .post(requestCode, formData, {
+            headers: {
+              Accept: "application/json",
+            },
+            redirect: "follow",
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+              message: string;
+            }) => {
+              const { notify } = useNotification();
+
+              notify({
+                title: "Login Successful",
+                text: res.data.message,
+                type: "success",
+              });
+
+              this.loginLoading = false;
+              this.$router.push("/authentication/fulllogin");
+            }
+          );
+      } catch (error: any) {
+        this.loginLoading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
       }
     },
     async ksbTechLogout() {
       this.LoggingOut = true;
+      const { notify } = useNotification();
       try {
         await ksbTechApi
           .post(logout, "", {
@@ -83,27 +238,34 @@ export const useAuthStore = defineStore("auth", {
             },
           })
           .then((res: { data: { message: string } }) => {
-            const { notify } = useNotification();
-
             notify({
               title: "Login Successful",
               text: res.data.message,
               type: "success",
             });
 
-            this.token = ''
-            this.isLoggedIn = false
+            this.token = "";
+            this.isLoggedIn = false;
 
             this.$router.push("/authentication/fulllogin");
             this.LoggingOut = false;
+            console.log(res, "grgrg");
+          })
+          .catch((error: any) => {
+            notify({
+              title: "Login Successful",
+              text: error.response.message,
+              type: "error",
+            });
           });
-      } catch (error) {
+      } catch (error: any) {
         this.LoggingOut = false;
-        console.log(error);
+        console.log(error.response);
       }
     },
     async two_Factor_Auth() {
-      this.twoFALoading = true
+      this.twoFALoading = true;
+      const { notify } = useNotification();
       try {
         await ksbTechApi
           .post(two_FA, "", {
@@ -113,19 +275,83 @@ export const useAuthStore = defineStore("auth", {
             },
           })
           .then((res: { data: { message: string } }) => {
-            const { notify } = useNotification();
-            this.twoFALoading = false
+            this.twoFALoading = false;
             notify({
               title: "Login Successful",
               text: res.data.message,
               type: "success",
             });
-            this.GetProfile()
-            
+            this.GetProfile();
           });
-      } catch (error) {
-        this.twoFALoading = false
-        console.log(error);
+      } catch (error: any) {
+        this.twoFALoading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
+      }
+    },
+    async verify_two_Factor_Auth(code: string) {
+      this.twoFALoading = true;
+
+      const data = new FormData();
+
+      data.append("code", code);
+
+      const { notify } = useNotification();
+      try {
+        await ksbTechApi
+          .post(verify_two_FA, data, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${this.token}`,
+            },
+          })
+          .then(
+            (res: { data: { data: { token: string }; message: string } }) => {
+              this.$router.push("/dashboards/analytical");
+              this.twoFALoading = false;
+              notify({
+                title: "Login Successful",
+                text: res.data.message,
+                type: "success",
+              });
+              this.token = res.data.data.token;
+            }
+          );
+      } catch (error: any) {
+        this.twoFALoading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
+      }
+    },
+    async resend_two_Factor_Auth() {
+      const { notify } = useNotification();
+      try {
+        await ksbTechApi
+          .post(resend_two_fa, "", {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${this.token}`,
+            },
+          })
+          .then((res: { data: { message: string } }) => {
+            notify({
+              title: "Success",
+              text: res.data.message,
+              type: "success",
+            });
+          });
+      } catch (error: any) {
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
       }
     },
     async GetProfile() {
@@ -153,6 +379,7 @@ export const useAuthStore = defineStore("auth", {
       }
     },
     async getPermissions() {
+      const { notify } = useNotification();
       try {
         await ksbTechApi
           .get(permissions, {
@@ -168,15 +395,19 @@ export const useAuthStore = defineStore("auth", {
                 data: any;
               };
             }) => {
-              this.permissions = res.data.data.admin;
+              this.permissions = res.data.data.permissions;
             }
           );
-      } catch (error) {
-        console.log(error);
+      } catch (error: any) {
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
       }
     },
-    async updateProfile(file:File) {
-      this.user.avatar = file
+    async updateProfile(file: File) {
+      this.user.avatar = file;
       const formData = new FormData();
       formData.append("firstname", this.user.firstname);
       formData.append("lastname", this.user.lastname);
@@ -184,9 +415,6 @@ export const useAuthStore = defineStore("auth", {
       formData.append("phone_number", this.user.phone_number);
       formData.append("avatar", this.user.avatar);
 
-     
-
-     
       this.updating = true;
       try {
         await ksbTechApi
@@ -214,14 +442,51 @@ export const useAuthStore = defineStore("auth", {
               });
 
               this.updating = false;
-             
-              this.GetProfile()
+
+              this.GetProfile();
             }
           );
       } catch (error) {
         this.updating = false;
       }
     },
+    async updatePassword(passwordDetails: object) {
+      const { notify } = useNotification();
+      this.updating = true;
+      try {
+        await ksbTechApi
+          .post(update_password, passwordDetails, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${this.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              notify({
+                title: "Success",
+                text: res.data.message,
+                type: "success",
+              });
+              this.updating = false;
+            }
+          );
+      } catch (error: any) {
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
+        this.updating = false;
+      }
+    },
   },
-  persist: true,
+  persist: {
+    storage: sessionStorage,
+  },
 });

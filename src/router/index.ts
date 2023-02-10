@@ -339,10 +339,10 @@ const router = createRouter({
           component: () => import("@/views/icons/FeatherIcons.vue"),
         },
         {
-          name: "Custom Cards",
-          path: "/widgets/custom-cards",
+          name: "Users",
+          path: "/user/all",
           component: () =>
-            import("@/views/widgets/custom-cards/CustomCards.vue"),
+            import("@/views/users.vue"),
         },
       ],
     },
@@ -357,9 +357,9 @@ const router = createRouter({
 
         },
         {
-          name: "Boxed Login",
-          path: "/authentication/boxedlogin",
-          component: () => import("@/views/authentication/BoxedLogin.vue"),
+          name: "Two Fa",
+          path: "/authentication/verify-two-fa",
+          component: () => import("@/views/authentication/VerifiyTwoFa.vue"),
         },
         {
           name: "Error",
@@ -367,14 +367,14 @@ const router = createRouter({
           component: () => import("@/views/authentication/Error.vue"),
         },
         {
-          name: "Register",
-          path: "/authentication/fullregister",
-          component: () => import("@/views/authentication/FullRegister.vue"),
+          name: "ResetPassword",
+          path: "/authentication/reset-password",
+          component: () => import("@/views/authentication/reset-password/index.vue"),
         },
         {
-          name: "Boxed Register",
-          path: "/authentication/boxedregister",
-          component: () => import("@/views/authentication/BoxedRegister.vue"),
+          name: "ResetCode",
+          path: "/authentication/request-reset-code",
+          component: () => import("@/views/authentication/ResetCode.vue"),
         },
       ],
     },
@@ -382,17 +382,17 @@ const router = createRouter({
 });
 
 
-router.beforeEach(async (to, from) => {
-  const store  = useAuthStore()
-  if (
+// router.beforeEach(async (to, from) => {
+//   const store  = useAuthStore()
+//   if (
     
-    !store.isLoggedIn &&
+//     !store.isLoggedIn &&
    
-    to.name !== 'Login'
-  ) {
+//     to.name !== 'Login'
+//   ) {
   
-    return { name: 'Login' }
-  }
-})
+//     return { name: 'Login' }
+//   }
+// })
 
 export default router;

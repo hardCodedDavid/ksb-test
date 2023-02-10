@@ -3,7 +3,10 @@ import LogoDark from "../../layouts/full/logo/LogoDark.vue";
 import { useAuthStore } from "../../stores/auth";
 import { storeToRefs } from "pinia";
 import { ref } from "vue";
+import { useRouter } from 'vue-router'
+
 const { ksbTechLogin } = useAuthStore();
+const router = useRouter()
 const { loginLoading } = storeToRefs(useAuthStore());
 
 const checkbox = ref(false);
@@ -11,27 +14,30 @@ const valid = ref(true);
 const show1 = ref(false);
 const password = ref("");
 const email = ref("");
+
 const passwordRules = ref([
   (v: string) => !!v || "Password is required",
-  // (v: string) =>
-  //   (v && v.length <= 11) || "Password must be less than 10 characters",
 ]);
 const emailRules = ref([
   (v: string) => !!v || "E-mail is required",
   (v: string) => /.+@.+\..+/.test(v) || "E-mail must be valid",
 ]);
+
+const nextPage = () => {
+  return router.push('/authentication/request-reset-code')
+}
 </script>
 
 <template>
   <v-row class="h-100vh">
     <v-col
       cols="12"
-      lg="7"
+      lg="5"
       xl="6"
       class="bg-secondary d-none d-md-flex align-center justify-center"
     >
     </v-col>
-    <v-col cols="12" lg="5" xl="6" class="d-flex align-center">
+    <v-col cols="12" lg="7" xl="6" class="d-flex align-center">
       <v-container>
         <div class="pa-7 pa-sm-12">
           <v-row>
@@ -76,15 +82,15 @@ const emailRules = ref([
                     hide-details
                   ></v-checkbox>
                   <div class="ml-auto">
-                    <a
-                      href="javascript:void(0)"
-                      class="text-primary text-decoration-none"
-                      >Forgot pwd?</a
+                    <p
+                      @click="nextPage"
+                      class="text-primary text-decoration-none cursor-pointer"
+                      >Forgot password?</p
                     >
                   </div>
                 </div>
                 <v-btn
-                  @click="
+                  @click.stop="
                     $refs.form.validate()
                       ? ksbTechLogin({ email: email, password: password })
                       : null

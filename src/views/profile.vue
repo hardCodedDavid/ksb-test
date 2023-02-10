@@ -2,12 +2,33 @@
 import { ref, computed, onMounted, reactive } from "vue";
 import { useAuthStore } from "../stores/auth";
 import { storeToRefs } from "pinia";
-const { user, updating, twoFALoading ,twoFA} = storeToRefs(useAuthStore());
+const { user, updating, twoFALoading, twoFA, permissions } = storeToRefs(
+  useAuthStore()
+);
 const action = useAuthStore();
+
+// Update Password Fields
+const valid = ref(true);
+const form = ref(null);
+interface SECURITY {
+  old_password: String;
+  new_password: String;
+  new_password_confirmation: String;
+}
+const security = reactive<SECURITY>({
+  old_password: "",
+  new_password: "",
+  new_password_confirmation: "",
+});
+const old_password = ref([(v: string) => !!v || "Password is required"]);
+const new_password = ref([(v: string) => !!v || "Password is required"]);
+const confirm_password = ref([(v: string) => !!v || "Password is required"]);
+//
 
 // Get profile
 onMounted(async () => {
   await action.GetProfile();
+  await action.getPermissions();
 });
 // user initials
 const userInitials = computed(() => {
@@ -139,9 +160,60 @@ const ImageOrBlob = computed(() => {
             </v-row>
           </v-window-item>
 
-          <v-window-item value="two"> Two </v-window-item>
+          <v-window-item value="two">
+            <v-container>
+              <v-switch
+                v-for="(permission, index) in permissions"
+                :key="index"
+                :label="permission.description"
+                disabled
+              ></v-switch>
+            </v-container>
+          </v-window-item>
 
-          <v-window-item value="three"> Three </v-window-item>
+          <v-window-item value="three">
+            <v-layout
+              class="align-center justify-center w-100 flex-column my-7"
+            >
+              <h3>Update password</h3>
+              <v-form
+                ref="form"
+                lazy-validation
+                v-model="valid"
+                class="w-100 max-w-md my-6"
+              >
+                <v-text-field
+                  color="secondary"
+                  :rules="old_password"
+                  v-model="security.old_password"
+                  label="Old Password"
+                ></v-text-field>
+                <v-text-field
+                  color="secondary"
+                  :rules="new_password"
+                  v-model="security.new_password"
+                  label="New Password"
+                ></v-text-field>
+                <v-text-field
+                  color="secondary"
+                  :rules="confirm_password"
+                  v-model="security.new_password_confirmation"
+                  label="Confirm Password"
+                ></v-text-field>
+                <v-btn
+                  @click="
+                    $refs.form.validate()
+                      ? action.updatePassword(security)
+                      : null
+                  "
+                  :loading="updating"
+                  block
+                  class="text--white"
+                  >Update</v-btn
+                >
+              </v-form>
+            </v-layout>
+          </v-window-item>
         </v-window>
       </v-card-text>
     </v-card>
@@ -149,4 +221,7 @@ const ImageOrBlob = computed(() => {
 </template>
 
 <style scoped>
+.max-w-md {
+  max-width: 450px !important;
+}
 </style>

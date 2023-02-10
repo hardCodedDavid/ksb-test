@@ -21,19 +21,19 @@ const sidebarItem: menu[] = [
     to: "/withdrawals/all",
   },
  
-  { header: "Gift Cards" },
+
   {
     title: "Giftcard Transactions ",
     icon: "gift",
     to: "/giftcards/transaction",
   },
-  {
-    title: "Giftcard Management",
-    icon: "users",
-    to: "/giftcards/management",
+  // {
+  //   title: "Giftcard Management",
+  //   icon: "users",
+  //   to: "/giftcards/management",
    
-  },
-  { header: "Crypto" },
+  // },
+  // { header: "Crypto" },
   // {
   //   group: "/form-elements",
   //   model: false,
@@ -93,24 +93,24 @@ const sidebarItem: menu[] = [
     icon: "trending-down",
     to: "/form-layouts/flformaction",
   },
-  {
-    title: "Crypto Management",
-    icon: "disc",
-    to: "/form-layouts/flformbasic",
+  // {
+  //   title: "Crypto Management",
+  //   icon: "disc",
+  //   to: "/form-layouts/flformbasic",
 
-    children: [
-      {
-        title: "Network Transaction",
-        icon: "trending-up",
-        to: "/form-elements/feautocompletes",
-      },
-      {
-        title: "Asset Management",
-        icon: "layout",
-        to: "/form-elements/fecombobox",
-      },
-    ],
-  },
+  //   children: [
+  //     {
+  //       title: "Network Transaction",
+  //       icon: "trending-up",
+  //       to: "/form-elements/feautocompletes",
+  //     },
+  //     {
+  //       title: "Asset Management",
+  //       icon: "layout",
+  //       to: "/form-elements/fecombobox",
+  //     },
+  //   ],
+  // },
   // {
   //   group: "/form-layouts",
   //   model: false,
@@ -135,24 +135,37 @@ const sidebarItem: menu[] = [
   //     },
   //   ],
   // },
-  { header: "User Management" },
+  { header: "Users" },
   {
-    title: "All Users",
+    title: "Users",
     icon: "copy",
-    to: "/widgets/custom-cards",
+    to: "/user/all",
   },
-  { header: "Admin Management" },
+  // { header: "Admin Management" },
   {
-    title: "All admin",
+    title: "Admin",
     icon: "users",
     to: "/tables",
   },
   {
-    title: "Create Admin",
+    title: "Roles & Permissions",
     icon: "user-plus",
     to: "/create-admin",
   },
-  { header: "Roles Management" },
+
+  { header: "Notifications" },
+  {
+    title: "Announcements",
+    icon: "bell",
+    to: "/create-notification",
+  },
+  {
+    title: "Notifications",
+    icon: "user-plus",
+    to: "/create-notification",
+  },
+
+  { header: "Settings" },
   {
     title: "All Roles",
     icon: "users",
@@ -163,17 +176,7 @@ const sidebarItem: menu[] = [
     icon: "user-plus",
     to: "/create-role",
   },
-  { header: "Notifications Management" },
-  {
-    title: "All Notification",
-    icon: "bell",
-    to: "/create-notification",
-  },
-  {
-    title: "Create Notification",
-    icon: "user-plus",
-    to: "/create-notification",
-  },
+
   // { header: "Authentication" },
   // {
   //   title: "Boxed Login",
