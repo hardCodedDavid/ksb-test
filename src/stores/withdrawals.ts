@@ -1,31 +1,31 @@
 import { defineStore } from "pinia";
+
 import ksbTechApi from "../../axios";
-import { user } from "../../apiRoute";
+import { withdrawals } from "../../apiRoute";
 import { useAuthStore } from "../stores/auth";
 import { useNotification } from "@kyvg/vue3-notification";
-export const useUserStore = defineStore("user", {
+
+interface WITHDRAWAL {
+    data:Array<object>
+}
+
+export const useWithdrawalsStore = defineStore("withdrawals", {
   state: () => ({
-    user: [],
+    withdrawal: {} as WITHDRAWAL,
     loading: false,
-    fund: {
-      type: "",
-      amount: "",
-    },
+    singleWithdrawal:{}
   }),
   getters: {
-    filterUserById: (state) => (id: string) =>
-      state.user.filter((selectedUser: { id: string }) => {
-        return selectedUser.id == id;
-      }),
+    withdrawals:(state) => state.withdrawal.data
   },
   actions: {
-    async getUsers() {
+    async getAllWithDrawals() {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       try {
         await ksbTechApi
-          .get(user, {
+          .get(withdrawals, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -35,7 +35,7 @@ export const useUserStore = defineStore("user", {
             (res: {
               data: {
                 message: string;
-                data: any;
+                data: { withdrawal_requests: object };
               };
             }) => {
               this.loading = false;
@@ -44,20 +44,20 @@ export const useUserStore = defineStore("user", {
                 text: res.data.message,
                 type: "success",
               });
-              this.user = res.data.data.users.data;
+              this.withdrawal = res.data.data.withdrawal_requests;
             }
           );
       } catch (error) {
         this.loading = false;
       }
     },
-    async blockUsers(id: string) {
+    async getSingleWithDrawals(id:string) {
       const store = useAuthStore();
       const { notify } = useNotification();
-      this.loading = true;
+     
       try {
         await ksbTechApi
-          .patch(user + "/" + id + "/block", "", {
+          .get(withdrawals + '/' + id, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -67,104 +67,99 @@ export const useUserStore = defineStore("user", {
             (res: {
               data: {
                 message: string;
-                data: any;
+                data: { withdrawal_requests: object };
               };
             }) => {
-              this.loading = false;
+            
               notify({
                 title: "Login Successful",
                 text: res.data.message,
                 type: "success",
               });
-              this.getUsers();
+              this.singleWithdrawal = res.data.data.withdrawal_request;
             }
           );
-      } catch (error) {
-        this.loading = false;
-      }
-    },
-    async restoreUsers(id: string) {
-      const store = useAuthStore();
-      const { notify } = useNotification();
-      this.loading = true;
-      try {
-        await ksbTechApi
-          .post(user + id + "/block", "", {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
-          })
-          .then(
-            (res: {
-              data: {
-                message: string;
-                data: any;
-              };
-            }) => {
-              this.loading = false;
-              notify({
-                title: "Login Successful",
-                text: res.data.message,
-                type: "success",
-              });
-              this.getUsers();
-            }
-          );
-      } catch (error) {
-        this.loading = false;
-      }
-    },
-    async financeUsers(
-      id: string,
-      financeTrans: { type: string; amount: string }
-    ) {
-      const store = useAuthStore();
-      const { notify } = useNotification();
-      this.loading = true;
-
-      const formData = new FormData();
-      formData.append("amount", financeTrans.amount);
-
-      try {
-        await ksbTechApi
-          .post(
-            user +
-              "/" +
-              id +
-              "/finance/" +
-              financeTrans.type.toLocaleLowerCase(),
-            formData,
-            {
-              headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${store.token}`,
-              },
-            }
-          )
-          .then(
-            (res: {
-              data: {
-                message: string;
-                data: any;
-              };
-            }) => {
-              this.loading = false;
-              notify({
-                title: "Login Successful",
-                text: res.data.message,
-                type: "success",
-              });
-              this.getUsers();
-            }
-          );
-      } catch (error: any) {
+      } catch (error:any) {
         this.loading = false;
         notify({
-          title: "An Error Occurred",
-          text: error.response.data.message,
-          type: "error",
-        });
+            title: "An Error Occurred",
+            text: error.response.data.message,
+            type: "error",
+          });
+      }
+    },
+    async approveRequest(id:string) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .post(withdrawals + '/' + id + '/approve', "",{
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { withdrawal_requests: object };
+              };
+            }) => {
+              this.loading = false;
+              notify({
+                title: "Login Successful",
+                text: res.data.message,
+                type: "success",
+              });
+              this.getAllWithDrawals()
+            }
+          );
+      } catch (error:any) {
+        this.loading = false;
+        notify({
+            title: "An Error Occurred",
+            text: error.response.data.message,
+            type: "error",
+          });
+      }
+    },
+    async declineRequest(id:string) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .post(withdrawals + '/' + id + '/decline', "",{
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { withdrawal_requests: object };
+              };
+            }) => {
+              this.loading = false;
+              notify({
+                title: "Login Successful",
+                text: res.data.message,
+                type: "success",
+              });
+              this.getAllWithDrawals()
+            }
+          );
+      } catch (error:any) {
+        this.loading = false;
+        notify({
+            title: "An Error Occurred",
+            text: error.response.data.message,
+            type: "error",
+          });
       }
     },
   },

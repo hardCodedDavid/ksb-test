@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, reactive } from "vue";
 import { useUserStore } from "../stores/user";
 import { storeToRefs } from "pinia";
-const { getUsers } = useUserStore();
+const { getUsers, restoreUsers, blockUsers, financeUsers } = useUserStore();
 const { user, loading, filterUserById } = storeToRefs(useUserStore());
 onMounted(async () => {
   await getUsers();
 });
 const dialog = ref(false);
+const dialog2 = ref(false);
 const header = ref([
   { title: "Avatar" },
   {
@@ -33,6 +34,9 @@ const header = ref([
   {
     title: "Toggle Blocked Status",
   },
+  {
+    title: "Actions",
+  },
 ]);
 
 const userDetails = ref<any>([]);
@@ -43,6 +47,11 @@ const userInitials = computed(() => {
 });
 //
 
+const finance = reactive({
+  type: "Select",
+  amount: "",
+});
+const id = ref("");
 const viewUsers = (id: string) => {
   dialog.value = true;
   userDetails.value = filterUserById.value(id);
@@ -52,15 +61,11 @@ const viewUsers = (id: string) => {
 <template>
   <div>
     <h3 class="my-7">All Users</h3>
-    <v-card>
+    <v-card elevation="0" flat rounded="0">
       <v-table>
-        <thead>
+        <thead class="bg-secondary">
           <tr>
-            <th
-              v-for="(headings, index) in header"
-              :key="index"
-              class="text-left"
-            >
+            <th v-for="(headings, index) in header" :key="index" class="text-left">
               {{ headings.title }}
             </th>
           </tr>
@@ -73,12 +78,12 @@ const viewUsers = (id: string) => {
                 <v-img :src="item.avatar"></v-img>
               </v-avatar>
             </td>
-            <td>{{ item.firstname }}</td>
-            <td>{{ item.lastname }}</td>
+            <td class="w-25">{{ item.firstname }}</td>
+            <td class="w-25">{{ item.lastname }}</td>
             <td>{{ item.username }}</td>
-            <td>{{ item.email }}</td>
+            <td class="w-25">{{ item.email }}</td>
             <td>{{ item.phone_number }}</td>
-            <td>₦ {{ item.wallet_balance }} </td>
+            <td>₦ {{ item.wallet_balance }}</td>
             <td>
               <vue-feather
                 @click="viewUsers(item.id)"
@@ -87,7 +92,35 @@ const viewUsers = (id: string) => {
               />
             </td>
             <td>
-              <v-switch color="success"></v-switch>
+              <v-switch @input="blockUsers(item.id)" color="success"></v-switch>
+            </td>
+            <td>
+              <v-row justify="center">
+                <v-menu transition="scroll-y-transition">
+                  <template v-slot:activator="{ props }">
+                    <v-btn
+                      text
+                      icon="mdi-dots-vertical"
+                      color="transparent"
+                      class="ma-2"
+                      v-bind="props"
+                    >
+                    </v-btn>
+                  </template>
+                  <v-list>
+                    <v-list-item
+                      @click="
+                        dialog2 = true;
+                        id = item.id;
+                      "
+                      link
+                      color="secondary"
+                    >
+                      <v-list-item-title> Finance user </v-list-item-title>
+                    </v-list-item>
+                  </v-list>
+                </v-menu>
+              </v-row>
             </td>
           </tr>
         </tbody>
@@ -102,18 +135,12 @@ const viewUsers = (id: string) => {
         <h3>User Details</h3>
 
         <div class="w-100 d-flex align-center justify-center">
-          <v-row
-            v-for="user in userDetails"
-            :key="user.id"
-            class="my-12 w-100 max-w-lg"
-          >
+          <v-row v-for="user in userDetails" :key="user.id" class="my-12 w-100 max-w-lg">
             <v-col cols="12" sm="6" lg="6" class="">
               <v-avatar rounded="0" color="info" size="180">
-                <span
-                  v-if="user.avatar == null"
-                  class="text-center text-uppercase"
-                  >{{ userInitials }}</span
-                >
+                <span v-if="user.avatar == null" class="text-center text-uppercase">{{
+                  userInitials
+                }}</span>
                 <v-img v-else :src="user.avatar"></v-img>
               </v-avatar>
             </v-col>
@@ -133,10 +160,34 @@ const viewUsers = (id: string) => {
         </div>
       </v-card>
     </v-dialog>
+
+    <v-dialog v-model="dialog2" max-width="500px">
+      <v-card class="pa-4">
+        <h3>Finance User</h3>
+        <v-form class="mt-8 py-8">
+          <v-select
+            v-model="finance.type"
+            label="Transaction Type"
+            variant="outlined"
+            :items="['Debit', 'Credit']"
+          ></v-select>
+          <v-text-field
+            v-model="finance.amount"
+            label="Amount"
+            variant="outlined"
+          ></v-text-field>
+          <v-btn
+            :loading="loading"
+            color="primary"
+            block
+            @click="financeUsers(id, finance)"
+            >Submit</v-btn
+          >
+        </v-form>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
-
-
 
 <style scoped>
 .max-w-lg {
