@@ -52,6 +52,7 @@ const finance = reactive({
   amount: "",
 });
 const id = ref("");
+
 const viewUsers = (id: string) => {
   dialog.value = true;
   userDetails.value = filterUserById.value(id);
@@ -65,34 +66,41 @@ const viewUsers = (id: string) => {
       <v-table>
         <thead class="bg-secondary">
           <tr>
-            <th v-for="(headings, index) in header" :key="index" class="text-left">
+            <th
+              v-for="(headings, index) in header"
+              :key="index"
+              class="text-left"
+            >
               {{ headings.title }}
             </th>
           </tr>
         </thead>
 
         <tbody v-if="!loading">
-          <tr class="pa-3" v-for="item in user" :key="item.id">
+          <tr class="pa-3" v-for="item in user" :key="item?.id">
             <td>
               <v-avatar>
-                <v-img :src="item.avatar"></v-img>
+                <v-img class="border-radius" :src="item?.avatar"></v-img>
               </v-avatar>
             </td>
-            <td class="w-25">{{ item.firstname }}</td>
-            <td class="w-25">{{ item.lastname }}</td>
-            <td>{{ item.username }}</td>
-            <td class="w-25">{{ item.email }}</td>
-            <td>{{ item.phone_number }}</td>
-            <td>₦ {{ item.wallet_balance }}</td>
+            <td class="w-25">{{ item?.firstname }}</td>
+            <td class="w-25">{{ item?.lastname }}</td>
+            <td>{{ item?.username }}</td>
+            <td class="w-25">{{ item?.email }}</td>
+            <td>{{ item?.phone_number }}</td>
+            <td>₦ {{ item?.wallet_balance }}</td>
             <td>
               <vue-feather
-                @click="viewUsers(item.id)"
+                @click="viewUsers(item?.id)"
                 type="eye"
                 class="cursor-pointer"
               />
             </td>
             <td>
-              <v-switch @input="blockUsers(item.id)" color="success"></v-switch>
+              <v-switch
+                @input="blockUsers(item?.id)"
+                color="success"
+              ></v-switch>
             </td>
             <td>
               <v-row justify="center">
@@ -111,7 +119,7 @@ const viewUsers = (id: string) => {
                     <v-list-item
                       @click="
                         dialog2 = true;
-                        id = item.id;
+                        id = item?.id;
                       "
                       link
                       color="secondary"
@@ -135,26 +143,32 @@ const viewUsers = (id: string) => {
         <h3>User Details</h3>
 
         <div class="w-100 d-flex align-center justify-center">
-          <v-row v-for="user in userDetails" :key="user.id" class="my-12 w-100 max-w-lg">
+          <v-row
+            v-for="user in userDetails"
+            :key="user?.id"
+            class="my-12 w-100 max-w-lg"
+          >
             <v-col cols="12" sm="6" lg="6" class="">
               <v-avatar rounded="0" color="info" size="180">
-                <span v-if="user.avatar == null" class="text-center text-uppercase">{{
-                  userInitials
-                }}</span>
-                <v-img v-else :src="user.avatar"></v-img>
+                <span
+                  v-if="user.avatar == null"
+                  class="text-center text-uppercase"
+                  >{{ userInitials }}</span
+                >
+                <v-img v-else :src="user?.avatar"></v-img>
               </v-avatar>
             </v-col>
             <v-col cols="12" sm="6" lg="6" class="">
               <h4 class="py-3">User Name:</h4>
-              <p>{{ user.username }}</p>
+              <p>{{ user?.username }}</p>
               <h4 class="py-3">Last Name:</h4>
-              <p>{{ user.lastname }}</p>
+              <p>{{ user?.lastname }}</p>
               <h4 class="py-3">Email:</h4>
-              <p>{{ user.email }}</p>
+              <p>{{ user?.email }}</p>
               <h4 class="py-3">Phone Number:</h4>
-              <p>{{ user.phone_number }}</p>
+              <p>{{ user?.phone_number }}</p>
               <h4 class="py-3">Wallet Balance:</h4>
-              <p>{{ user.wallet_balance }}</p>
+              <p>{{ user?.wallet_balance }}</p>
             </v-col>
           </v-row>
         </div>
@@ -192,5 +206,8 @@ const viewUsers = (id: string) => {
 <style scoped>
 .max-w-lg {
   max-width: 600px !important;
+}
+.rounded-full{
+  border-radius:50% !important;
 }
 </style>

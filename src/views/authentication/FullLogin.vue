@@ -3,10 +3,10 @@ import LogoDark from "../../layouts/full/logo/LogoDark.vue";
 import { useAuthStore } from "../../stores/auth";
 import { storeToRefs } from "pinia";
 import { ref } from "vue";
-import { useRouter } from 'vue-router'
+import { useRouter } from "vue-router";
 
 const { ksbTechLogin } = useAuthStore();
-const router = useRouter()
+const router = useRouter();
 const { loginLoading } = storeToRefs(useAuthStore());
 
 const checkbox = ref(false);
@@ -15,17 +15,15 @@ const show1 = ref(false);
 const password = ref("");
 const email = ref("");
 
-const passwordRules = ref([
-  (v: string) => !!v || "Password is required",
-]);
+const passwordRules = ref([(v: string) => !!v || "Password is required"]);
 const emailRules = ref([
   (v: string) => !!v || "E-mail is required",
   (v: string) => /.+@.+\..+/.test(v) || "E-mail must be valid",
 ]);
 
 const nextPage = () => {
-  return router.push('/authentication/request-reset-code')
-}
+  return router.push("/authentication/request-reset-code");
+};
 </script>
 
 <template>
@@ -54,11 +52,21 @@ const nextPage = () => {
                 >
               </h6>
 
-              <v-form ref="form" v-model="valid" lazy-validation class="mt-7">
+              <v-form
+                @submit.prevent="
+                 ksbTechLogin({ email: email, password: password })
+                    
+                "
+                validate-on="input"
+                ref="form"
+                v-model="valid"
+                lazy-validation
+                class="mt-7"
+              >
                 <v-text-field
                   v-model="email"
                   :rules="emailRules"
-                  label="E-mail"
+                  label="Email address"
                   class="mt-4"
                   required
                   variant="outlined"
@@ -66,7 +74,6 @@ const nextPage = () => {
                 ></v-text-field>
                 <v-text-field
                   v-model="password"
-                  :counter="10"
                   :rules="passwordRules"
                   label="Password"
                   required
@@ -85,17 +92,14 @@ const nextPage = () => {
                     <p
                       @click="nextPage"
                       class="text-primary text-decoration-none cursor-pointer"
-                      >Forgot password?</p
                     >
+                      Forgot password?
+                    </p>
                   </div>
                 </div>
                 <v-btn
-                  @click.stop="
-                    $refs.form.validate()
-                      ? ksbTechLogin({ email: email, password: password })
-                      : null
-                  "
                   color="secondary"
+                  type="submit"
                   :loading="loginLoading"
                   block
                   class="mr-4"

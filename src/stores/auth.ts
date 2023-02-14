@@ -79,7 +79,8 @@ export const useAuthStore = defineStore("auth", {
               });
 
               this.loginLoading = false;
-              this.$router.push("/dashboards/analytical");
+              // @ts-ignore
+              this.router.push("/dashboards/analytical");
               this.isLoggedIn = true;
 
               this.token = res.data.data.token;
@@ -126,6 +127,7 @@ export const useAuthStore = defineStore("auth", {
               });
 
               this.loginLoading = false;
+              // @ts-ignore
               this.$router.push("/authentication/reset-password");
             }
           );
@@ -163,6 +165,7 @@ export const useAuthStore = defineStore("auth", {
             }) => {
             
               this.loginLoading = false;
+              // @ts-ignore
               this.$router.push("/authentication/reset-password");
             }
           );
@@ -214,6 +217,8 @@ export const useAuthStore = defineStore("auth", {
               });
 
               this.loginLoading = false;
+
+              // @ts-ignore
               this.$router.push("/authentication/fulllogin");
             }
           );
@@ -246,8 +251,8 @@ export const useAuthStore = defineStore("auth", {
 
             this.token = "";
             this.isLoggedIn = false;
-
-            this.$router.push("/authentication/fulllogin");
+            // @ts-ignore
+            this.$router.push({name:"Login"});
             this.LoggingOut = false;
             console.log(res, "grgrg");
           })
@@ -310,6 +315,7 @@ export const useAuthStore = defineStore("auth", {
           })
           .then(
             (res: { data: { data: { token: string }; message: string } }) => {
+              // @ts-ignore
               this.$router.push("/dashboards/analytical");
               this.twoFALoading = false;
               notify({
@@ -406,14 +412,15 @@ export const useAuthStore = defineStore("auth", {
         });
       }
     },
-    async updateProfile(file: File) {
-      this.user.avatar = file;
+    async updateProfile(file: any) {
+      // this.user.avatar = file;
       const formData = new FormData();
+      // formData.append("_method", 'PATCH');
       formData.append("firstname", this.user.firstname);
       formData.append("lastname", this.user.lastname);
       formData.append("email", this.user.email);
       formData.append("phone_number", this.user.phone_number);
-      formData.append("avatar", this.user.avatar);
+      formData.append("avatar", file);
 
       this.updating = true;
       try {

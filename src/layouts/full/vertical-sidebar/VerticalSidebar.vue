@@ -1,12 +1,22 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
+
+import { useCountryStore } from "../../../stores/country";
+
 import { useCustomizerStore } from "@/stores/customizer";
 import sidebarItems from "./sidebarItem";
 import LogoLight from "../logo/LogoLight.vue";
 import LogoDark from "../logo/LogoDark.vue";
 
 const customizer = useCustomizerStore();
+const { getCountries, getCurrency, getProducts } = useCountryStore();
 const sidebarMenu = ref(sidebarItems);
+
+onMounted(async () => {
+  await getCountries();
+  await getCurrency();
+  await getProducts();
+});
 </script>
 
 <template>
@@ -28,9 +38,7 @@ const sidebarMenu = ref(sidebarItems);
     <!---Logo part -->
     <!-- ---------------------------------------------- -->
     <div class="pa-4">
-      <LogoDark
-        v-if="!customizer.darktheme && customizer.SidebarColor == 'white'"
-      />
+      <LogoDark v-if="!customizer.darktheme && customizer.SidebarColor == 'white'" />
       <LogoLight v-else />
     </div>
     <!-- ---------------------------------------------- -->
@@ -56,18 +64,10 @@ const sidebarMenu = ref(sidebarItems);
             <!---Dropdown  -->
             <!-- ---------------------------------------------- -->
             <template v-slot:activator="{ props }">
-              <v-list-item
-                v-bind="props"
-                :value="item.title"
-                rounded="lg"
-                class="mb-1"
-              >
+              <v-list-item v-bind="props" :value="item.title" rounded="lg" class="mb-1">
                 <!---Icon  -->
                 <template v-slot:prepend>
-                  <vue-feather
-                    :type="item.icon"
-                    class="feather-sm v-icon"
-                  ></vue-feather>
+                  <vue-feather :type="item.icon" class="feather-sm v-icon"></vue-feather>
                 </template>
                 <!---Title  -->
                 <v-list-item-title v-text="item.title"></v-list-item-title>
@@ -86,12 +86,9 @@ const sidebarMenu = ref(sidebarItems);
               class="first-level-item mb-1"
             >
               <template v-slot:prepend>
-                <vue-feather
-                  type="disc"
-                  class="feather-sm v-icon"
-                ></vue-feather>
+                <vue-feather type="disc" class="feather-sm v-icon"></vue-feather>
               </template>
-              <v-list-item-title  v-text="subitem.title"></v-list-item-title>
+              <v-list-item-title v-text="subitem.title"></v-list-item-title>
             </v-list-item>
           </v-list-group>
           <!-- ---------------------------------------------- -->

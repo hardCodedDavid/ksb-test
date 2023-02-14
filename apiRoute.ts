@@ -14,3 +14,14 @@ export const requestCode = '/admin/password/forgot'
 export const verifyCodeAndEmail = '/admin/password/verify'
 export const resetPassword = '/admin/password/verify'
 export const withdrawals = '/admin/withdrawal-requests'
+
+
+export const giftCardCategory = '/admin/giftcard-categories'
+
+export const giftCard = '/admin/giftcards'
+export const giftCardProducts = '/admin/giftcard-products'
+
+
+export const country = '/countries'
+
+export const admin = "/admin/admins"

@@ -62,9 +62,14 @@ const router = createRouter({
           component: () => import("@/views/giftcards/transaction.vue"),
         },
         {
-          name: "GiftCardManagement",
-          path: "/giftcards/management",
-          component: () => import("@/views/giftcards/management.vue"),
+          name: "GiftCardCategory",
+          path: "/giftcards/categories",
+          component: () => import("@/views/giftcards/category.vue"),
+        },
+        {
+          name: "GiftCardProducts",
+          path: "/giftcards/products",
+          component: () => import("@/views/giftcards/products.vue"),
         },
         {
           name: "Alert",
@@ -319,9 +324,9 @@ const router = createRouter({
         },
 
         {
-          name: "Tables",
-          path: "/tables",
-          component: () => import("@/views/tables/Tables.vue"),
+          name: "Admin",
+          path: "/admin",
+          component: () => import("@/views/admin/index.vue"),
         },
         {
           name: "Editable Table",

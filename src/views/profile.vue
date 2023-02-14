@@ -43,13 +43,13 @@ const tab = ref(null);
 // FILE SELECTION
 const file = ref<null | any>(null);
 const blobImage = ref<string | URL>("");
-const image = ref<string | URL>("");
+const image = ref<string | File>("");
 const openFile = () => {
   file.value.click();
 };
 const selectFile = (e: any) => {
   image.value = e.target.files[0];
-  console.log(image.value);
+  // console.log(image.value);
   blobImage.value = URL.createObjectURL(e.target.files[0]);
 };
 
@@ -111,24 +111,28 @@ const ImageOrBlob = computed(() => {
                 </div>
 
                 <v-form>
+
                   <v-text-field
                     v-model="user.email"
                     label="Email"
                     variant="outlined"
                     color="secondary"
                   ></v-text-field>
+
                   <v-text-field
                     label="First name"
                     variant="outlined"
                     v-model="user.firstname"
                     color="secondary"
                   ></v-text-field>
+
                   <v-text-field
                     label="Last name"
                     v-model="user.lastname"
                     variant="outlined"
                     color="secondary"
                   ></v-text-field>
+
                   <v-text-field
                     v-model="user.phone_number"
                     label="Phone number"
@@ -202,9 +206,8 @@ const ImageOrBlob = computed(() => {
                 ></v-text-field>
                 <v-btn
                   @click="
-                    $refs.form.validate()
-                      ? action.updatePassword(security)
-                      : null
+                     action.updatePassword(security)
+                    
                   "
                   :loading="updating"
                   block
@@ -214,6 +217,7 @@ const ImageOrBlob = computed(() => {
               </v-form>
             </v-layout>
           </v-window-item>
+
         </v-window>
       </v-card-text>
     </v-card>

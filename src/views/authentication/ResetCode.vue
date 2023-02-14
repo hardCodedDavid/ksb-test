@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import LogoDark from "@/layouts/full/logo/LogoDark.vue";
-import { storeToRefs } from 'pinia'
+import { storeToRefs } from "pinia";
 import { useAuthStore } from "../../stores/auth";
 import { useRouter } from "vue-router";
 import { ref } from "vue";
 
+// import type { Ref } from 'vue'
 const valid = ref(true);
+
+// type VForm = Vue & { validate: () => boolean }
+
+const form  = ref<HTMLFormElement>();
 
 // const email = ref("");
 
@@ -40,13 +45,13 @@ const goBack = () => {
                   Did you forgot your password?
                 </h2>
                 <p class="text-subtitle-2 text-center text-grey-darken-1 mb-0">
-                  Enter your email address your are using for your account below and we
-                  will send you a password reset link.
+                  Enter your email address your are using for your account below
+                  and we will send you a password reset link.
                 </p>
 
                 <v-form
                   @submit.prevent="
-                    $refs.form.validate() ? ksbTechRequestCode(email) : null
+                   ksbTechRequestCode(email) 
                   "
                   ref="form"
                   v-model="valid"
@@ -61,7 +66,12 @@ const goBack = () => {
                     placeholder="Enter your email address"
                     variant="outlined"
                   ></v-text-field>
-                  <v-btn :loading="loginLoading" color="secondary" block class="mr-4" type="submit"
+                  <v-btn
+                    :loading="loginLoading"
+                    color="secondary"
+                    block
+                    class="mr-4"
+                    type="submit"
                     >Request code</v-btn
                   >
                 </v-form>
@@ -69,7 +79,6 @@ const goBack = () => {
                 <center>
                   <v-btn
                     @click="goBack"
-                    
                     prepend-icon="mdi-arrow-left"
                     color="transparent"
                     flat

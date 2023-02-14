@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import  { useDateFormat } from '@vueuse/core'
 import { storeToRefs } from "pinia";
 import { useWithdrawalsStore } from "../../stores/withdrawals";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
@@ -31,21 +32,12 @@ const breadcrumbs = ref([
 ]);
 
 const header = ref([
-  // {
-  //   title: "Username",
-  // },
-  // {
-  //   title: "Reference No.",
-  // },
+  {
+    title: "Username",
+  },
   {
     title: "Amount (NGN)",
   },
-  // {
-  //   title: "Service",
-  // },
-  // {
-  //   title: "Type",
-  // },
   {
     title: "Date and Time",
   },
@@ -98,9 +90,10 @@ const viewWithDrawalRequest = async (id: string) => {
             </tr>
           </thead>
           <tbody v-if="loading == false">
-            <tr v-for="withdrawal in withdrawals" :key="withdrawal.id">
-              <td>₦‎ {{ withdrawal.amount }}</td>
-              <td>{{ withdrawal.created_at }}</td>
+            <tr v-for="withdrawal in withdrawals" :key="withdrawal?.id">
+              <td class="text-capitalize">{{ withdrawal?.user_bank_account?.account_name }}</td>
+              <td>₦‎ {{ withdrawal?.amount }}</td>
+              <td>{{ useDateFormat(withdrawal?.created_at, "DD, MMMM-YYYY").value }}</td>
               <!-- <td>{{ item.status }}</td> -->
 
               <!-- <td>{{ item.service }}</td>
@@ -109,9 +102,9 @@ const viewWithDrawalRequest = async (id: string) => {
               <td>{{ item.date }}</td> -->
               <td>
                 <v-chip
-                  class="text-capitalize"
-                  :color="status_color(withdrawal.status)"
-                  >{{ withdrawal.status }}</v-chip
+                  class="text-capitalize font-weight-bold"
+                  :color="status_color(withdrawal?.status)"
+                  >{{ withdrawal?.status }}</v-chip
                 >
               </td>
               <td>
@@ -130,15 +123,15 @@ const viewWithDrawalRequest = async (id: string) => {
                     </template>
                     <v-list>
                       <v-list-item
-                        @click="viewWithDrawalRequest(withdrawal.id)"
+                        @click="viewWithDrawalRequest(withdrawal?.id)"
                         link
                         color="secondary"
                       >
                         <v-list-item-title> View Details </v-list-item-title>
                       </v-list-item>
                       <v-list-item
-                        v-if="withdrawal.status == 'pending'"
-                        @click="approveRequest(withdrawal.id)"
+                        v-if="withdrawal?.status == 'pending'"
+                        @click="approveRequest(withdrawal?.id)"
                         link
                         color="secondary"
                       >
@@ -147,8 +140,8 @@ const viewWithDrawalRequest = async (id: string) => {
                         </v-list-item-title>
                       </v-list-item>
                       <v-list-item
-                        v-if="withdrawal.status == 'pending'"
-                        @click="declineRequest(withdrawal.id)"
+                        v-if="withdrawal?.status == 'pending'"
+                        @click="declineRequest(withdrawal?.id)"
                         link
                         color="secondary"
                       >
@@ -183,41 +176,41 @@ const viewWithDrawalRequest = async (id: string) => {
               <h4>Status</h4>
 
               <v-chip
-                class="text-capitalize"
-                :color="status_color(singleWithdrawal.status)"
-                >{{ singleWithdrawal.status }}</v-chip
+                class="text-capitalize font-weight-bold"
+                :color="status_color(singleWithdrawal?.status)"
+                >{{ singleWithdrawal?.status }}</v-chip
               >
             </v-col>
             <v-col cols="12" sm="6">
               <h4>Wallet Balance</h4>
               <p class="grey-lighten-2 text-subtitle-1">
-                ₦ {{ singleWithdrawal.user_bank_account?.user.wallet_balance }}
+                ₦ {{ singleWithdrawal.user_bank_account?.user?.wallet_balance }}
               </p>
             </v-col>
             <v-col cols="12" sm="6">
               <h4>Email Address</h4>
               <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal.user_bank_account?.user.email }}
+                {{ singleWithdrawal.user_bank_account?.user?.email }}
               </p>
             </v-col>
 
             <v-col class="align-self-center w-100" cols="12" sm="6">
               <h4>User name</h4>
               <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal.user_bank_account?.user.username }}
+                {{ singleWithdrawal.user_bank_account?.user?.username }}
               </p>
             </v-col>
             <v-col cols="12" sm="6">
               <h4>First name</h4>
               <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal.user_bank_account?.user.firstname }}
+                {{ singleWithdrawal.user_bank_account?.user?.firstname }}
               </p>
             </v-col>
 
             <v-col cols="12" sm="6">
               <h4>Last name</h4>
               <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal.user_bank_account?.user.lastname }}
+                {{ singleWithdrawal.user_bank_account?.user?.lastname }}
               </p>
             </v-col>
             <v-col cols="12" sm="6">

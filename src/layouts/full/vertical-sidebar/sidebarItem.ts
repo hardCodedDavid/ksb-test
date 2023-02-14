@@ -23,9 +23,26 @@ const sidebarItem: menu[] = [
  
 
   {
-    title: "Giftcard Transactions ",
+    title: "Giftcards",
     icon: "gift",
-    to: "/giftcards/transaction",
+    children: [
+          // {
+          //   title: "Transactions",
+          //   icon: "",
+          //   to: "/giftcards/transaction",
+          // },
+          {
+            title: "Categories",
+            icon: "",
+            to: "/giftcards/categories",
+          },
+          {
+            title: "Products",
+            icon: "",
+            to: "/giftcards/products",
+          },
+    ],
+    
   },
   // {
   //   title: "Giftcard Management",
@@ -145,7 +162,7 @@ const sidebarItem: menu[] = [
   {
     title: "Admin",
     icon: "users",
-    to: "/tables",
+    to: "/admin",
   },
   {
     title: "Roles & Permissions",

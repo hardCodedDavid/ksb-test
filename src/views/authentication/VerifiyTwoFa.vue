@@ -6,7 +6,7 @@ import { storeToRefs } from "pinia";
 const store = useAuthStore();
 
 const { twoFALoading, verifyTwoFALoading } = storeToRefs(useAuthStore());
-const code = ref<string | null>(null);
+const code = ref<string>('');
 
 const verificationCode = ref([(v: string) => !!v || "Code is required"]);
 
@@ -68,18 +68,12 @@ const clearInput = () => {
                   >
                     <div class="my-3">
                       <p
-                        class="
-                          text-subtitle-1 text-grey-darken-1 text-center
-                          ma-0
-                        "
+                        class="text-subtitle-1 text-grey-darken-1 text-center ma-0"
                       >
                         It may take a minute to receive your code.
                       </p>
                       <span
-                        class="
-                          text-subtitle-1 text-grey-darken-1 text-center
-                          ma-0
-                        "
+                        class="text-subtitle-1 text-grey-darken-1 text-center ma-0"
                         >Haven't received it?</span
                       >
                       <span
@@ -106,7 +100,6 @@ const clearInput = () => {
     </v-row>
   </v-container>
 </template>
-
 
 <style>
 .otp-input {
