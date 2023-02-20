@@ -406,17 +406,17 @@ const router = createRouter({
 });
 
 
-// router.beforeEach(async (to, from) => {
-//   const store  = useAuthStore()
-//   if (
+router.beforeEach(async (to, from) => {
+  const store  = useAuthStore()
+  if (
     
-//     !store.isLoggedIn &&
+    !store.isLoggedIn &&
    
-//     to.name !== 'Login'
-//   ) {
+    to.name !== 'Login'
+  ) {
   
-//     return { name: 'Login' }
-//   }
-// })
+    return { name: 'Login' }
+  }
+})
 
 export default router;
