@@ -40,6 +40,8 @@ interface State {
   id: string,
   loading: boolean,
   dialog: boolean,
+  dialog2: boolean,
+  single_admin:any
 }
 
 export const useUserStore = defineStore("user", {
@@ -48,6 +50,7 @@ export const useUserStore = defineStore("user", {
     admin: [] as Admin[],
     loading: false,
     dialog: false,
+    dialog2: false,
     fund: {
       type: "",
       amount: "",
@@ -56,9 +59,10 @@ export const useUserStore = defineStore("user", {
       firstname: "",
       lastname: "",
       email: "",
-      country_name: "98419dc7-b7f2-4db2-b5a0-b1090cfb877a",
+      country_name: "",
     },
     id: '',
+    single_admin:""
   }),
   getters: {
     filterUserById: (state) => (id: string) =>
@@ -73,7 +77,7 @@ export const useUserStore = defineStore("user", {
         }
       });
     },
-   
+   toggleActivationText: (state) => !state.single_admin?.blocked_at ? 'block' : 'restore access' 
   },
   actions: {
     updateAdmin(){
@@ -142,6 +146,41 @@ export const useUserStore = defineStore("user", {
           );
       } catch (error) {
         this.loading = false;
+      }
+    },
+    async getSingleAdmin(id:string) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.dialog2 = true
+      this.loading = true
+      try {
+        await ksbTechApi
+          .get(admin + '/' + id, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.loading = false;
+              
+              notify({
+                title: "Successful",
+                text: res.data.message,
+                type: "success",
+              });
+              this.single_admin = res.data.data.admin;
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+       
       }
     },
     async blockUsers(id: string) {
@@ -266,7 +305,7 @@ export const useUserStore = defineStore("user", {
       this.loading = true;
 
       const formData = new FormData();
-      formData.append("country_id", this.adminDetails.country_name);
+      formData.append("country_id", this.country_id[0].id);
       formData.append("firstname", this.adminDetails.firstname);
       formData.append("lastname", this.adminDetails.lastname);
       formData.append("email", this.adminDetails.email);
@@ -274,6 +313,53 @@ export const useUserStore = defineStore("user", {
       try {
         await ksbTechApi
           .post(admin, formData, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.loading = false;
+              notify({
+                title: "Success",
+                text: res.data.message,
+                type: "success",
+              });
+              this.dialog = false
+              this.getAdmin();
+
+            }
+          );
+      } catch (error: any) {
+        this.loading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
+      }
+    },
+    async updateAdminDetails(id:string) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+
+      const formData = new FormData();
+      formData.append("country_id", this.country_id[0].id);
+      formData.append("firstname", this.adminDetails.firstname);
+      formData.append("lastname", this.adminDetails.lastname);
+      formData.append("email", this.adminDetails.email);
+      formData.append('_method', 'PATCH');
+
+      try {
+        await ksbTechApi
+          .post(admin + '/' + id, formData, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -381,9 +467,9 @@ export const useUserStore = defineStore("user", {
         }
       }
     },
-    async activationAdmin(id: string) {
+    async blockAdmin(id: string) {
       // confirm()
-      if (confirm("Are you sure you want to activation this admin ?")) {
+      if (confirm(`Are you sure you want to ${this.toggleActivationText} this admin ?`)) {
         const { notify } = useNotification();
         const store = useAuthStore();
         try {
@@ -407,6 +493,7 @@ export const useUserStore = defineStore("user", {
                   type: "success",
                 });
                 this.getAdmin()
+                this.dialog2 = false
               }
             );
         } catch (error: any) {

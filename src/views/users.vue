@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, reactive } from "vue";
 import { useUserStore } from "../stores/user";
+import  { useRouter } from 'vue-router'
 import { storeToRefs } from "pinia";
 const { getUsers, restoreUsers, blockUsers, financeUsers } = useUserStore();
 const { user, loading, filterUserById } = storeToRefs(useUserStore());
@@ -10,17 +11,8 @@ onMounted(async () => {
 const dialog = ref(false);
 const dialog2 = ref(false);
 const header = ref([
-  { title: "Avatar" },
-  {
-    title: "First Name",
-  },
-  {
-    title: "Last Name",
-  },
-  { title: "Username" },
-  {
-    title: "Email",
-  },
+  { title: "No." },
+  { title: "User Info" },
   {
     title: "Phone Number",
   },
@@ -29,17 +21,12 @@ const header = ref([
   },
 
   {
-    title: "View Details",
-  },
-  {
-    title: "Toggle Blocked Status",
-  },
-  {
     title: "Actions",
   },
 ]);
 
 const userDetails = ref<any>([]);
+const router = useRouter()
 
 // user initials
 const userInitials = computed(() => {
@@ -56,15 +43,28 @@ const id = ref("");
 const viewUsers = (id: string) => {
   dialog.value = true;
   userDetails.value = filterUserById.value(id);
+
+  return router.push({
+    name:"UserDetails",
+    params:{id: id}
+  })
 };
 </script>
 
 <template>
   <div>
     <h3 class="my-7">All Users</h3>
-    <v-card elevation="0" flat rounded="0">
+
+
+
+    <v-card>
+      <v-row class="ml-3 mt-3">
+         <v-col cols="12" sm="6" lg="4">
+          <v-text-field label="Search Users" variant="outlined" density="compact"></v-text-field>
+         </v-col>
+      </v-row>
       <v-table>
-        <thead class="bg-secondary">
+        <thead>
           <tr>
             <th
               v-for="(headings, index) in header"
@@ -77,31 +77,40 @@ const viewUsers = (id: string) => {
         </thead>
 
         <tbody v-if="!loading">
-          <tr class="pa-3" v-for="item in user" :key="item?.id">
+          <tr class="pa-3" v-for="(item,index) in user" :key="item?.id">
+           <td># {{ index + 1 }}</td>
             <td>
-              <v-avatar>
+              <!-- <v-avatar>
                 <v-img class="border-radius" :src="item?.avatar"></v-img>
-              </v-avatar>
+              </v-avatar> -->
+
+              <div class="d-flex align-center">
+                <v-avatar size="45px">
+                  <v-img
+                     cover
+                    :src="item?.avatar ?? 'https://via.placeholder.com/15'"
+                    class="rounded-circle"
+                  >
+                  </v-img>
+                </v-avatar>
+                <div class="ml-4">
+                  <span class="font-weight-bold"> {{ item?.firstname.substring(0,10) }}</span>
+                  <span class="ml-1 font-weight-bold">
+                    {{ item?.lastname.substring(0,10) }}</span
+                  >
+                  <p>{{ item?.email ?? "No data" }}</p>
+                </div>
+              </div>
             </td>
-            <td class="w-25">{{ item?.firstname }}</td>
-            <td class="w-25">{{ item?.lastname }}</td>
-            <td>{{ item?.username }}</td>
-            <td class="w-25">{{ item?.email }}</td>
             <td>{{ item?.phone_number }}</td>
             <td>₦ {{ item?.wallet_balance }}</td>
-            <td>
-              <vue-feather
-                @click="viewUsers(item?.id)"
-                type="eye"
-                class="cursor-pointer"
-              />
-            </td>
+            <!-- 
             <td>
               <v-switch
                 @input="blockUsers(item?.id)"
                 color="success"
               ></v-switch>
-            </td>
+            </td> -->
             <td>
               <v-row justify="center">
                 <v-menu transition="scroll-y-transition">
@@ -116,6 +125,13 @@ const viewUsers = (id: string) => {
                     </v-btn>
                   </template>
                   <v-list>
+                    <v-list-item
+                      @click="viewUsers(item?.id)"
+                      link
+                      color="secondary"
+                    >
+                      <v-list-item-title> View user </v-list-item-title>
+                    </v-list-item>
                     <v-list-item
                       @click="
                         dialog2 = true;
@@ -138,7 +154,7 @@ const viewUsers = (id: string) => {
       </v-layout>
     </v-card>
 
-    <v-dialog max-width="800px" v-model="dialog">
+    <!-- <v-dialog max-width="800px" v-model="dialog">
       <v-card class="pa-5">
         <h3>User Details</h3>
 
@@ -173,7 +189,7 @@ const viewUsers = (id: string) => {
           </v-row>
         </div>
       </v-card>
-    </v-dialog>
+    </v-dialog> -->
 
     <v-dialog v-model="dialog2" max-width="500px">
       <v-card class="pa-4">
@@ -209,5 +225,8 @@ const viewUsers = (id: string) => {
 }
 .rounded-full{
   border-radius:50% !important;
+}
+table tbody tr td {
+  padding: 15px !important;
 }
 </style>

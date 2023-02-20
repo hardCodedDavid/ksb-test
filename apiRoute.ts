@@ -13,15 +13,19 @@ export const user = '/admin/users'
 export const requestCode = '/admin/password/forgot'
 export const verifyCodeAndEmail = '/admin/password/verify'
 export const resetPassword = '/admin/password/verify'
-export const withdrawals = '/admin/withdrawal-requests'
+export const withdrawals = '/admin/wallet-transactions'
 
 
 export const giftCardCategory = '/admin/giftcard-categories'
 
 export const giftCard = '/admin/giftcards'
 export const giftCardProducts = '/admin/giftcard-products'
+export const asset = '/admin/asset-transactions'
 
 
 export const country = '/countries'
+export const countryMgt = '/admin/countries'
 
 export const admin = "/admin/admins"
+export const markAsRead = "/admin/notifications/read"
+export const notification = "/admin/notifications"

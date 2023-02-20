@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from "vue";
 import { storeToRefs } from "pinia";
-import  { useDateFormat } from '@vueuse/core'
+import { useDateFormat } from "@vueuse/core";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 import { useCountryStore } from "../../stores/country";
 import { useGiftCardStore } from "../../stores/giftcard";
 
-const { countryNames } = storeToRefs(useCountryStore());
+const { countries } = storeToRefs(useCountryStore());
 const { giftCard, loading, dialog, gift_categories, singleGiftCard } =
   storeToRefs(useGiftCardStore());
 const {
@@ -16,6 +16,7 @@ const {
   deleteGifCardCategories,
   restoreGifCardCategories,
   activationGifCardCategories,
+  editGiftCardCategory,
 } = useGiftCardStore();
 const page = ref({ title: "Gift Cards" });
 const breadcrumbs = ref([
@@ -33,10 +34,6 @@ const breadcrumbs = ref([
 
 // const dialog = ref(false);
 const valid = ref(false);
-// const budget = ref(["Less then $5000", "$5000 - $10000"]);
-// const rules = ref([
-//   (v: string | any[]) => v.length <= 25 || "Max 25 characters",
-// ]);
 const name = ref([(v: string) => !!v || "Giftcard name is required"]);
 const giftCardCategoryHeader = reactive([
   {
@@ -59,12 +56,8 @@ const giftCardCategoryHeader = reactive([
     title: "Actions",
   },
 ]);
-// select file
-// interface InputFileEvent extends Event {
-//   target: HTMLInputElement;
-// }
+
 const getGiftIcon = (e: any) => {
-  // if (!e.target.files) return;
   giftCard.value.icon = e.target.files[0];
 };
 // end
@@ -74,9 +67,33 @@ onMounted(async () => {
 
 const id = ref("");
 const dialog2 = ref(false);
-const showDetails = async () => {
+const showDetails = async (id: string) => {
   dialog2.value = true;
-  await getSingleGifCardCategories(id.value);
+  await getSingleGifCardCategories(id);
+};
+
+const addGiftCard = async (giftCard: any) => {
+  const store = useGiftCardStore();
+  await createGiftCardCategory(giftCard);
+  await store.$reset();
+};
+
+const edit = ref(false);
+const btnText = ref("Create Item");
+const editItem = (item: never) => {
+  giftCard.value = Object.assign({}, item);
+  btnText.value = "Edit Item";
+  dialog.value = true;
+  edit.value = true;
+};
+
+const customFilter = (item: any, queryText: any, itemText: any) => {
+  const textOne = item.name.toLowerCase();
+  const textTwo = item.alpha2_code.toLowerCase();
+  const textThree = item.alpha3_code.toLowerCase();
+  const searchText = queryText.toLowerCase();
+
+  return textOne.indexOf(searchText) > -1 || textTwo.indexOf(searchText) > -1;
 };
 </script>
 
@@ -86,85 +103,93 @@ const showDetails = async () => {
     :breadcrumbs="breadcrumbs"
   ></BaseBreadcrumb>
   <div class="w-full d-flex justify-end my-3">
-    <v-btn @click="dialog = true" variant="flat" color="secondary">
-      Create new giftcard category
+    <v-btn
+      prepend-icon="mdi-plus"
+      @click="dialog = true"
+      variant="flat"
+      color="secondary"
+    >
+      Add giftcard category
     </v-btn>
   </div>
-  <v-table>
-    <thead>
-      <tr>
-        <th
-          :key="index"
-          v-for="(headerTitle, index) in giftCardCategoryHeader"
-          class="text-left"
-        >
-          {{ headerTitle.title }}
-        </th>
-      </tr>
-    </thead>
-    <tbody v-if="loading == false">
-      <tr class="pa-2" v-for="item in gift_categories.data" :key="item.id">
-        <td>{{ item?.icon }}</td>
-        <td>{{ item?.name }}</td>
-        <!-- <td>{{ item?.sale_term }}</td> -->
-        <td>{{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}</td>
+  <v-card>
+    <v-table>
+      <thead>
+        <tr class="pa-2">
+          <th
+            :key="index"
+            v-for="(headerTitle, index) in giftCardCategoryHeader"
+            class="text-left"
+          >
+            {{ headerTitle.title }}
+          </th>
+        </tr>
+      </thead>
+      <tbody v-if="loading == false && gift_categories?.data?.length > 0">
+        <tr class="pa-2" v-for="item in gift_categories.data" :key="item.id">
+          <td>
+            <v-avatar size="50px">
+              <v-img
+                cover
+                class="rounded-circle img-fluid img-size"
+                :src="item?.icon"
+              ></v-img>
+            </v-avatar>
+          </td>
+          <td>{{ item?.name }}</td>
+          <!-- <td>{{ item?.sale_term }}</td> -->
+          <td>{{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}</td>
 
-        <!-- <td>
+          <!-- <td>
           <v-switch @input="restoreGifCardCategories(item?.id)"></v-switch>
         </td> -->
-        <td>
-          <v-switch @input="activationGifCardCategories(item?.id)"></v-switch>
-        </td>
-        <td>
-          <!-- <v-icon icon="mdi-dots-vertical"></v-icon> -->
-          <v-row justify="center">
-            <v-menu transition="scroll-y-transition">
-              <template v-slot:activator="{ props }">
-                <v-btn
-                  text
-                  icon="mdi-dots-vertical"
-                  color="transparent"
-                  class="ma-2"
-                  v-bind="props"
-                >
-                </v-btn>
-              </template>
-              <v-list>
-                <v-list-item
-                  @click="
-                    id = item?.id;
-                    showDetails();
-                  "
-                  link
-                  color="secondary"
-                >
-                  <v-list-item-title> View Details </v-list-item-title>
-                </v-list-item>
-                <v-list-item link color="secondary">
-                  <v-list-item-title> Update giftcard </v-list-item-title>
-                </v-list-item>
-                <v-list-item
-                  @click="deleteGifCardCategories(item?.id)"
-                  link
-                  color="secondary"
-                >
-                  <v-list-item-title> Delete giftcard </v-list-item-title>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </v-row>
-        </td>
-      </tr>
-    </tbody>
-  </v-table>
-  <v-layout
-    v-if="loading == true"
-    class="align-center justify-center w-100 my-5"
-  >
-    <v-progress-circular indeterminate></v-progress-circular>
-  </v-layout>
+          <td>
+            <v-switch @input="activationGifCardCategories(item?.id)"></v-switch>
+          </td>
+          <td>
+            <v-icon
+              small
+              class="mr-2 text-secondary cursor-pointer"
+              @click="showDetails(item?.id)"
+              title="view"
+              >mdi-eye</v-icon
+            >
+            <v-icon
+              small
+              class="mr-2 text-primary cursor-pointer"
+              @click="editItem(item)"
+              title="Edit"
+              >mdi-pencil</v-icon
+            >
+            <v-icon
+              small
+              class="text-error cursor-pointer"
+              title="Delete"
+              @click="deleteGifCardCategories(item?.id)"
+              >mdi-delete</v-icon
+            >
+          </td>
+        </tr>
+      </tbody>
+    </v-table>
+
+    <v-layout
+      v-if="loading == true"
+      class="align-center justify-center w-100 my-5"
+    >
+      <v-progress-circular indeterminate></v-progress-circular>
+    </v-layout>
+
+    <p
+      v-if="loading == false && gift_categories?.data?.length <= 0"
+      class="text-center py-6"
+    >
+      No data available
+    </p>
+  </v-card>
+
   <v-row justify="center">
-    <v-dialog v-model="dialog" persistent max-width="550px">
+    <v-dialog v-model="dialog" persistent max-width="520px">
       <v-card>
         <v-card-title class="py-4">
           <h3 class="text-h5 font-weight-bold">New Giftcard Category</h3>
@@ -202,9 +227,14 @@ const showDetails = async () => {
                 </v-col>
                 <v-col cols="12" sm="12">
                   <v-autocomplete
-                    :items="[...countryNames]"
+                    :items="countries"
                     label="Countries"
                     required
+                    chips
+                    :custom-filter="customFilter"
+                    multiple
+                    item-title="name"
+                    item-value="id"
                     v-model="giftCard.country"
                     hint="This field is optional"
                     persistent-hint
@@ -226,42 +256,60 @@ const showDetails = async () => {
           </v-btn>
           <v-btn
             :loading="loading"
-            @click="createGiftCardCategory(giftCard)"
+            @click="
+              edit == true
+                ? editGiftCardCategory(giftCard)
+                : createGiftCardCategory(giftCard)
+            "
             color="secondary"
             class="px-12"
             variant="flat"
           >
-            Create Item
+            {{ btnText }}
           </v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
   </v-row>
 
-  <v-dialog max-width="800px" v-model="dialog2">
+  <v-dialog max-width="300px" v-model="dialog2">
     <v-card class="pa-5">
       <h3>GiftCard Details</h3>
 
       <div class="w-100 d-flex align-center justify-center">
         <v-row class="my-12 w-100 max-w-lg">
           <v-col cols="12" sm="6" lg="6">
-            <h4 class="py-3">Image:</h4>
-            <p class="mb-0">{{ singleGiftCard?.icon }}</p>
+            <div class="d-flex align-center">
+              <v-avatar size="70px">
+                <v-img
+                  cover
+                  class="rounded-circle img-fluid"
+                  :src="singleGiftCard?.icon"
+                >
+                </v-img>
+              </v-avatar>
+              <div class="ml-4">
+                <h4 class="py-1">Name:</h4>
+                <p class="mb-0">{{ singleGiftCard?.name }}</p>
+              </div>
+            </div>
           </v-col>
-          <v-col cols="12" sm="6" lg="6">
-            <h4 class="py-3">Name:</h4>
-            <p class="mb-0">{{ singleGiftCard?.name }}</p>
+          <v-col cols="12" sm="6" lg="12">
+            <h4 class="py-1">Sales Term:</h4>
+            <p class="mb-0">
+              {{ singleGiftCard?.sale_term ?? "No sale term detail" }}
+            </p>
           </v-col>
-          <v-col cols="12" sm="6" lg="6">
-            <h4 class="py-3">Sales Term:</h4>
-            <p class="mb-0">{{ singleGiftCard?.sale_term }}</p>
-          </v-col>
-          <v-col cols="12" sm="6" lg="6">
-            <h4 class="py-3">Created At:</h4>
-            <p class="mb-0">{{ singleGiftCard?.created_at }}</p>
+          <v-col cols="12" sm="6" lg="12">
+            <h4 class="py-1">Created At:</h4>
+            <p class="mb-0">
+              {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}
+            </p>
           </v-col>
         </v-row>
       </div>
     </v-card>
   </v-dialog>
 </template>
+
+<style scoped></style>

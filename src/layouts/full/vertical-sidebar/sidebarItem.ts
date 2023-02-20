@@ -23,26 +23,9 @@ const sidebarItem: menu[] = [
  
 
   {
-    title: "Giftcards",
-    icon: "gift",
-    children: [
-          // {
-          //   title: "Transactions",
-          //   icon: "",
-          //   to: "/giftcards/transaction",
-          // },
-          {
-            title: "Categories",
-            icon: "",
-            to: "/giftcards/categories",
-          },
-          {
-            title: "Products",
-            icon: "",
-            to: "/giftcards/products",
-          },
-    ],
-    
+    title: "Giftcard Transactions",
+    icon: "gift",       
+    to: "/giftcards/transaction",
   },
   // {
   //   title: "Giftcard Management",
@@ -106,9 +89,9 @@ const sidebarItem: menu[] = [
   //   ],
   // },
   {
-    title: "Crypto Transaction",
+    title: "Asset Transaction",
     icon: "trending-down",
-    to: "/form-layouts/flformaction",
+    to: "/asset/transaction",
   },
   // {
   //   title: "Crypto Management",
@@ -182,55 +165,72 @@ const sidebarItem: menu[] = [
     to: "/create-notification",
   },
 
-  { header: "Settings" },
-  {
-    title: "All Roles",
-    icon: "users",
-    to: "/tables",
-  },
-  {
-    title: "Create Roles",
-    icon: "user-plus",
-    to: "/create-role",
-  },
-
-  // { header: "Authentication" },
+ 
   // {
-  //   title: "Boxed Login",
-  //   icon: "log-in",
-  //   to: "/authentication/boxedlogin",
+  //   title: "All Roles",
+  //   icon: "users",
+  //   to: "/tables",
   // },
   // {
-  //   title: "Login",
-  //   icon: "unlock",
-  //   to: "/authentication/fulllogin",
-  // },
-  // {
-  //   title: "Boxed Register",
+  //   title: "Create Roles",
   //   icon: "user-plus",
-  //   to: "/authentication/boxedregister",
+  //   to: "/create-role",
   // },
-  // {
-  //   title: "Register",
-  //   icon: "user",
-  //   to: "/authentication/fullregister",
-  // },
-  // {
-  //   title: "Error",
-  //   icon: "alert-triangle",
-  //   to: "/authentication/error",
-  // },
-  // { header: "Icons" },
-  // {
-  //   title: "Material",
-  //   icon: "codesandbox",
-  //   to: "/icons/material",
-  // },
-  // {
-  //   title: "Feather",
-  //   icon: "feather",
-  //   to: "/icons/feather",
-  // },
+  { header: "Settings" },
+
+  {
+    title:"GiftCard Mgt",
+    icon:"gift",
+    children: [
+
+      {
+        title: "Categories",
+        icon: "",
+        to: "/giftcards/categories",
+      },
+      {
+        title: "Products",
+        icon: "",
+        to: "/giftcards/products",
+      },
+],
+  },
+  {
+    title:"Crypto",
+    icon:"cpu",
+    children: [
+
+      {
+        title: "Networks",
+        icon: "",
+        to: "/de",
+      },
+      {
+        title: "Assets",
+        icon: "",
+        to: "/tyu",
+      },
+],
+  },
+  {
+    title:"Configuration",
+    icon:"command",
+    children: [
+
+      {
+        title: "App version",
+        icon: "",
+        to: "/fr",
+      },
+      {
+        title: "Countries Mgt",
+        icon: "",
+        to: "/countries/all",
+      },
+],
+  }
+
+ 
 ];
 
 export default sidebarItem;

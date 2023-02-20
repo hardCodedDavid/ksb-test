@@ -12,8 +12,8 @@ const { loginLoading } = storeToRefs(useAuthStore());
 const checkbox = ref(false);
 const valid = ref(true);
 const show1 = ref(false);
-const password = ref("");
-const email = ref("");
+const password = ref("A59b29nnn");
+const email = ref("jahbuchimokoli3@gmail.com");
 
 const passwordRules = ref([(v: string) => !!v || "Password is required"]);
 const emailRules = ref([
@@ -43,19 +43,9 @@ const nextPage = () => {
               <!-- <img src="@/assets/images/logo-icon.png" /> -->
               <LogoDark />
               <h2 class="font-weight-bold mt-4 text--darken-2">Sign in</h2>
-              <h6 class="text-subtitle-1 text-grey-darken-1">
-                Don't have an account?
-                <a
-                  href="#/pages/fullregister"
-                  class="text-primary text-decoration-none"
-                  >Sign Up</a
-                >
-              </h6>
-
               <v-form
                 @submit.prevent="
-                 ksbTechLogin({ email: email, password: password })
-                    
+                 ksbTechLogin({ email: email, password: password }) 
                 "
                 validate-on="input"
                 ref="form"

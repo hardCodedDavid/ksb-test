@@ -2,19 +2,20 @@
 // @ts-ignore
 import { useUserStore } from "../../stores/user";
 import { storeToRefs } from "pinia";
+import { useDateFormat } from "@vueuse/core";
 const {
   getAdmin,
   CreateAdmin,
   deleteAdmin,
   restoreAdmin,
-  activationAdmin,
-  updateAdmin,
+  blockAdmin,
+  getSingleAdmin,
+  updateAdminDetails
 } = useUserStore();
 // @ts-ignore
 import { useCountryStore } from "../../stores/country";
-const { admin, loading, dialog, adminDetails, id } = storeToRefs(
-  useUserStore()
-);
+const { admin, loading, dialog, adminDetails, id, dialog2, single_admin } =
+  storeToRefs(useUserStore());
 const form = ref(null);
 const { countryNames } = storeToRefs(useCountryStore());
 // @ts-ignore
@@ -39,9 +40,9 @@ const header = reactive([
     title: "Blocked at",
   },
 
-  // {
-  //   title: "Restore",
-  // },
+  {
+    title: "Joining Date",
+  },
   // {
   //   title: "Toggle blocked status",
   // },
@@ -56,11 +57,17 @@ onMounted(async () => {
 const blockedStatus = (status: string | null) => {
   return !status ? "Active" : "Blocked";
 };
-const editAdmin = async (admin_id: string) => {
-  id.value = admin_id;
-  await updateAdmin();
-  // adminDetails.value = updateAdmin.value
+const statusColor = (status: string | null) => {
+  return !status ? "green lighten-3" : "red lighten-3";
+};
+
+const edit = ref(false);
+const btnText = ref("Create Item");
+const editAdmin = async (item: string) => {
+ adminDetails.value = Object.assign({}, item);
+  btnText.value = "Edit Item";
   dialog.value = true;
+   edit.value = true;
 };
 
 const valid = ref(null);
@@ -93,33 +100,46 @@ const valid = ref(null);
         </thead>
 
         <tbody v-if="admin?.length > 0 && loading === false">
-          <tr class="border-b" v-for="(items, index) in admin" :key="index">
+          <tr v-for="(items, index) in admin" :key="index">
             <td># {{ index + 1 }}</td>
-            <td class="d-flex align-center">
-              <div>
-                <v-img
-                  width="40px"
-                  :src="items?.avatar ?? 'https://via.placeholder.com/15'"
-                  class="rounded-circle"
-                >
-                </v-img>
-              </div>
-              <div class="ml-2">
-                <span class="font-weight-bold"> {{ items?.firstname }}</span>
-                <span class="ml-1 font-weight-bold">
-                  {{ items?.lastname }}</span
-                >
-                <p> {{ items?.email ?? "No data" }}</p>
+            <td>
+              <div class="d-flex align-center">
+                <div>
+                  <v-img
+                    width="45px"
+                    :src="items?.avatar ?? 'https://via.placeholder.com/15'"
+                    class="rounded-circle"
+                  >
+                  </v-img>
+                </div>
+                <div class="ml-2">
+                  <span class="font-weight-bold"> {{ items?.firstname }}</span>
+                  <span class="ml-1 font-weight-bold">
+                    {{ items?.lastname }}</span
+                  >
+                  <p>{{ items?.email ?? "No data" }}</p>
+                </div>
               </div>
             </td>
-      
+
             <td>
               {{ items?.phone_number ?? "No data" }}
             </td>
+
             <td>
-              <v-chip>
+              <v-chip
+                label
+                class="pa-2"
+                :color="statusColor(items?.blocked_at)"
+              >
                 {{ blockedStatus(items?.blocked_at) }}
               </v-chip>
+            </td>
+            <td>
+              {{
+                useDateFormat(items?.created_at, "DD, MMMM-YYYY").value ??
+                "No data"
+              }}
             </td>
             <!-- <td>
               <v-switch @input="restoreAdmin(items?.id)"></v-switch>
@@ -141,11 +161,15 @@ const valid = ref(null);
                     </v-btn>
                   </template>
                   <v-list>
-                    <v-list-item link color="secondary">
+                    <v-list-item
+                      @click="getSingleAdmin(items?.id)"
+                      link
+                      color="secondary"
+                    >
                       <v-list-item-title> View Details </v-list-item-title>
                     </v-list-item>
                     <v-list-item
-                      @click="editAdmin(items?.id)"
+                      @click="editAdmin(items)"
                       link
                       color="secondary"
                     >
@@ -234,12 +258,107 @@ const valid = ref(null);
             </v-btn>
             <v-btn
               :loading="loading"
-              @click="CreateAdmin()"
+              @click="edit == false ? CreateAdmin() : updateAdminDetails(adminDetails?.id)"
               color="secondary"
               class="px-12"
               variant="flat"
             >
-              Create admin
+             {{btnText}}
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-row>
+    <v-row justify="center">
+      <v-dialog v-model="dialog2" persistent max-width="500px">
+        <v-card>
+          <v-card-title class="py-4">
+            <h3 class="text-h5 font-weight-bold">Admin Details</h3>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <div class="d-flex align-center justify-center w-100 my-5">
+                <div
+                  class="d-flex align-center justify-center flex-column w-100"
+                 
+                >
+                  <v-badge
+                    content="2"
+                    color="secondary"
+                    offset-x="6"
+                    offset-y="76"
+                    icon="mdi-camera"
+                    :bordered="true"
+                    class="cursor-pointer"
+                  >
+                    <v-avatar
+                      color="secondary"
+                      :size="80"
+                      class="my-4 position-relative"
+                    >
+                      <v-img
+                        cover
+                        v-if="single_admin.avatar !== null"
+                        :src="single_admin.avatar"
+                      ></v-img>
+                      <span v-else class="text-h5 text-uppercase">{{
+                        single_admin.email.slice(0, 2)
+                      }}</span>
+                    </v-avatar>
+                  </v-badge>
+
+                  <h3>{{ single_admin.firstname }} {{ single_admin.lastname }}</h3>
+
+                  <div class="text-center">
+                    <p>{{ single_admin.email }}</p>
+                    <p class="font-weight-bold mt-2">
+                      Phone:
+                      <span class="font-weight-light">{{
+                        single_admin.phone_number ?? "No data"
+                      }}</span>
+                    </p>
+                    <p class="font-weight-bold mt-2">
+                      Status:
+                      <v-chip
+                        label
+                        class="pa-2"
+                        :color="statusColor(single_admin?.blocked_at)"
+                      >
+                        {{ blockedStatus(single_admin?.blocked_at) }}
+                      </v-chip>
+                    </p>
+
+                    <div class="mt-6 d-flex align-center flex-column w-100">
+                      <!-- <v-switch
+                        color="secondary"
+                        hide-details
+                        inset
+                        @input="restoreAdmin(single_admin?.id)"
+                        :label="'Restore Admin'"
+                      ></v-switch> -->
+                      <v-switch
+                        color="secondary"
+                        hide-details
+                        inset
+                        class="ml-4"
+                        @input="blockAdmin(single_admin?.id)"
+                        :label="'Toggle Blocked Status'"
+                      ></v-switch>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="secondary"
+              class="px-7"
+              variant="outlined"
+              @click="dialog2 = false"
+            >
+              Close
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -248,4 +367,8 @@ const valid = ref(null);
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+table tbody tr td {
+  padding: 15px !important;
+}
+</style>

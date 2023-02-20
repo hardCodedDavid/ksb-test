@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import  { useDateFormat } from '@vueuse/core'
+import { useDateFormat } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useWithdrawalsStore } from "../../stores/withdrawals";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
@@ -11,7 +11,9 @@ const {
   declineRequest,
   getSingleWithDrawals,
 } = useWithdrawalsStore();
-const { withdrawals, loading, singleWithdrawal } = storeToRefs(useWithdrawalsStore());
+const { withdrawals, loading, singleWithdrawal } = storeToRefs(
+  useWithdrawalsStore()
+);
 
 onMounted(async () => {
   await getAllWithDrawals();
@@ -33,6 +35,9 @@ const breadcrumbs = ref([
 
 const header = ref([
   {
+    title: "No.",
+  },
+  {
     title: "Username",
   },
   {
@@ -50,12 +55,12 @@ const header = ref([
 ]);
 
 // CHANGE STATUS COLOR
-type StatusType = "pending" | "approved" | "declined";
+type StatusType = "pending" | "completed" | "declined";
 
 const status_color = (status: StatusType) => {
   return status == "pending"
     ? "yellow lighten-3"
-    : status == "approved"
+    : status == "completed"
     ? "green lighten-3"
     : status == "declined"
     ? "red lighten-3"
@@ -78,22 +83,40 @@ const viewWithDrawalRequest = async (id: string) => {
   <!-- Height -->
   <!-- ----------------------------------------------------------------------------- -->
   <div>
-    <BaseBreadcrumb :title="page.title" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
+    <BaseBreadcrumb
+      :title="page.title"
+      :breadcrumbs="breadcrumbs"
+    ></BaseBreadcrumb>
     <div class="mt-4">
       <v-card class="pa-5">
         <v-table>
           <thead>
             <tr>
-              <th v-for="(headings, index) in header" :key="index" class="text-left">
+              <th
+                v-for="(headings, index) in header"
+                :key="index"
+                class="text-left font-weight-bold"
+              >
                 {{ headings.title }}
               </th>
             </tr>
           </thead>
           <tbody v-if="loading == false">
-            <tr v-for="withdrawal in withdrawals" :key="withdrawal?.id">
-              <td class="text-capitalize">{{ withdrawal?.user_bank_account?.account_name }}</td>
+            <tr
+              class="pa-3"
+              v-for="(withdrawal, index) in withdrawals"
+              :key="withdrawal?.id"
+            >
+              <td>{{ index + 1 }}</td>
+              <td class="text-capitalize font-weight-bold">
+                {{ withdrawal?.user?.firstname }} {{withdrawal?.user?.lastname}}
+              </td>
               <td>₦‎ {{ withdrawal?.amount }}</td>
-              <td>{{ useDateFormat(withdrawal?.created_at, "DD, MMMM-YYYY").value }}</td>
+              <td>
+                {{
+                  useDateFormat(withdrawal?.created_at, "DD, MMMM-YYYY").value
+                }}
+              </td>
               <!-- <td>{{ item.status }}</td> -->
 
               <!-- <td>{{ item.service }}</td>
@@ -102,7 +125,8 @@ const viewWithDrawalRequest = async (id: string) => {
               <td>{{ item.date }}</td> -->
               <td>
                 <v-chip
-                  class="text-capitalize font-weight-bold"
+                label
+                  class="text-capitalize font-weight-bold pa-3"
                   :color="status_color(withdrawal?.status)"
                   >{{ withdrawal?.status }}</v-chip
                 >
@@ -157,7 +181,10 @@ const viewWithDrawalRequest = async (id: string) => {
           </tbody>
         </v-table>
 
-        <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
+        <v-layout
+          v-if="loading == true"
+          class="align-center justify-center w-100 my-5"
+        >
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
       </v-card>
@@ -176,6 +203,7 @@ const viewWithDrawalRequest = async (id: string) => {
               <h4>Status</h4>
 
               <v-chip
+                :label="true"
                 class="text-capitalize font-weight-bold"
                 :color="status_color(singleWithdrawal?.status)"
                 >{{ singleWithdrawal?.status }}</v-chip
@@ -184,26 +212,20 @@ const viewWithDrawalRequest = async (id: string) => {
             <v-col cols="12" sm="6">
               <h4>Wallet Balance</h4>
               <p class="grey-lighten-2 text-subtitle-1">
-                ₦ {{ singleWithdrawal.user_bank_account?.user?.wallet_balance }}
+                ₦ {{ singleWithdrawal.user?.wallet_balance }}
               </p>
             </v-col>
             <v-col cols="12" sm="6">
               <h4>Email Address</h4>
               <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal.user_bank_account?.user?.email }}
+                {{ singleWithdrawal.user?.email }}
               </p>
             </v-col>
 
-            <v-col class="align-self-center w-100" cols="12" sm="6">
-              <h4>User name</h4>
-              <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal.user_bank_account?.user?.username }}
-              </p>
-            </v-col>
             <v-col cols="12" sm="6">
               <h4>First name</h4>
               <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal.user_bank_account?.user?.firstname }}
+                {{ singleWithdrawal?.user?.firstname }}
               </p>
             </v-col>
 
@@ -232,7 +254,10 @@ const viewWithDrawalRequest = async (id: string) => {
             </v-col>
           </v-row>
         </v-container>
-        <v-layout v-if="fetching == true" class="align-center justify-center w-100 my-10">
+        <v-layout
+          v-if="fetching == true"
+          class="align-center justify-center w-100 my-10"
+        >
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
 
@@ -243,3 +268,9 @@ const viewWithDrawalRequest = async (id: string) => {
     </v-dialog>
   </div>
 </template>
+
+<style scoped>
+table tbody tr td {
+  padding: 15px !important;
+}
+</style>

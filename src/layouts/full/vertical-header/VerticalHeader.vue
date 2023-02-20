@@ -3,16 +3,16 @@ import { ref, watch, computed } from "vue";
 import { useCustomizerStore } from "../../../stores/customizer";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from "../../../stores/auth";
-import { message, notification, profile } from "./data";
+import { message, profile } from "./data";
 
 const customizer = useCustomizerStore();
 
 const action = useAuthStore();
-const { user } = storeToRefs(action);
+const { user, notificationCount, notificationData, notificationModal } = storeToRefs(action);
 const showSearch = ref(false);
 
 const messages = ref(message);
-const notifications = ref(notification);
+const notifications = ref(notificationData.value.splice(0,7));
 const userprofile = ref(profile);
 const priority = ref(customizer.setHorizontalLayout ? 0 : 0);
 function searchbox() {
@@ -84,7 +84,7 @@ const userAvatar = computed(() => {
     <v-menu anchor="bottom end" origin="auto">
       <template v-slot:activator="{ props }">
         <v-btn color="inherit" icon v-bind="props">
-          <v-badge color="primary" dot>
+          <v-badge v-show="notificationCount >= 1" color="primary" dot>
             <vue-feather type="bell" class="feather-sm"></vue-feather>
           </v-badge>
         </v-btn>
@@ -93,24 +93,20 @@ const userAvatar = computed(() => {
       <v-list class="pa-6" elevation="10" rounded="lg" max-width="300">
         <h4 class="d-flex">
           Notifications
-          <v-chip class="ml-auto" label small color="error"> 5 new </v-chip>
+          <v-chip class="ml-auto" label small color="error"> {{notificationCount}} new </v-chip>
         </h4>
         <v-list-item
           class="pa-3 mt-2"
           v-for="(item, i) in notifications"
           :key="i"
-          :value="item"
+          :value="item.id"
           rounded="lg"
-          :title="item.title"
-          :subtitle="item.desc"
+          :title="item?.data?.title"
+          :subtitle="item?.data?.body"
         >
-          <template v-slot:prepend>
-            <v-avatar :color="item.color">
-              <vue-feather :type="item.icon" size="18"></vue-feather>
-            </v-avatar>
-          </template>
+          
         </v-list-item>
-        <v-btn block variant="flat" color="secondary" class="mt-4 py-4"
+        <v-btn @click="notificationModal = true" block variant="flat" color="secondary" class="mt-4 py-4"
           >See all Notifications</v-btn
         >
       </v-list>

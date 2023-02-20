@@ -30,6 +30,8 @@ const breadcrumbs = ref([
   },
 ]);
 
+const mark = ref([])
+
 onMounted(async ()=> {
   await action.GetProfile()
   await action.getPermissions()
@@ -102,4 +104,43 @@ onMounted(async ()=> {
       <DailyActivities></DailyActivities>
     </v-col> -->
   </v-row>
+
+  <v-dialog max-width="400px" v-model="action.notificationModal">
+      <v-card>
+        
+        <v-card-text>
+        <h3>All Notifications</h3>
+         <v-row>
+          <v-col cols="12">
+          <v-list>
+          <v-list-item
+          class="pa-3 mt-2 d-flex"
+          v-for="(item, i) in action.notificationData"
+          :key="i"
+          :value="item?.id"
+          rounded="lg"
+          :title="item?.data.title"
+          :subtitle="item?.data.body"
+        >
+          <!-- <v-checkbox
+            @click="action.markAsRead(item.id)"
+            v-model="item.id"
+            label="Mark as read"
+            color="red-darken-3"
+            value="red-darken-3"
+            hide-details
+          ></v-checkbox> -->
+          <v-btn color="secondary" variant="text" :loading="action.updating" @click="action.markAsRead(item.id)">Mark as read</v-btn>
+        </v-list-item>
+          </v-list>
+          </v-col>
+         </v-row>
+        </v-card-text>
+        <v-card-actions class="my-4">
+          <v-btn   block @click="action.notificationModal = false"
+            >Close Dialog</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 </template>

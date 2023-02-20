@@ -41,7 +41,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(withdrawals + '?include=' + 'userBankAccount.user', {
+          .get(withdrawals + '?include=' + 'user', {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -51,7 +51,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
             (res: {
               data: {
                 message: string;
-                data: { withdrawal_requests: Data };
+                data: { wallet_transactions: Data };
               };
             }) => {
               this.loading = false;
@@ -60,7 +60,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
                 text: res.data.message,
                 type: "success",
               });
-              this.withdrawal = res.data.data.withdrawal_requests;
+              this.withdrawal = res.data.data.wallet_transactions;
             }
           );
       } catch (error) {
@@ -83,7 +83,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
             (res: {
               data: {
                 message: string;
-                data: { withdrawal_request: object };
+                data: { wallet_transaction: object };
               };
             }) => {
 
@@ -92,7 +92,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
                 text: res.data.message,
                 type: "success",
               });
-              this.singleWithdrawal = res.data.data.withdrawal_request;
+              this.singleWithdrawal = res.data.data.wallet_transaction;
             }
           );
       } catch (error: any) {

@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { useGiftCardStore } from "../../stores/giftcard";
+import { storeToRefs } from "pinia";
+
+const { getAllGiftCardTransaction } = useGiftCardStore();
+const { gift_transactions } = storeToRefs(useGiftCardStore());
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 
 const header = ref([
@@ -9,12 +14,7 @@ const header = ref([
   {
     title: "Reference No.",
   },
-  {
-    title: "Category",
-  },
-  {
-    title: "Amount in currency",
-  },
+
   {
     title: "Amount in NGN",
   },
@@ -22,40 +22,13 @@ const header = ref([
     title: "Date",
   },
   {
-    title: "Type",
+    title: "Trade Type",
   },
   {
     title: "Status",
   },
-]);
-
-const items = ref([
   {
-    name: "James",
-    refNo: 159,
-    amount: "1000",
-    status: "Pending",
-    service: "Wallet",
-    type: "Buy/sell",
-    date: "28/05/2023",
-  },
-  {
-    name: "Ice cream sandwich",
-    refNo: 237,
-    amount: "1000",
-    status: "Approved",
-    service: "Wallet",
-    type: "Transfer",
-    date: "28/05/2023",
-  },
-  {
-    name: "Ice cream sandwich",
-    refNo: 237,
-    amount: "1000",
-    status: "Decline",
-    service: "Wallet",
-    type: "Deposit/Withdrawal",
-    date: "28/05/2023",
+    title: "Actions",
   },
 ]);
 
@@ -72,6 +45,24 @@ const breadcrumbs = ref([
     href: "#",
   },
 ]);
+
+// CHANGE STATUS COLOR
+type StatusType = "pending" | "completed" | "declined";
+
+const status_color = (status: StatusType) => {
+  return status == "pending"
+    ? "yellow lighten-3"
+    : status == "completed"
+    ? "green lighten-3"
+    : status == "declined"
+    ? "red lighten-3"
+    : "";
+};
+//
+
+onMounted(async () => {
+  await getAllGiftCardTransaction();
+});
 </script>
 <template>
   <BaseBreadcrumb
@@ -93,23 +84,37 @@ const breadcrumbs = ref([
               </th>
             </tr>
           </thead>
-          <tbody>
-           <tr v-for="item in items" :key="item.name">
-              <td>{{ item.name }}</td>
-              <td>{{ item.refNo }}</td>
+          <tbody v-if="gift_transactions?.length > 0">
+            <tr v-for="item in gift_transactions" :key="item.id">
+              <td>{{ item.user.firstname }} {{ item.user.lastname }}</td>
+              <td>{{ item.reference }}</td>
               <td>{{ item.amount }}</td>
+              <td>{{ item.trade_type }}</td>
 
-              <td>{{ item.service }}</td>
-              <td>{{ item.type }}</td>
-
-              <td>{{ item.date }}</td>
-              <td><v-chip color="red lighten-3">{{ item.status }}</v-chip></td>
+              <td>
+                {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}
+              </td>
+              <td>
+                <v-chip
+                  label
+                  class="text-capitalize font-weight-bold pa-3"
+                  :color="status_color(item?.status)"
+                  >{{ item?.status }}</v-chip
+                >
+              </td>
               <td>
                 <v-icon icon="mdi-dots-vertical"></v-icon>
               </td>
             </tr>
           </tbody>
         </v-table>
+
+        <p
+          class="font-weight-bold text-center my-3"
+          v-if="gift_transactions?.length <= 0"
+        >
+          No data found
+        </p>
       </v-card>
     </v-col>
   </v-row>

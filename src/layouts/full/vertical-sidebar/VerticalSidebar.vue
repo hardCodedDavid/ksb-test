@@ -2,6 +2,7 @@
 import { ref, watch, onMounted } from "vue";
 
 import { useCountryStore } from "../../../stores/country";
+import { useAuthStore } from "../../../stores/auth";
 
 import { useCustomizerStore } from "@/stores/customizer";
 import sidebarItems from "./sidebarItem";
@@ -9,13 +10,15 @@ import LogoLight from "../logo/LogoLight.vue";
 import LogoDark from "../logo/LogoDark.vue";
 
 const customizer = useCustomizerStore();
-const { getCountries, getCurrency, getProducts } = useCountryStore();
+const { getCountries, getCurrency, getProducts, } = useCountryStore();
+const { getNotifications } = useAuthStore();
 const sidebarMenu = ref(sidebarItems);
 
 onMounted(async () => {
   await getCountries();
   await getCurrency();
   await getProducts();
+  await getNotifications();
 });
 </script>
 

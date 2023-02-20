@@ -57,6 +57,11 @@ const router = createRouter({
         //   component: () => import("@/views/apps/todo/Todo.vue"),
         // },
         {
+          name: "AssetsTransaction",
+          path: "/asset/transaction",
+          component: () => import("@/views/asset/all-transactions.vue"),
+        },
+        {
           name: "GiftCardTransaction",
           path: "/giftcards/transaction",
           component: () => import("@/views/giftcards/transaction.vue"),
@@ -348,6 +353,20 @@ const router = createRouter({
           path: "/user/all",
           component: () =>
             import("@/views/users.vue"),
+        },
+        {
+          name: "UserDetails",
+          path: "/user/:id",
+          component: () =>
+            import("@/views/user-details.vue"),
+            props:true
+        },
+        {
+          name: "Countries",
+          path: "/countries/all",
+          component: () =>
+            import("@/views/country-management.vue"),
+            props:true
         },
       ],
     },
