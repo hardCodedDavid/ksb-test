@@ -81,10 +81,10 @@ const userAvatar = computed(() => {
 
     <v-spacer />
 
-    <v-menu anchor="bottom end" origin="auto">
+    <v-menu  anchor="bottom end" origin="auto">
       <template v-slot:activator="{ props }">
-        <v-btn color="inherit" icon v-bind="props">
-          <v-badge v-show="notificationCount >= 1" color="primary" dot>
+        <v-btn  v-show="notificationCount >= 1" color="inherit" icon v-bind="props">
+          <v-badge color="primary" dot>
             <vue-feather type="bell" class="feather-sm"></vue-feather>
           </v-badge>
         </v-btn>
@@ -106,7 +106,7 @@ const userAvatar = computed(() => {
         >
           
         </v-list-item>
-        <v-btn @click="notificationModal = true" block variant="flat" color="secondary" class="mt-4 py-4"
+        <v-btn @click="$router.push('/notifications/all')" block variant="flat" color="secondary" class="mt-4 py-4"
           >See all Notifications</v-btn
         >
       </v-list>
@@ -126,7 +126,7 @@ const userAvatar = computed(() => {
           :ripple="false"
         >
           <v-avatar size="35">
-            <img :src="userAvatar" alt="Julia" />
+            <v-img cover class="img-fluid" :src="userAvatar" :alt="user.firstname" />
           </v-avatar>
         </v-btn>
       </template>

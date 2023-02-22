@@ -19,7 +19,7 @@ onMounted(async () => {
   await getAllWithDrawals();
 });
 
-const page = ref({ title: "Withdrawals" });
+const page_title = ref({ title: "Withdrawals" });
 const breadcrumbs = ref([
   {
     text: "Transactions",
@@ -76,15 +76,18 @@ const viewWithDrawalRequest = async (id: string) => {
   await getSingleWithDrawals(id);
   fetching.value = false;
 };
+
+const page = ref(21);
 </script>
 
 <template>
   <!-- ----------------------------------------------------------------------------- -->
   <!-- Height -->
   <!-- ----------------------------------------------------------------------------- -->
+  <!-- <v-data-table></v-data-table> -->
   <div>
     <BaseBreadcrumb
-      :title="page.title"
+      :title="page_title.title"
       :breadcrumbs="breadcrumbs"
     ></BaseBreadcrumb>
     <div class="mt-4">
@@ -109,7 +112,8 @@ const viewWithDrawalRequest = async (id: string) => {
             >
               <td>{{ index + 1 }}</td>
               <td class="text-capitalize font-weight-bold">
-                {{ withdrawal?.user?.firstname }} {{withdrawal?.user?.lastname}}
+                {{ withdrawal?.user?.firstname }}
+                {{ withdrawal?.user?.lastname }}
               </td>
               <td>₦‎ {{ withdrawal?.amount }}</td>
               <td>
@@ -125,7 +129,7 @@ const viewWithDrawalRequest = async (id: string) => {
               <td>{{ item.date }}</td> -->
               <td>
                 <v-chip
-                label
+                  label
                   class="text-capitalize font-weight-bold pa-3"
                   :color="status_color(withdrawal?.status)"
                   >{{ withdrawal?.status }}</v-chip
@@ -188,6 +192,13 @@ const viewWithDrawalRequest = async (id: string) => {
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
       </v-card>
+      <v-pagination
+        v-model="page"
+        :length="4"
+        active-color="grey-darken-4"
+        prev-icon="mdi-menu-left"
+        next-icon="mdi-menu-right"
+      ></v-pagination>
     </div>
 
     <v-dialog v-if="dialog" v-model="dialog" max-width="500px">

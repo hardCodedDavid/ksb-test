@@ -162,7 +162,7 @@ const sidebarItem: menu[] = [
   {
     title: "Notifications",
     icon: "user-plus",
-    to: "/create-notification",
+    to: "/notifications/all",
   },
 
  
@@ -203,12 +203,12 @@ const sidebarItem: menu[] = [
       {
         title: "Networks",
         icon: "",
-        to: "/de",
+        to: "/networks/all",
       },
       {
         title: "Assets",
         icon: "",
-        to: "/tyu",
+        to: "/assets/all",
       },
 ],
   },
@@ -220,7 +220,7 @@ const sidebarItem: menu[] = [
       {
         title: "App version",
         icon: "",
-        to: "/fr",
+        to: "/system-data",
       },
       {
         title: "Countries Mgt",

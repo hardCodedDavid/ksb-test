@@ -21,10 +21,13 @@ export const giftCardCategory = '/admin/giftcard-categories'
 export const giftCard = '/admin/giftcards'
 export const giftCardProducts = '/admin/giftcard-products'
 export const asset = '/admin/asset-transactions'
+export const assets = '/admin/assets'
 
+export const network = '/admin/networks'
 
 export const country = '/countries'
 export const countryMgt = '/admin/countries'
+export const systemData = '/admin/system-data'
 
 export const admin = "/admin/admins"
 export const markAsRead = "/admin/notifications/read"

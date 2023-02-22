@@ -67,8 +67,12 @@ const nextPage = () => {
                   :rules="passwordRules"
                   label="Password"
                   required
+                  prepend-icon=""
+                  :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                   @click:appendInner="show1 = !show1"
+                  :type="show1 ? 'text' : 'password'"
                   variant="outlined"
-                  type="password"
+                 
                 ></v-text-field>
 
                 <div class="d-flex align-center mb-4 mb-sm-0">

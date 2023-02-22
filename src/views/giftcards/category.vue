@@ -37,6 +37,9 @@ const valid = ref(false);
 const name = ref([(v: string) => !!v || "Giftcard name is required"]);
 const giftCardCategoryHeader = reactive([
   {
+    title: "No.",
+  },
+  {
     title: "Icon",
   },
   {
@@ -45,10 +48,10 @@ const giftCardCategoryHeader = reactive([
   {
     title: "Created At",
   },
+  {
+    title: "Status",
+  },
 
-  // {
-  //   title: "Restore",
-  // },
   {
     title: "Toggle Activation",
   },
@@ -82,7 +85,7 @@ const edit = ref(false);
 const btnText = ref("Create Item");
 const editItem = (item: never) => {
   giftCard.value = Object.assign({}, item);
-  btnText.value = "Edit Item";
+  btnText.value = "Update Item";
   dialog.value = true;
   edit.value = true;
 };
@@ -94,6 +97,14 @@ const customFilter = (item: any, queryText: any, itemText: any) => {
   const searchText = queryText.toLowerCase();
 
   return textOne.indexOf(searchText) > -1 || textTwo.indexOf(searchText) > -1;
+};
+
+const blockedStatus = (status: string | null) => {
+  return !status ? "Activated" : "Not active";
+};
+
+const statusColor = (status: string | null) => {
+  return !status ? "green lighten-3" : "red lighten-3";
 };
 </script>
 
@@ -126,7 +137,12 @@ const customFilter = (item: any, queryText: any, itemText: any) => {
         </tr>
       </thead>
       <tbody v-if="loading == false && gift_categories?.data?.length > 0">
-        <tr class="pa-2" v-for="item in gift_categories.data" :key="item.id">
+        <tr
+          class="pa-2"
+          v-for="(item, index) in gift_categories.data"
+          :key="item.id"
+        >
+          <td>{{ index + 1 }}</td>
           <td>
             <v-avatar size="50px">
               <v-img
@@ -137,9 +153,14 @@ const customFilter = (item: any, queryText: any, itemText: any) => {
             </v-avatar>
           </td>
           <td>{{ item?.name }}</td>
+
           <!-- <td>{{ item?.sale_term }}</td> -->
           <td>{{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}</td>
-
+          <td>
+            <v-chip label class="pa-2" :color="statusColor(item?.activated_at)">
+              {{ blockedStatus(item?.activated_at) }}
+            </v-chip>
+          </td>
           <!-- <td>
           <v-switch @input="restoreGifCardCategories(item?.id)"></v-switch>
         </td> -->
@@ -256,10 +277,10 @@ const customFilter = (item: any, queryText: any, itemText: any) => {
           </v-btn>
           <v-btn
             :loading="loading"
-            @click="
-              edit == true
+            @click=" edit == true
                 ? editGiftCardCategory(giftCard)
                 : createGiftCardCategory(giftCard)
+             
             "
             color="secondary"
             class="px-12"
@@ -312,4 +333,9 @@ const customFilter = (item: any, queryText: any, itemText: any) => {
   </v-dialog>
 </template>
 
-<style scoped></style>
+<style scoped>
+table tbody tr td {
+  padding: 15px !important;
+}
+</style>
+

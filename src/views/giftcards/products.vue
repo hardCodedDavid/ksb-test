@@ -4,12 +4,15 @@ import { storeToRefs } from "pinia";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 import { useCountryStore } from "../../stores/country";
 import { useGiftProductStore } from "../../stores/products";
-
-const { countries } = storeToRefs(useCountryStore());
+import { useDateFormat } from "@vueuse/core";
+const { countries, giftCardCategories, currencies } = storeToRefs(
+  useCountryStore()
+);
 const { giftCard, loading, dialog, gift_products } = storeToRefs(
   useGiftProductStore()
 );
-const { createGiftCardProduct, getAllGifCardProduct } = useGiftProductStore();
+const { createGiftCardProduct, getAllGifCardProduct, deleteGifCardProducts, activationGifCardProduct } =
+  useGiftProductStore();
 const page = ref({ title: "Gift Cards" });
 const breadcrumbs = ref([
   {
@@ -24,14 +27,13 @@ const breadcrumbs = ref([
   },
 ]);
 
-// const dialog = ref(false);
 const valid = ref(false);
-// const budget = ref(["Less then $5000", "$5000 - $10000"]);
-// const rules = ref([
-//   (v: string | any[]) => v.length <= 25 || "Max 25 characters",
-// ]);
+
 const name = ref([(v: string) => !!v || "Giftcard name is required"]);
 const giftCardCategoryHeader = reactive([
+  {
+    title: "No",
+  },
   {
     title: "Name",
   },
@@ -45,21 +47,40 @@ const giftCardCategoryHeader = reactive([
     title: "Sell max amount",
   },
   {
-    title: "Created At",
+    title: "Created at",
+  },
+  {
+    title: "Status",
+  },
+  {
+    title: "Toggle activation",
   },
   {
     title: "Actions",
   },
 ]);
 // select file
-interface InputFileEvent extends Event {
-  target: HTMLInputElement;
-}
 
 // end
 onMounted(async () => {
   await getAllGifCardProduct();
 });
+
+const blockedStatus = (status: string | null) => {
+  return !status ? "Activated" : "Not active";
+};
+const statusColor = (status: string | null) => {
+  return !status ? "green lighten-3" : "red lighten-3";
+};
+
+const edit = ref(false);
+const btnText = ref("Create Item");
+const editItem = (item: never) => {
+  giftCard.value = Object.assign({}, item);
+  btnText.value = "Update Item";
+  dialog.value = true;
+  edit.value = true;
+};
 </script>
 
 <template>
@@ -68,7 +89,12 @@ onMounted(async () => {
     :breadcrumbs="breadcrumbs"
   ></BaseBreadcrumb>
   <div class="w-full d-flex justify-end my-3">
-    <v-btn @click="dialog = true" variant="flat" color="secondary">
+    <v-btn
+      prepend-icon="mdi-plus"
+      @click="dialog = true"
+      variant="flat"
+      color="secondary"
+    >
       Create new giftcard product
     </v-btn>
   </div>
@@ -86,12 +112,44 @@ onMounted(async () => {
         </tr>
       </thead>
       <tbody v-if="gift_products?.data?.length > 0">
-        <tr v-for="item in gift_products.data" :key="item?.id">
+        <tr v-for="(item, index) in gift_products.data" :key="item?.id">
+          <td>{{ index + 1}}</td>
           <td>{{ item?.name }}</td>
           <td>{{ item?.sell_rate }}</td>
-          <td>{{ item?.sell_min_amount }}</td>
-          <td>{{ item?.sell_max_amount }}</td>
-          <td>{{ item?.created_at }}</td>
+          <td>₦‎ {{ item?.sell_min_amount }}</td>
+          <td>₦‎ {{ item?.sell_max_amount }}</td>
+          <td>{{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}</td>
+          <td>
+            <v-chip label class="pa-2" :color="statusColor(item?.activated_at)">
+              {{ blockedStatus(item?.activated_at) }}
+            </v-chip>
+          </td>
+          <td>
+            <v-switch @input="activationGifCardProduct(item?.id)"></v-switch>
+          </td>
+          <td>
+            <!-- <v-icon
+              small
+              class="mr-2 text-secondary cursor-pointer"
+              @click="showDetails(item?.id)"
+              title="view"
+              >mdi-eye</v-icon
+            > -->
+            <v-icon
+              small
+              class="mr-2 text-primary cursor-pointer"
+              @click="editItem(item)"
+              title="Edit"
+              >mdi-pencil</v-icon
+            >
+            <v-icon
+              small
+              class="text-error cursor-pointer"
+              title="Delete"
+              @click="deleteGifCardProducts(item?.id)"
+              >mdi-delete</v-icon
+            >
+          </td>
         </tr>
       </tbody>
 
@@ -102,7 +160,7 @@ onMounted(async () => {
   </v-card>
 
   <v-row justify="center">
-    <v-dialog v-model="dialog" persistent max-width="500px">
+    <v-dialog v-model="dialog" max-width="500px">
       <v-card>
         <h3 class="text-h5 font-weight-bold pa-7">New Giftcard Product</h3>
         <v-card-text>
@@ -160,22 +218,25 @@ onMounted(async () => {
                 </v-col>
                 <v-col cols="12" sm="12">
                   <v-autocomplete
-                  
+                    :items="giftCardCategories"
                     label="Giftcard categories*"
                     required
                     multiple
-                   
+                    item-title="name"
+                    item-value="id"
+                    v-model="giftCard.id"
                     hint="This field is required"
                     persistent-hint
                   ></v-autocomplete>
                 </v-col>
                 <v-col cols="12" sm="12">
                   <v-autocomplete
-                   
+                    :items="currencies"
                     label="Currency*"
                     required
                     multiple
-                    
+                    item-title="code"
+                    item-value="id"
                     hint="This field is required"
                     persistent-hint
                   ></v-autocomplete>
@@ -208,3 +269,9 @@ onMounted(async () => {
     </v-dialog>
   </v-row>
 </template>
+
+<style scoped>
+table tbody tr td {
+  padding: 18px !important;
+}
+</style>

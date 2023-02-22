@@ -349,6 +349,12 @@ const router = createRouter({
           component: () => import("@/views/icons/FeatherIcons.vue"),
         },
         {
+          name: "Notificationz",
+          path: "/notifications/all",
+          component: () =>
+            import("@/views/all-notifications.vue"),
+        },
+        {
           name: "Users",
           path: "/user/all",
           component: () =>
@@ -366,7 +372,24 @@ const router = createRouter({
           path: "/countries/all",
           component: () =>
             import("@/views/country-management.vue"),
-            props:true
+        },
+        {
+          name: "Assets",
+          path: "/assets/all",
+          component: () =>
+            import("@/views/asset/assets.vue"),
+        },
+        {
+          name: "Network",
+          path: "/networks/all",
+          component: () =>
+            import("@/views/network.vue"),
+        },
+        {
+          name: "System data",
+          path: "/system-data",
+          component: () =>
+            import("@/views/system-data.vue"),
         },
       ],
     },

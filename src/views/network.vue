@@ -1,0 +1,217 @@
+<script setup lang="ts">
+import { ref, onMounted } from "vue";
+import { useAssetStore } from "../stores/asset";
+import { useNetworksStore } from "../stores/networks";
+import { storeToRefs } from "pinia";
+import { useDateFormat } from "@vueuse/core";
+
+const { getAllNetwork, createNetworks, editNetworks, deleteNetworks, restoreNetworks } = useNetworksStore();
+const { networks, loading, dialog, network } = storeToRefs(useNetworksStore());
+const header = ref([
+  {
+    title: "No.",
+  },
+  {
+    title: "name",
+  },
+  {
+    title: "Wallet address",
+  },
+  {
+    title: "Created at",
+  },
+  {
+    title: "Actions",
+  },
+]);
+onMounted(async () => {
+  await getAllNetwork();
+});
+
+// CHANGE STATUS COLOR
+type StatusType = "pending" | "transferred" | "declined";
+
+const status_color = (status: StatusType) => {
+  return status == "pending"
+    ? "yellow lighten-3"
+    : status == "transferred"
+    ? "green lighten-3"
+    : status == "declined"
+    ? "red lighten-3"
+    : "";
+};
+//
+
+const edit = ref(false);
+const btnText = ref("Create Network");
+const editItem = (item: never) => {
+  network.value = Object.assign({}, item);
+  btnText.value = "Update Network";
+  dialog.value = true;
+  edit.value = true;
+};
+</script>
+
+<template>
+  <v-row>
+    <v-col cols="12" sm="12" class="mt-4">
+      <div class="w-full d-flex justify-space-between my-3">
+        <h2>Networks</h2>
+        <v-btn
+          prepend-icon="mdi-plus"
+          @click="dialog = true"
+          variant="flat"
+          color="secondary"
+        >
+          Create New Network
+        </v-btn>
+      </div>
+      <v-card class="pa-5">
+        <v-table>
+          <thead>
+            <tr>
+              <th
+                v-for="(headings, index) in header"
+                :key="index"
+                class="text-left"
+              >
+                {{ headings.title }}
+              </th>
+            </tr>
+          </thead>
+          <tbody v-if="networks?.length > 0 && loading == false">
+            <tr v-for="(item, index) in networks" :key="item.id">
+              <td>{{ index + 1 }}</td>
+
+              <td :class="{ 'font-weight-bold': item.account_name == null }">
+                {{ item.name ?? "No name" }}
+              </td>
+
+              <td>{{ item.wallet_address }}</td>
+
+              <td>
+                {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}
+              </td>
+
+              <td>
+                <v-row justify="center">
+                  <v-menu transition="scroll-x-transition">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                        text
+                        icon="mdi-dots-vertical"
+                        color="transparent"
+                        class="ma-2"
+                        v-bind="props"
+                      >
+                      </v-btn>
+                    </template>
+                    <v-list>
+                      <v-list-item
+                        @click="editItem(item)"
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> Edit Asset </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        @click="restoreNetworks(item?.id)"
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> Restore Asset </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        @click="deleteNetworks(item?.id)"
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> Delete Asset </v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-row>
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+
+        <p
+          class="font-weight-bold text-center my-3"
+          v-if="networks?.length <= 0 && loading == false"
+        >
+          No data found
+        </p>
+
+        <v-layout
+          v-if="loading == true"
+          class="align-center justify-center w-100 my-5"
+        >
+          <v-progress-circular indeterminate></v-progress-circular>
+        </v-layout>
+      </v-card>
+    </v-col>
+
+    <v-row justify="center">
+      <v-dialog v-model="dialog" max-width="500px">
+        <v-card :loading="loading">
+          <h3 class="text-h5 font-weight-bold pa-7">{{ btnText }}</h3>
+          <v-card-text>
+            <v-container>
+              <v-form>
+                <v-row>
+                  <v-col cols="12" sm="6" md="12">
+                    <v-text-field
+                      v-model="network.name"
+                      variant="outlined"
+                      label="Network name*"
+                      required
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="6" md="12">
+                    <v-textarea
+                      v-model="network.wallet_address"
+                      variant="outlined"
+                      label="Withdrawal address*"
+                      required
+                    ></v-textarea>
+                  </v-col>
+                </v-row>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="secondary"
+                    class="px-7"
+                    variant="outlined"
+                    @click="dialog = false"
+                  >
+                    Close
+                  </v-btn>
+                  <v-btn
+                    color="secondary"
+                    class="px-12"
+                    @click="
+                      edit == true
+                        ? editNetworks(network)
+                        : createNetworks(network)
+                    "
+                    :loading="loading"
+                    variant="flat"
+                  >
+                    {{ btnText }}
+                  </v-btn>
+                </v-card-actions>
+              </v-form>
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-dialog>
+    </v-row>
+  </v-row>
+</template>
+
+<style scoped>
+table tbody tr td {
+  padding: 15px !important;
+}
+</style>

@@ -6,8 +6,8 @@ import { useDateFormat } from "@vueuse/core";
 
 const {
   getAllAssetTransactions,
-  declineRequest,
-  approveRequest,
+  declineAsset,
+  
   getSingleAssetTransactions,
 } = useAssetStore();
 const { allTransactions, loading, dialog, single_transactions } = storeToRefs(

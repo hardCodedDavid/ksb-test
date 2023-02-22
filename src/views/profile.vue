@@ -28,6 +28,7 @@ const confirm_password = ref([(v: string) => !!v || "Password is required"]);
 // Get profile
 onMounted(async () => {
   await action.GetProfile();
+  console.log('hello')
   await action.getPermissions();
 });
 // user initials

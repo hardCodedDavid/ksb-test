@@ -10,17 +10,24 @@ export const useCountryStore = defineStore({
     country: [],
     countryMgt: [],
     currencies: [],
-    loading:false
+    giftCategories: [],
+    loading: false
   }),
   getters: {
     countryNames: (state) => state.country.map((country) => country['name']),
     countries: (state) => state.country,
+    giftCardCategories: state => state.giftCategories.map((items) => {
+      return {
+        id: items['id'],
+        name: items['name'],
+      }
+    })
   },
   actions: {
     async getCountries() {
       try {
         await ksbTechApi
-          .get(country  + '?filter[giftcard_activated]=' + 1  , {
+          .get(country + '?filter[giftcard_activated]=' + 1, {
             headers: {
               Accept: "application/json",
             },
@@ -32,7 +39,7 @@ export const useCountryStore = defineStore({
                 data: any;
               };
             }) => {
-              this.country = res.data.data.countries;
+              this.country = res.data.data.countries.data;
             }
           );
       } catch (error) {
@@ -41,10 +48,10 @@ export const useCountryStore = defineStore({
     },
     async getCountryMgt() {
       const store = useAuthStore();
-      this.loading= true
+      this.loading = true
       try {
         await ksbTechApi
-          .get(countryMgt ,{
+          .get(countryMgt, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -58,19 +65,19 @@ export const useCountryStore = defineStore({
               };
             }) => {
               this.countryMgt = res.data.data.countries.data;
-              this.loading= false
+              this.loading = false
             }
           );
       } catch (error) {
-        this.loading= false
+        this.loading = false
       }
     },
     async registrationActivation(id: string) {
       const store = useAuthStore();
-      this.loading= true
+      this.loading = true
       try {
         await ksbTechApi
-          .patch(countryMgt + '/' + id + '/registration', ""  ,{
+          .patch(countryMgt + '/' + id + '/registration', "", {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -84,19 +91,20 @@ export const useCountryStore = defineStore({
               };
             }) => {
               this.getCountryMgt()
-              this.loading= false
+              this.loading = false
             }
           );
       } catch (error) {
-        this.loading= false
+        this.loading = false
       }
     },
     async giftcardActivation(id: string) {
+      
       const store = useAuthStore();
-      this.loading= true
+      this.loading = true
       try {
         await ksbTechApi
-          .patch(countryMgt + '/' + id + '/giftcard', ""  ,{
+          .patch(countryMgt + '/' + id + '/giftcard', "", {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -110,11 +118,11 @@ export const useCountryStore = defineStore({
               };
             }) => {
               this.getCountryMgt()
-              this.loading= false
+              this.loading = false
             }
           );
       } catch (error) {
-        this.loading= false
+        this.loading = false
       }
     },
     async getCurrency() {
@@ -132,7 +140,7 @@ export const useCountryStore = defineStore({
                 data: any;
               };
             }) => {
-              this.currencies = res.data.data.currencies.data;
+              this.currencies = res.data.data.currencies;
             }
           );
       } catch (error) {
@@ -142,7 +150,7 @@ export const useCountryStore = defineStore({
     async getProducts() {
       try {
         await ksbTechApi
-          .get('/giftcard-categories' + '?include=countries' , {
+          .get('/giftcard-categories' + '?include=countries', {
             headers: {
               Accept: "application/json",
             },
@@ -154,7 +162,7 @@ export const useCountryStore = defineStore({
                 data: any;
               };
             }) => {
-              this.currencies = res.data.data.currencies.data;
+              this.giftCategories = res.data.data.giftcard_categories.data;
             }
           );
       } catch (error) {

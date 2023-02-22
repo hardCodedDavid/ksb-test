@@ -14,7 +14,7 @@ import {
   verifyCodeAndEmail,
   resetPassword,
   notification,
-  markAsRead
+  markAsRead,
 } from "../../apiRoute";
 import { useNotification } from "@kyvg/vue3-notification";
 
@@ -30,8 +30,8 @@ interface ksbTechAuth {
   permissions: object | any;
   notification: object | any;
   twoFA: boolean;
-  email:string,
-  notificationModal:boolean
+  email: string;
+  notificationModal: boolean;
 }
 
 export const useAuthStore = defineStore("auth", {
@@ -47,18 +47,19 @@ export const useAuthStore = defineStore("auth", {
     permissions: {},
     notification: [],
     twoFA: false,
-    email:"",
-    notificationModal:false
+    email: "",
+    notificationModal: false,
   }),
   getters: {
     userInitials: (state) => state.user,
-    notificationCount: state => state.notification?.length, 
-    notificationData: (state) => state.notification?.map((notice:any) => {
-      return {
-        data:notice['data'] ,
-        id:notice['id'] 
-      }
-    }), 
+    notificationCount: (state) => state.notification?.length,
+    notificationData: (state) =>
+      state.notification?.map((notice: any) => {
+        return {
+          data: notice["data"],
+          id: notice["id"],
+        };
+      }),
     // tenNotifications: (state) => state.notification?.splice(0,10)
   },
   actions: {
@@ -177,7 +178,6 @@ export const useAuthStore = defineStore("auth", {
               };
               message: string;
             }) => {
-            
               this.loginLoading = false;
               // @ts-ignore
               this.$router.push("/authentication/reset-password");
@@ -266,7 +266,7 @@ export const useAuthStore = defineStore("auth", {
             this.token = "";
             this.isLoggedIn = false;
             // @ts-ignore
-            this.$router.push({name:"Login"});
+            this.$router.push({ name: "Login" });
             this.LoggingOut = false;
             console.log(res, "grgrg");
           })
@@ -340,8 +340,7 @@ export const useAuthStore = defineStore("auth", {
               this.token = res.data.data.token;
             }
           );
-      } 
-      catch (error:any) {
+      } catch (error: any) {
         this.twoFALoading = false;
         notify({
           title: "An Error Occurred",
@@ -375,11 +374,15 @@ export const useAuthStore = defineStore("auth", {
         });
       }
     },
-    async markAsRead(id:string) {
-      this.updating = true
+    async markAsRead(ids: any) {
+      this.updating = true;
       const { notify } = useNotification();
       var data = new FormData();
-      data.append('notifications[]', id);
+
+      for (let i = 0; i < ids.length; i++) {
+        data.append("notifications[]", ids[i]);
+      }
+
       try {
         await ksbTechApi
           .post(markAsRead, data, {
@@ -389,13 +392,13 @@ export const useAuthStore = defineStore("auth", {
             },
           })
           .then((res: { data: { message: string } }) => {
-            this.updating = false
+            this.updating = false;
             notify({
               title: "Success",
               text: res.data.message,
               type: "success",
             });
-            this.getNotifications()
+            this.getNotifications();
           });
       } catch (error: any) {
         notify({
@@ -403,7 +406,7 @@ export const useAuthStore = defineStore("auth", {
           text: error.response.data.message,
           type: "error",
         });
-        this.updating = false
+        this.updating = false;
       }
     },
     async GetProfile() {
@@ -434,7 +437,7 @@ export const useAuthStore = defineStore("auth", {
       const { notify } = useNotification();
       try {
         await ksbTechApi
-          .get(notification, {
+          .get(permissions, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${this.token}`,
@@ -447,18 +450,18 @@ export const useAuthStore = defineStore("auth", {
                 data: any;
               };
             }) => {
-              this.notification = res?.data?.data?.permissions;
+              this.permissions = res?.data?.data?.permissions;
             }
           );
       } catch (error: any) {
-          console.log(error)
+        console.log(error);
       }
     },
     async getNotifications() {
       const { notify } = useNotification();
       try {
         await ksbTechApi
-          .get(notification, {
+          .get(notification + "?filter[read]=" + 0, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${this.token}`,
@@ -472,11 +475,11 @@ export const useAuthStore = defineStore("auth", {
               };
             }) => {
               this.notification = res.data.data.notifications.data;
-              console.log(this.notification)
+              console.log(this.notification);
             }
           );
       } catch (error: any) {
-          console.log(error)
+        console.log(error);
       }
     },
     async updateProfile(file: any) {
@@ -493,7 +496,7 @@ export const useAuthStore = defineStore("auth", {
       this.updating = true;
       try {
         await ksbTechApi
-          .patch(update_profile, formData, {
+          .post(update_profile, formData, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${this.token}`,
@@ -560,9 +563,9 @@ export const useAuthStore = defineStore("auth", {
         this.updating = false;
       }
     },
-    viewAllNotifications(){
-      this.notificationModal = true
-    }
+    viewAllNotifications() {
+      this.notificationModal = true;
+    },
   },
   persist: {
     storage: sessionStorage,
