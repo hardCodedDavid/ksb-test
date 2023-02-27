@@ -120,6 +120,38 @@ export const useGiftCardStore = defineStore("giftcard", {
         });
       }
     },
+    async getAllGiftCardTransactionByUserId(id:string) {
+      const { notify } = useNotification();
+      const store = useAuthStore();
+      this.loading = true
+      try {
+        await ksbTechApi
+          .get(giftCard + '?filter[user_id]=' + id , {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.gift_transactions = res.data.data.giftcards.data;
+              this.loading = false
+            }
+          );
+      } catch (error: any) {
+        this.loading = false
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
+      }
+    },
     async approveRequest(id: string) {
       const store = useAuthStore();
       const { notify } = useNotification();
@@ -149,7 +181,7 @@ export const useGiftCardStore = defineStore("giftcard", {
             }) => {
               this.loading = false;
               notify({
-                title: "Login Successful",
+                title: "Approved Successfully",
                 text: res.data.message,
                 type: "success",
               });
@@ -189,7 +221,7 @@ export const useGiftCardStore = defineStore("giftcard", {
             }) => {
               this.loading = false;
               notify({
-                title: "Login Successful",
+                title: "Declined Successfully",
                 text: res.data.message,
                 type: "success",
               });
@@ -384,7 +416,7 @@ export const useGiftCardStore = defineStore("giftcard", {
             }) => {
               this.loading = false;
               notify({
-                title: "Login Successful",
+                title: "Successful",
                 text: res.data.message,
                 type: "success",
               });
@@ -433,7 +465,7 @@ export const useGiftCardStore = defineStore("giftcard", {
             }) => {
               this.loading = false;
               notify({
-                title: "Login Successful",
+                title: "Successful",
                 text: res.data.message,
                 type: "success",
               });

@@ -150,14 +150,14 @@ const sidebarItem: menu[] = [
   {
     title: "Roles & Permissions",
     icon: "user-plus",
-    to: "/create-admin",
+    to: "/roles",
   },
 
   { header: "Notifications" },
   {
     title: "Announcements",
     icon: "bell",
-    to: "/create-notification",
+    to: "/announcements",
   },
   {
     title: "Notifications",

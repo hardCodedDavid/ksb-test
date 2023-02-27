@@ -349,10 +349,22 @@ const router = createRouter({
           component: () => import("@/views/icons/FeatherIcons.vue"),
         },
         {
-          name: "Notificationz",
+          name: "Notifications",
           path: "/notifications/all",
           component: () =>
             import("@/views/all-notifications.vue"),
+        },
+        {
+          name: "Announcements",
+          path: "/announcements",
+          component: () =>
+            import("@/views/annoucements.vue"),
+        },
+        {
+          name: "RolesandPermissions",
+          path: "/roles",
+          component: () =>
+            import("@/views/roles/roles-permission.vue"),
         },
         {
           name: "Users",

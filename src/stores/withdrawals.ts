@@ -56,7 +56,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
             }) => {
               this.loading = false;
               notify({
-                title: "Login Successful",
+                title: "Successful",
                 text: res.data.message,
                 type: "success",
               });
@@ -88,7 +88,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
             }) => {
 
               notify({
-                title: "Login Successful",
+                title: "Successful",
                 text: res.data.message,
                 type: "success",
               });
@@ -108,9 +108,13 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
+
+      var formData = new FormData()
+
+      formData.append('_method', 'PATCH');
       try {
         await ksbTechApi
-          .post(withdrawals + '/' + id + '/approve', "", {
+          .post(withdrawals + '/' + id + '/approve', formData, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -125,7 +129,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
             }) => {
               this.loading = false;
               notify({
-                title: "Login Successful",
+                title: "Successful",
                 text: res.data.message,
                 type: "success",
               });
@@ -147,7 +151,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
       this.loading = true;
       try {
         await ksbTechApi
-          .post(withdrawals + '/' + id + '/decline', "", {
+          .patch(withdrawals + '/' + id + '/decline', "", {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -162,7 +166,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
             }) => {
               this.loading = false;
               notify({
-                title: "Login Successful",
+                title: "Successful",
                 text: res.data.message,
                 type: "success",
               });

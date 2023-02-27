@@ -6,8 +6,8 @@ import { useDateFormat } from "@vueuse/core";
 
 const {
   getAllAssetTransactions,
-  declineAsset,
-  
+  approveAssetTransactions,
+  declineAssetTransactions,
   getSingleAssetTransactions,
 } = useAssetStore();
 const { allTransactions, loading, dialog, single_transactions } = storeToRefs(
@@ -118,7 +118,7 @@ const status_color = (status: StatusType) => {
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'transferred'"
-                        @click="approveRequest(item?.id)"
+                        @click="approveAssetTransactions(item?.id)"
                         link
                         color="secondary"
                       >
@@ -126,7 +126,7 @@ const status_color = (status: StatusType) => {
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'transferred'"
-                        @click="declineRequest(item?.id)"
+                        @click="declineAssetTransactions(item?.id)"
                         link
                         color="secondary"
                       >

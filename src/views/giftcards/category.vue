@@ -123,7 +123,7 @@ const statusColor = (status: string | null) => {
       Add giftcard category
     </v-btn>
   </div>
-  <v-card>
+  <v-card class="my-4">
     <v-table>
       <thead>
         <tr class="pa-2">
@@ -213,7 +213,7 @@ const statusColor = (status: string | null) => {
     <v-dialog v-model="dialog" persistent max-width="520px">
       <v-card>
         <v-card-title class="py-4">
-          <h3 class="text-h5 font-weight-bold">New Giftcard Category</h3>
+          <h3 class="text-h5 font-weight-bold"> {{ btnText }}</h3>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -299,7 +299,7 @@ const statusColor = (status: string | null) => {
 
       <div class="w-100 d-flex align-center justify-center">
         <v-row class="my-12 w-100 max-w-lg">
-          <v-col cols="12" sm="6" lg="6">
+          <v-col cols="12" sm="12" lg="12">
             <div class="d-flex align-center">
               <v-avatar size="70px">
                 <v-img

@@ -126,7 +126,7 @@ export const useGiftProductStore = defineStore("gift_product", {
             }) => {
               this.loading = false;
               notify({
-                title: "Login Successful",
+                title: "Successful",
                 text: res.data.message,
                 type: "success",
               });

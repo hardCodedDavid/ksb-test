@@ -4,7 +4,7 @@ import { useAssetStore } from "../../stores/asset";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
 
-const { getAllAsset, restoreAsset, declineAsset, createAssets } =
+const { getAllAsset, deleteAsset, createAssets, restoreAsset, updateAssets } =
   useAssetStore();
 const { allTransactions, loading, dialog, asset, assets } = storeToRefs(
   useAssetStore()
@@ -64,7 +64,7 @@ const get_selected_file = (e: any) => {
   <v-row>
     <v-col cols="12" sm="12" class="mt-4">
       <div class="w-full d-flex justify-space-between my-3">
-        <h2>Asset transactions</h2>
+        <h2>All Assets</h2>
         <v-btn
           prepend-icon="mdi-plus"
           @click="dialog = true"
@@ -131,7 +131,7 @@ const get_selected_file = (e: any) => {
                         <v-list-item-title> Restore Asset </v-list-item-title>
                       </v-list-item>
                       <v-list-item
-                        @click="declineAsset(item?.id)"
+                        @click="deleteAsset(item?.id)"
                         link
                         color="secondary"
                       >

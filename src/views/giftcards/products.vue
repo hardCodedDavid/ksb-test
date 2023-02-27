@@ -11,8 +11,12 @@ const { countries, giftCardCategories, currencies } = storeToRefs(
 const { giftCard, loading, dialog, gift_products } = storeToRefs(
   useGiftProductStore()
 );
-const { createGiftCardProduct, getAllGifCardProduct, deleteGifCardProducts, activationGifCardProduct } =
-  useGiftProductStore();
+const {
+  createGiftCardProduct,
+  getAllGifCardProduct,
+  deleteGifCardProducts,
+  activationGifCardProduct,
+} = useGiftProductStore();
 const page = ref({ title: "Gift Cards" });
 const breadcrumbs = ref([
   {
@@ -98,7 +102,7 @@ const editItem = (item: never) => {
       Create new giftcard product
     </v-btn>
   </div>
-  <v-card>
+  <v-card class="my-4">
     <v-table>
       <thead>
         <tr>
@@ -111,9 +115,9 @@ const editItem = (item: never) => {
           </th>
         </tr>
       </thead>
-      <tbody v-if="gift_products?.data?.length > 0">
+      <tbody v-if="loading == false && gift_products?.data?.length > 0">
         <tr v-for="(item, index) in gift_products.data" :key="item?.id">
-          <td>{{ index + 1}}</td>
+          <td>{{ index + 1 }}</td>
           <td>{{ item?.name }}</td>
           <td>{{ item?.sell_rate }}</td>
           <td>₦‎ {{ item?.sell_min_amount }}</td>
@@ -152,17 +156,26 @@ const editItem = (item: never) => {
           </td>
         </tr>
       </tbody>
-
-      <tr v-else class="text-center pa-4">
-        <th colspan="8" class="pa-4">No data found</th>
-      </tr>
     </v-table>
+    <v-layout
+      v-if="loading == true"
+      class="align-center justify-center w-100 my-5"
+    >
+      <v-progress-circular indeterminate></v-progress-circular>
+    </v-layout>
+
+    <p
+      v-if="loading == false && gift_products?.data?.length <= 0"
+      class="text-center py-6"
+    >
+      No data available
+    </p>
   </v-card>
 
   <v-row justify="center">
     <v-dialog v-model="dialog" max-width="500px">
       <v-card>
-        <h3 class="text-h5 font-weight-bold pa-7">New Giftcard Product</h3>
+        <h3 class="text-h5 font-weight-bold pa-7">{{ btnText }}</h3>
         <v-card-text>
           <v-container>
             <v-form ref="form" v-model="valid" lazy-validation>
@@ -262,7 +275,7 @@ const editItem = (item: never) => {
             class="px-12"
             variant="flat"
           >
-            Create Item
+            {{ btnText }}
           </v-btn>
         </v-card-actions>
       </v-card>

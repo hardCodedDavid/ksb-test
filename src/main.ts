@@ -13,7 +13,8 @@ import Notifications from '@kyvg/vue3-notification'
 import VueFeather from "vue-feather";
 import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import VOtpInput from "vue3-otp-input";
-
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
 
 
 const pinia = createPinia();
@@ -26,6 +27,7 @@ pinia.use(({ store }) => {
 
 const app = createApp(App)
 app.component(VueFeather.name, VueFeather);
+app.component('VueDatePicker', VueDatePicker);
 app.use(PerfectScrollbar);
 app.use(InstantSearch);
 app.use(pinia);

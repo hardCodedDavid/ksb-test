@@ -2,14 +2,17 @@
 import { ref, onMounted } from "vue";
 import { useGiftCardStore } from "../../stores/giftcard";
 import { storeToRefs } from "pinia";
-
-const { getAllGiftCardTransaction } = useGiftCardStore();
-const { gift_transactions } = storeToRefs(useGiftCardStore());
+import { useDateFormat } from '@vueuse/core'
+const { getAllGiftCardTransaction, declineRequest, approveRequest } = useGiftCardStore();
+const { gift_transactions, loading } = storeToRefs(useGiftCardStore());
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 
 const header = ref([
   {
-    title: "Username",
+    title: "Account name",
+  },
+  {
+    title: "Account number",
   },
   {
     title: "Reference No.",
@@ -51,7 +54,7 @@ type StatusType = "pending" | "completed" | "declined";
 
 const status_color = (status: StatusType) => {
   return status == "pending"
-    ? "yellow lighten-3"
+    ? "yellow-darken-3"
     : status == "completed"
     ? "green lighten-3"
     : status == "declined"
@@ -84,16 +87,18 @@ onMounted(async () => {
               </th>
             </tr>
           </thead>
-          <tbody v-if="gift_transactions?.length > 0">
+          <tbody v-if="gift_transactions?.length > 0 && loading == false">
             <tr v-for="item in gift_transactions" :key="item.id">
-              <td>{{ item.user.firstname }} {{ item.user.lastname }}</td>
+              <td class="font-weight-bold">{{ item.account_name }}</td>
+              <td>{{ item.account_number }}</td>
               <td>{{ item.reference }}</td>
-              <td>{{ item.amount }}</td>
-              <td>{{ item.trade_type }}</td>
+              <td>{{ item.payable_amount }}</td>
+             
 
               <td>
                 {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}
               </td>
+               <td>{{ item.trade_type }}</td>
               <td>
                 <v-chip
                   label
@@ -102,16 +107,55 @@ onMounted(async () => {
                   >{{ item?.status }}</v-chip
                 >
               </td>
-              <td>
-                <v-icon icon="mdi-dots-vertical"></v-icon>
-              </td>
+             <td>
+                  <v-row justify="center">
+                    <v-menu transition="scroll-y-transition">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          text
+                          icon="mdi-dots-vertical"
+                          color="transparent"
+                          class="ma-2"
+                          v-bind="props"
+                        >
+                        </v-btn>
+                      </template>
+                      <v-list>
+                        <v-list-item
+                          @click="approveRequest(item?.id)"
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title>
+                            Approve giftcard
+                          </v-list-item-title>
+                        </v-list-item>
+                        <v-list-item
+                          @click="declineRequest(item?.id)"
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title>
+                            Decline giftcard
+                          </v-list-item-title>
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
+                  </v-row>
+                </td>
             </tr>
           </tbody>
         </v-table>
 
+         <v-layout
+            v-if="loading == true"
+            class="align-center justify-center w-100 my-5"
+          >
+            <v-progress-circular indeterminate></v-progress-circular>
+          </v-layout>
         <p
           class="font-weight-bold text-center my-3"
-          v-if="gift_transactions?.length <= 0"
+          v-if="gift_transactions?.length <= 0 && loading == false"
         >
           No data found
         </p>
@@ -119,3 +163,10 @@ onMounted(async () => {
     </v-col>
   </v-row>
 </template>
+
+
+<style scoped>
+table tbody tr td {
+  padding: 18px !important;
+}
+</style>

@@ -5,8 +5,10 @@ import { storeToRefs } from "pinia";
 import { useNetworksStore } from "../stores/networks";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 
-const  { getAllSystemData, editSystemData } = useNetworksStore()
-const { system_data, loading, dialog, dialog2, content } = storeToRefs(useNetworksStore())
+const { getAllSystemData, editSystemData } = useNetworksStore();
+const { system_data, loading, dialog, dialog2, content } = storeToRefs(
+  useNetworksStore()
+);
 
 onMounted(async () => {
   await getAllSystemData();
@@ -64,10 +66,10 @@ const status_color = (status: StatusType) => {
 // const page = ref(21);
 
 const edit = ref(false);
-const Id = ref('');
+const Id = ref("");
 const btnText = ref("Create Item");
-const editItem = (item:string, id:string) => {
-  Id.value = id
+const editItem = (item: string, id: string) => {
+  Id.value = id;
   content.value = item;
   btnText.value = "Update Item";
   dialog2.value = true;
@@ -81,10 +83,7 @@ const editItem = (item:string, id:string) => {
   <!-- ----------------------------------------------------------------------------- -->
   <!-- <v-data-table></v-data-table> -->
   <div>
-    <BaseBreadcrumb
-      :title="page_title.title"
-      
-    ></BaseBreadcrumb>
+    <BaseBreadcrumb :title="page_title.title"></BaseBreadcrumb>
     <div class="mt-4">
       <v-card class="pa-5">
         <v-table>
@@ -99,7 +98,7 @@ const editItem = (item:string, id:string) => {
               </th>
             </tr>
           </thead>
-      <tbody v-if="loading == false">
+          <tbody v-if="loading == false">
             <tr
               class="pa-3"
               v-for="(data, index) in system_data"
@@ -109,17 +108,14 @@ const editItem = (item:string, id:string) => {
               <td class="text-capitalize font-weight-bold">
                 {{ data?.code }}
               </td>
-              <td>{{ data?.content }}</td> 
+              <td>{{ data?.content }}</td>
               <td>{{ data?.hint }}</td>
               <td>{{ data?.title }}</td>
               <td>
-                {{
-                  useDateFormat(data?.created_at, "DD, MMMM-YYYY").value
-                }}
+                {{ useDateFormat(data?.created_at, "DD, MMMM-YYYY").value }}
               </td>
-              
+
               <td>
-               
                 <v-row justify="center">
                   <v-menu transition="scroll-y-transition">
                     <template v-slot:activator="{ props }">
@@ -132,22 +128,20 @@ const editItem = (item:string, id:string) => {
                       >
                       </v-btn>
                     </template>
-                    <v-list>                  
-                      <v-list-item                   
+                    <v-list>
+                      <v-list-item
                         @click="editItem(data?.content, data?.id)"
                         link
                         color="secondary"
                       >
-                        <v-list-item-title>
-                          Update Request
-                        </v-list-item-title>
+                        <v-list-item-title> Update Request </v-list-item-title>
                       </v-list-item>
                     </v-list>
                   </v-menu>
                 </v-row>
               </td>
             </tr>
-          </tbody> 
+          </tbody>
         </v-table>
 
         <v-layout
@@ -187,7 +181,6 @@ const editItem = (item:string, id:string) => {
                 {{ singleWithdrawal.user?.email }}
               </p>
             </v-col>
-
           </v-row>
         </v-container>
         <v-layout
@@ -208,13 +201,13 @@ const editItem = (item:string, id:string) => {
         <h3>Update System Data</h3>
         <v-form class="mt-8 py-8">
           <v-text-field
-           v-model="content"
+            v-model="content"
             label="content"
             type="number"
             variant="outlined"
           ></v-text-field>
           <v-btn
-           @click="editSystemData({content:content, id:Id})"
+            @click="editSystemData({ content: content, id: Id })"
             color="primary"
             block
             :loading="loading"

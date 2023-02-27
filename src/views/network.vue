@@ -5,14 +5,20 @@ import { useNetworksStore } from "../stores/networks";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
 
-const { getAllNetwork, createNetworks, editNetworks, deleteNetworks, restoreNetworks } = useNetworksStore();
+const {
+  getAllNetwork,
+  createNetworks,
+  editNetworks,
+  deleteNetworks,
+  restoreNetworks,
+} = useNetworksStore();
 const { networks, loading, dialog, network } = storeToRefs(useNetworksStore());
 const header = ref([
   {
     title: "No.",
   },
   {
-    title: "name",
+    title: "Name",
   },
   {
     title: "Wallet address",
@@ -49,6 +55,18 @@ const editItem = (item: never) => {
   btnText.value = "Update Network";
   dialog.value = true;
   edit.value = true;
+};
+const close = (item: never) => {
+  network.value = Object.assign(
+    {},
+    {
+      name: "",
+      wallet_address: "",
+    }
+  );
+  btnText.value = "Create Network";
+  dialog.value = false;
+  edit.value = false;
 };
 </script>
 
@@ -183,7 +201,7 @@ const editItem = (item: never) => {
                     color="secondary"
                     class="px-7"
                     variant="outlined"
-                    @click="dialog = false"
+                    @click="close"
                   >
                     Close
                   </v-btn>

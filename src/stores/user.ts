@@ -105,7 +105,7 @@ export const useUserStore = defineStore("user", {
             }) => {
               this.loading = false;
               notify({
-                title: "Login Successful",
+                title: "Successful",
                 text: res.data.message,
                 type: "success",
               });
@@ -204,7 +204,7 @@ export const useUserStore = defineStore("user", {
             }) => {
               this.loading = false;
               notify({
-                title: "Login Successful",
+                title: "Successful",
                 text: res.data.message,
                 type: "success",
               });
@@ -236,7 +236,7 @@ export const useUserStore = defineStore("user", {
             }) => {
               this.loading = false;
               notify({
-                title: "Login Successful",
+                title: "Successful",
                 text: res.data.message,
                 type: "success",
               });

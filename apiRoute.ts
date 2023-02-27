@@ -32,3 +32,7 @@ export const systemData = '/admin/system-data'
 export const admin = "/admin/admins"
 export const markAsRead = "/admin/notifications/read"
 export const notification = "/admin/notifications"
+
+export const roles = '/admin/roles'
+export const permission = '/admin/permissions'
+export const alert = '/admin/alerts'

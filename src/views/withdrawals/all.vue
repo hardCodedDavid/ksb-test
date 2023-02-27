@@ -59,7 +59,7 @@ type StatusType = "pending" | "completed" | "declined";
 
 const status_color = (status: StatusType) => {
   return status == "pending"
-    ? "yellow lighten-3"
+    ? "yellow-darken-3"
     : status == "completed"
     ? "green lighten-3"
     : status == "declined"

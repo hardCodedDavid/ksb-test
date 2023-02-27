@@ -136,7 +136,7 @@ export const useAuthStore = defineStore("auth", {
               const { notify } = useNotification();
 
               notify({
-                title: "Login Successful",
+                title: "Successful",
                 text: res.data.message,
                 type: "success",
               });
@@ -225,7 +225,7 @@ export const useAuthStore = defineStore("auth", {
               const { notify } = useNotification();
 
               notify({
-                title: "Login Successful",
+                title: "Successful",
                 text: res.data.message,
                 type: "success",
               });
@@ -258,7 +258,7 @@ export const useAuthStore = defineStore("auth", {
           })
           .then((res: { data: { message: string } }) => {
             notify({
-              title: "Login Successful",
+              title: "Successful",
               text: res.data.message,
               type: "success",
             });
@@ -272,7 +272,7 @@ export const useAuthStore = defineStore("auth", {
           })
           .catch((error: any) => {
             notify({
-              title: "Login Successful",
+              title: "Successful",
               text: error.response.message,
               type: "error",
             });
@@ -296,7 +296,7 @@ export const useAuthStore = defineStore("auth", {
           .then((res: { data: { message: string } }) => {
             this.twoFALoading = false;
             notify({
-              title: "Login Successful",
+              title: "Successful",
               text: res.data.message,
               type: "success",
             });
@@ -333,7 +333,7 @@ export const useAuthStore = defineStore("auth", {
               this.router.push("/dashboards/analytical");
               this.twoFALoading = false;
               notify({
-                title: "Login Successful",
+                title: "Successful",
                 text: res.data.message,
                 type: "success",
               });
