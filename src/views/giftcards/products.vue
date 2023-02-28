@@ -71,10 +71,10 @@ onMounted(async () => {
 });
 
 const blockedStatus = (status: string | null) => {
-  return !status ? "Activated" : "Not active";
+  return status !== null ? "Activated" : "Not active";
 };
 const statusColor = (status: string | null) => {
-  return !status ? "green lighten-3" : "red lighten-3";
+  return status !== null ? "green lighten-3" : "red lighten-3";
 };
 
 const edit = ref(false);
@@ -129,7 +129,8 @@ const editItem = (item: never) => {
             </v-chip>
           </td>
           <td>
-            <v-switch @input="activationGifCardProduct(item?.id)"></v-switch>
+            <v-switch :color="item?.activated_at !== null ? 'secondary' : null"  :value="item?.activated_at"
+              v-model="item.activated_at" @input="activationGifCardProduct(item?.id)"></v-switch>
           </td>
           <td>
             <!-- <v-icon

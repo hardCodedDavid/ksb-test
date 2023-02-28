@@ -54,6 +54,7 @@ export const useGiftCardStore = defineStore("giftcard", {
     //     }
     //   });
     // },
+    
   },
   actions: {
     async getAllGifCardCategories() {
@@ -242,7 +243,7 @@ export const useGiftCardStore = defineStore("giftcard", {
       const store = useAuthStore();
       try {
         await ksbTechApi
-          .get(giftCardCategory + "/" + id, {
+          .get(giftCardCategory + "/" + id + '?include=countries' , {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -451,7 +452,7 @@ export const useGiftCardStore = defineStore("giftcard", {
       this.loading = true;
       try {
         await ksbTechApi
-          .patch(giftCardCategory + '/' + payload.id, formData, {
+          .post(giftCardCategory + '/' + payload.id, formData, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,

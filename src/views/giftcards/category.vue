@@ -90,6 +90,23 @@ const editItem = (item: never) => {
   edit.value = true;
 };
 
+const close = () => {
+  dialog.value = false;
+  giftCard.value = Object.assign(
+    {},
+    {
+      name: "",
+      icon: null,
+      sale_term: "",
+      country: [],
+
+      data: "",
+    }
+  );
+  btnText.value = "Create Item";
+  edit.value = false;
+};
+
 const customFilter = (item: any, queryText: any, itemText: any) => {
   const textOne = item.name.toLowerCase();
   const textTwo = item.alpha2_code.toLowerCase();
@@ -99,12 +116,13 @@ const customFilter = (item: any, queryText: any, itemText: any) => {
   return textOne.indexOf(searchText) > -1 || textTwo.indexOf(searchText) > -1;
 };
 
+const toggled = ref(false);
 const blockedStatus = (status: string | null) => {
-  return !status ? "Activated" : "Not active";
+  return status !== null ? "Activated" : "Not active";
 };
 
 const statusColor = (status: string | null) => {
-  return !status ? "green lighten-3" : "red lighten-3";
+  return status !== null ? "green lighten-3" : "red lighten-3";
 };
 </script>
 
@@ -165,7 +183,16 @@ const statusColor = (status: string | null) => {
           <v-switch @input="restoreGifCardCategories(item?.id)"></v-switch>
         </td> -->
           <td>
-            <v-switch @input="activationGifCardCategories(item?.id)"></v-switch>
+            <v-switch
+              
+              density="compact"
+              :flat="true"
+              :value="item?.activated_at"
+              v-model="item.activated_at"
+              focused
+              :color="item?.activated_at !== null ? 'secondary' : null"
+              @input="activationGifCardCategories(item?.id)"
+            ></v-switch>
           </td>
           <td>
             <v-icon
@@ -213,7 +240,7 @@ const statusColor = (status: string | null) => {
     <v-dialog v-model="dialog" persistent max-width="520px">
       <v-card>
         <v-card-title class="py-4">
-          <h3 class="text-h5 font-weight-bold"> {{ btnText }}</h3>
+          <h3 class="text-h5 font-weight-bold">{{ btnText }}</h3>
         </v-card-title>
         <v-card-text>
           <v-container>
@@ -242,7 +269,7 @@ const statusColor = (status: string | null) => {
                     hint="This field is optional"
                     persistent-hint
                     v-model="giftCard.sale_term"
-                    label="Sale Term*"
+                    label="Sale Term"
                     required
                   ></v-textarea>
                 </v-col>
@@ -271,16 +298,16 @@ const statusColor = (status: string | null) => {
             color="secondary"
             class="px-7"
             variant="outlined"
-            @click="dialog = false"
+            @click="close()"
           >
             Close
           </v-btn>
           <v-btn
             :loading="loading"
-            @click=" edit == true
+            @click="
+              edit == true
                 ? editGiftCardCategory(giftCard)
                 : createGiftCardCategory(giftCard)
-             
             "
             color="secondary"
             class="px-12"
@@ -293,7 +320,7 @@ const statusColor = (status: string | null) => {
     </v-dialog>
   </v-row>
 
-  <v-dialog max-width="300px" v-model="dialog2">
+  <v-dialog max-width="380px" v-model="dialog2">
     <v-card class="pa-5">
       <h3>GiftCard Details</h3>
 
@@ -311,21 +338,35 @@ const statusColor = (status: string | null) => {
               </v-avatar>
               <div class="ml-4">
                 <h4 class="py-1">Name:</h4>
-                <p class="mb-0">{{ singleGiftCard?.name }}</p>
+                <p class="mb-0 grey-lighten-1">{{ singleGiftCard?.name }}</p>
               </div>
             </div>
           </v-col>
           <v-col cols="12" sm="6" lg="12">
-            <h4 class="py-1">Sales Term:</h4>
-            <p class="mb-0">
+            <h4 class="py-1">Activation status:</h4>
+            <v-chip
+              label
+              class="pa-2"
+              :color="statusColor(singleGiftCard?.activated_at)"
+            >
+              {{ blockedStatus(singleGiftCard?.activated_at) }}
+            </v-chip>
+          </v-col>
+          <v-col cols="12" sm="6" lg="12">
+            <h4 class="py-1">Giftcard term:</h4>
+            <p class="mb-0 grey-lighten-1">
               {{ singleGiftCard?.sale_term ?? "No sale term detail" }}
             </p>
           </v-col>
           <v-col cols="12" sm="6" lg="12">
-            <h4 class="py-1">Created At:</h4>
-            <p class="mb-0">
-              {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}
+            <h4 class="py-1">Date created:</h4>
+            <p class="mb-0 grey-lighten-1">
+              {{ useDateFormat(singleGiftCard?.created_at, "DD, MMMM-YYYY").value }}
             </p>
+          </v-col>
+          <v-col cols="12" sm="6" lg="12">
+            <h4 class="py-1">Giftcard countries:</h4>
+            <v-chip v-for="country in singleGiftCard?.countries" :key="country.id" class="ma-2" color="secondary"> {{country?.name}} </v-chip>
           </v-col>
         </v-row>
       </div>
@@ -338,4 +379,3 @@ table tbody tr td {
   padding: 15px !important;
 }
 </style>
-

@@ -51,7 +51,7 @@ export const useCountryStore = defineStore({
       this.loading = true
       try {
         await ksbTechApi
-          .get(countryMgt, {
+          .get(countryMgt + '?per_page=' +  100, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,

@@ -204,7 +204,7 @@ export const useNetworksStore = defineStore("networks", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(network, {
+          .get(network + '?include=assetsCount', {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,

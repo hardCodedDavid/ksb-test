@@ -35,13 +35,13 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
     withdrawals: (state) => state.withdrawal.data
   },
   actions: {
-    async getAllWithDrawals() {
+    async getAllWithDrawals(page_no:number) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       try {
         await ksbTechApi
-          .get(withdrawals + '?include=' + 'user', {
+          .get(withdrawals + '?include=' + 'user' + '&page=' + page_no, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -133,7 +133,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
                 text: res.data.message,
                 type: "success",
               });
-              this.getAllWithDrawals()
+              this.getAllWithDrawals(1)
             }
           );
       } catch (error: any) {
@@ -170,7 +170,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
                 text: res.data.message,
                 type: "success",
               });
-              this.getAllWithDrawals()
+              this.getAllWithDrawals(1)
             }
           );
       } catch (error: any) {

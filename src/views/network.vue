@@ -24,6 +24,9 @@ const header = ref([
     title: "Wallet address",
   },
   {
+    title: "Asset count",
+  },
+  {
     title: "Created at",
   },
   {
@@ -106,6 +109,7 @@ const close = (item: never) => {
               </td>
 
               <td>{{ item.wallet_address }}</td>
+              <td>{{ item.assets_count }}</td>
 
               <td>
                 {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}

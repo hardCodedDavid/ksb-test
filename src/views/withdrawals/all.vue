@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { useDateFormat } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useWithdrawalsStore } from "../../stores/withdrawals";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
+import { watchWithFilter, debounceFilter } from '@vueuse/core'
+
 
 const {
   getAllWithDrawals,
@@ -16,8 +18,32 @@ const { withdrawals, loading, singleWithdrawal } = storeToRefs(
 );
 
 onMounted(async () => {
-  await getAllWithDrawals();
+  await getAllWithDrawals(1);
 });
+
+
+const search = ref("");
+
+const searching = () => {
+  if(!search.value) return  withdrawals.value
+
+ 
+watchWithFilter(
+  search,
+  () => { 
+    const lower_cased_search = search.value.toLowerCase() 
+    return withdrawals.value.filter((item:any) => {
+      const text = item.account_name?.toLowerCase()
+
+      return text?.indexOf(lower_cased_search) > -1
+    })
+
+   },
+  { eventFilter: debounceFilter(5000)},
+)
+
+}
+
 
 const page_title = ref({ title: "Withdrawals" });
 const breadcrumbs = ref([
@@ -38,10 +64,13 @@ const header = ref([
     title: "No.",
   },
   {
-    title: "Username",
+    title: "Account name",
   },
   {
     title: "Amount (NGN)",
+  },
+  {
+    title: "Account number",
   },
   {
     title: "Date and Time",
@@ -91,6 +120,38 @@ const page = ref(21);
       :breadcrumbs="breadcrumbs"
     ></BaseBreadcrumb>
     <div class="mt-4">
+      <v-card flat rounded="1" class="my-5 pa-4">
+        <h4>Filter Options:</h4>
+
+        <v-row class="mt-3">
+          <!-- <v-col cols="12" sm="6" md="3">
+            <v-text-field
+              label="Search account number"
+              density="compact"
+              v-model="search"
+              variant="outlined"
+            ></v-text-field>
+          </v-col> -->
+          <v-col cols="12" sm="6" md="6">
+            <v-text-field
+              label="Filter by date created"
+              density="compact"
+              variant="outlined"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="6" md="6">
+            <v-text-field
+              label="Filter by transaction status"
+              density="compact"
+              variant="outlined"
+            ></v-text-field>
+          </v-col>
+          <!-- <v-col cols="12" sm="6" md="3">
+            <v-btn block color="secondary">Submit</v-btn>
+          </v-col> -->
+        </v-row>
+      </v-card>
+
       <v-card class="pa-5">
         <v-table>
           <thead>
@@ -107,15 +168,15 @@ const page = ref(21);
           <tbody v-if="loading == false">
             <tr
               class="pa-3"
-              v-for="(withdrawal, index) in withdrawals"
+              v-for="(withdrawal, index) in searching()"
               :key="withdrawal?.id"
             >
               <td>{{ index + 1 }}</td>
-              <td class="text-capitalize font-weight-bold">
-                {{ withdrawal?.user?.firstname }}
-                {{ withdrawal?.user?.lastname }}
+              <td class="font-weight-bold">
+                <span class="text-capitalize">{{ withdrawal?.account_name ?? "No name" }}</span>
               </td>
               <td>₦‎ {{ withdrawal?.amount }}</td>
+              <td>{{ withdrawal?.account_number }}</td>
               <td>
                 {{
                   useDateFormat(withdrawal?.created_at, "DD, MMMM-YYYY").value
@@ -191,22 +252,37 @@ const page = ref(21);
         >
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
+
+        <p
+          v-if="loading == false && withdrawals?.length <= 0"
+          class="text-center py-6"
+        >
+          No data available
+        </p>
       </v-card>
       <v-pagination
         v-model="page"
         :length="4"
-        active-color="grey-darken-4"
-        prev-icon="mdi-menu-left"
-        next-icon="mdi-menu-right"
+        @next="getAllWithDrawals(page)"
+        @prev="getAllWithDrawals(page)"
+        @update:modelValue="getAllWithDrawals(page)"
+        active-color="red"
+        :start="1"
+        variant="flat"
+        class="mt-5"
+        color="bg-secondary"
+        rounded="circle"
       ></v-pagination>
     </div>
 
-    <v-dialog v-if="dialog" v-model="dialog" max-width="500px">
+    <v-dialog v-if="dialog" v-model="dialog" max-width="450px">
       <v-card class="pa-5">
         <h3 class="text-center">Withdrawal Request</h3>
 
         <v-container class="fill-height w-100">
           <v-row
+          align="center"
+          justify="center"
             v-if="fetching == false"
             class="my-5 fill-height w-100 align-center justify-space-between"
           >
@@ -243,24 +319,24 @@ const page = ref(21);
             <v-col cols="12" sm="6">
               <h4>Last name</h4>
               <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal.user_bank_account?.user?.lastname }}
+                {{ singleWithdrawal?.user?.lastname }}
               </p>
             </v-col>
             <v-col cols="12" sm="6">
               <h4>Account name</h4>
               <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal.user_bank_account?.account_name }}
+                {{ singleWithdrawal?.account_name }}
               </p>
             </v-col>
 
             <v-col cols="12" sm="6">
               <h4>Account number</h4>
-              <p>{{ singleWithdrawal.user_bank_account?.account_number }}</p>
+              <p>{{ singleWithdrawal?.account_number }}</p>
             </v-col>
             <v-col cols="12" sm="6">
               <h4>Bank name</h4>
               <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal.user_bank_account?.bank.name }}
+                {{ singleWithdrawal?.bank?.name }}
               </p>
             </v-col>
           </v-row>

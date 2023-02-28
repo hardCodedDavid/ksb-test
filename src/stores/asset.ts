@@ -63,13 +63,13 @@ export const useAssetStore = defineStore("asset", {
   },
   actions: {
     // ASSETS TRANSACTION
-    async getAllAssetTransactions() {
+    async getAllAssetTransactions(status:string, page:number) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       try {
         await ksbTechApi
-          .get(asset, {
+          .get(asset + '?filter[status]=' + status.toLowerCase() + '&page=' + page, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,

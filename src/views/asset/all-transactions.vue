@@ -14,7 +14,12 @@ const { allTransactions, loading, dialog, single_transactions } = storeToRefs(
   useAssetStore()
 );
 
+const page = ref(1);
+
 const header = ref([
+  {
+    title: "No.",
+  },
   {
     title: "Account name",
   },
@@ -38,17 +43,19 @@ const header = ref([
     title: "Actions",
   },
 ]);
+
+const status = ref("");
 onMounted(async () => {
-  await getAllAssetTransactions();
+  await getAllAssetTransactions(status.value, 1);
 });
 
 // CHANGE STATUS COLOR
-type StatusType = "pending" | "transferred" | "declined";
+type StatusType = "pending" | "approved" | "declined";
 
 const status_color = (status: StatusType) => {
   return status == "pending"
-    ? "yellow lighten-3"
-    : status == "transferred"
+    ? "yellow-darken-3"
+    : status == "approved"
     ? "green lighten-3"
     : status == "declined"
     ? "red lighten-3"
@@ -61,6 +68,46 @@ const status_color = (status: StatusType) => {
   <v-row>
     <v-col cols="12" sm="12" class="mt-4">
       <h2 class="my-3">Asset transactions</h2>
+
+      <v-card flat rounded="1" class="my-5 pa-4">
+        <h4>Filter Options:</h4>
+
+        <v-row class="mt-3">
+          <v-col cols="12" sm="6" md="6">
+            <v-text-field
+              label="Search account number"
+              density="compact"
+              v-model="search"
+              variant="outlined"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="6" md="6">
+            <v-select
+              label="Filter by status"
+              density="compact"
+              :persistent-placeholder="true"
+              :placeholder="'Select'"
+              @update:modelValue="getAllAssetTransactions"
+              v-model="status"
+             
+              :items="['Approved', 'Declined', 'Transferred', 'Pending']"
+              variant="outlined"
+
+            ></v-select>
+          </v-col>
+          <!-- <v-col cols="12" sm="6" md="6">
+            <v-select
+              label="Filter by trade type"
+              density="compact"
+              placeholder="Select"
+              @update:modelValue="getAllAssetTransactions"
+              v-model="status"
+              :items="['Buy', 'Sell']"
+              variant="outlined"
+            ></v-select>
+          </v-col> -->
+        </v-row>
+      </v-card>
       <v-card class="pa-5">
         <v-table>
           <thead>
@@ -75,14 +122,17 @@ const status_color = (status: StatusType) => {
             </tr>
           </thead>
           <tbody v-if="allTransactions?.length > 0 && loading == false">
-            <tr v-for="item in allTransactions" :key="item.id">
+            <tr v-for="(item, index) in allTransactions" :key="item.id">
+              <td>{{ index + 1 }}</td>
               <td :class="{ 'font-weight-bold': item.account_name == null }">
                 {{ item.account_name ?? "No name" }}
               </td>
               <td>{{ item.reference }}</td>
-              <td>₦‎{{ item.asset_amount }}</td>
+              <td>₦‎{{ item.payable_amount }}</td>
               <td>
-                {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}
+                {{
+                  useDateFormat(item?.created_at, "DD, MMMM-YYYY HH:MM a").value
+                }}
               </td>
               <td>{{ item.trade_type }}</td>
 
@@ -154,6 +204,19 @@ const status_color = (status: StatusType) => {
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
       </v-card>
+      <v-pagination
+        v-model="page"
+        :length="4"
+        @next="getAllAssetTransactions(status, page)"
+        @prev="getAllAssetTransactions(status, page)"
+        @update:modelValue="getAllAssetTransactions(status, page)"
+        active-color="red"
+        :start="1"
+        variant="flat"
+        class="mt-5"
+        color="bg-secondary"
+        rounded="circle"
+      ></v-pagination>
     </v-col>
 
     <v-dialog v-model="dialog" width="600">
@@ -163,53 +226,51 @@ const status_color = (status: StatusType) => {
           <div class="d-flex align-center justify-space-between">
             <div>
               <h4>Account name</h4>
-              <p>{{ single_transactions.account_name ?? 'No data'}}</p>
+              <p>{{ single_transactions.account_name ?? "No data" }}</p>
             </div>
             <div>
               <h4>Account number</h4>
-              <p>{{ single_transactions.account_number ?? 'No data'}}</p>
+              <p>{{ single_transactions.account_number ?? "No data" }}</p>
             </div>
           </div>
           <div class="d-flex align-center justify-space-between my-5">
             <div>
               <h4>Reference</h4>
-              <p>{{ single_transactions.reference ?? 'No data' }}</p>
+              <p>{{ single_transactions.reference ?? "No data" }}</p>
             </div>
             <div>
               <h4>Account number</h4>
-              <p>{{ single_transactions.account_number ?? 'No data' }}</p>
+              <p>{{ single_transactions.account_number ?? "No data" }}</p>
             </div>
           </div>
           <div class="d-flex align-center justify-space-between my-5">
             <div>
               <h4>Status</h4>
-             <v-chip
-                  label
-                  class="text-capitalize font-weight-bold pa-3"
-                  :color="status_color(item?.status)"
-                  >{{ single_transactions?.status ?? 'No data' }}</v-chip
-                >
+              <v-chip
+                label
+                class="text-capitalize font-weight-bold pa-3"
+                :color="status_color(item?.status)"
+                >{{ single_transactions?.status ?? "No data" }}</v-chip
+              >
             </div>
             <div>
               <h4>Payable amount</h4>
-              <p>₦‎ {{ single_transactions.payable_amount ?? 'No data' }}</p>
+              <p>₦‎ {{ single_transactions.payable_amount ?? "No data" }}</p>
             </div>
           </div>
           <div class="d-flex align-center justify-space-between my-5">
             <div>
               <h4>Asset amount</h4>
-             <p>₦‎ {{single_transactions.asset_amount ?? 'No data'}}</p>
+              <p>₦‎ {{ single_transactions.asset_amount ?? "No data" }}</p>
             </div>
             <div>
               <h4>Service charge</h4>
-              <p>₦‎ {{ single_transactions.service_charge ?? 'No data' }}</p>
+              <p>₦‎ {{ single_transactions.service_charge ?? "No data" }}</p>
             </div>
           </div>
 
           <div class="my-5">
-          <h4>
-            Transaction Receipts
-          </h4>
+            <h4>Transaction Receipts</h4>
             <v-img :src="single_transactions.proof"></v-img>
           </div>
         </v-card-text>
