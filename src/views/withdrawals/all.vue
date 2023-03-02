@@ -4,45 +4,22 @@ import { useDateFormat } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useWithdrawalsStore } from "../../stores/withdrawals";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
-import { watchWithFilter, debounceFilter } from '@vueuse/core'
-
+import { watchWithFilter, debounceFilter } from "@vueuse/core";
 
 const {
   getAllWithDrawals,
   approveRequest,
   declineRequest,
   getSingleWithDrawals,
+  filterWithDrawalsByDateCreated,
 } = useWithdrawalsStore();
-const { withdrawals, loading, singleWithdrawal } = storeToRefs(
-  useWithdrawalsStore()
-);
-
+const { withdrawals, loading, singleWithdrawal } = storeToRefs(useWithdrawalsStore());
+const status = ref("");
 onMounted(async () => {
-  await getAllWithDrawals(1);
+  await getAllWithDrawals(status.value, 1);
 });
 
-
-const search = ref("");
-
-const searching = () => {
-  if(!search.value) return  withdrawals.value
-
- 
-watchWithFilter(
-  search,
-  () => { 
-    const lower_cased_search = search.value.toLowerCase() 
-    return withdrawals.value.filter((item:any) => {
-      const text = item.account_name?.toLowerCase()
-
-      return text?.indexOf(lower_cased_search) > -1
-    })
-
-   },
-  { eventFilter: debounceFilter(5000)},
-)
-
-}
+// const search = ref("");
 
 
 const page_title = ref({ title: "Withdrawals" });
@@ -83,6 +60,8 @@ const header = ref([
   },
 ]);
 
+const status_options = ref(["Pending", "Completed", "Declined"]);
+
 // CHANGE STATUS COLOR
 type StatusType = "pending" | "completed" | "declined";
 
@@ -106,7 +85,9 @@ const viewWithDrawalRequest = async (id: string) => {
   fetching.value = false;
 };
 
-const page = ref(21);
+const page = ref(1);
+
+const date = ref("");
 </script>
 
 <template>
@@ -115,39 +96,40 @@ const page = ref(21);
   <!-- ----------------------------------------------------------------------------- -->
   <!-- <v-data-table></v-data-table> -->
   <div>
-    <BaseBreadcrumb
-      :title="page_title.title"
-      :breadcrumbs="breadcrumbs"
-    ></BaseBreadcrumb>
+    <BaseBreadcrumb :title="page_title.title" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
     <div class="mt-4">
       <v-card flat rounded="1" class="my-5 pa-4">
         <h4>Filter Options:</h4>
 
         <v-row class="mt-3">
-          <!-- <v-col cols="12" sm="6" md="3">
-            <v-text-field
-              label="Search account number"
-              density="compact"
-              v-model="search"
-              variant="outlined"
-            ></v-text-field>
-          </v-col> -->
           <v-col cols="12" sm="6" md="6">
-            <v-text-field
-              label="Filter by date created"
+            <v-select
+              label="Sort by date created"
+              v-model="date"
+              @update:modelValue="filterWithDrawalsByDateCreated"
+              :items="['created_at']"
               density="compact"
               variant="outlined"
-            ></v-text-field>
+            ></v-select>
           </v-col>
           <v-col cols="12" sm="6" md="6">
-            <v-text-field
+            <v-select
+              v-model="status"
               label="Filter by transaction status"
               density="compact"
+              @update:modelValue="getAllWithDrawals"
+              :items="status_options"
+              variant="outlined"
+            ></v-select>
+          </v-col>
+          <!-- <v-col cols="12" sm="6" md="6">
+            <v-text-field
+              @update:modelValue="searching"
+              v-model="search"
+              label="Search"
+              density="compact"
               variant="outlined"
             ></v-text-field>
-          </v-col>
-          <!-- <v-col cols="12" sm="6" md="3">
-            <v-btn block color="secondary">Submit</v-btn>
           </v-col> -->
         </v-row>
       </v-card>
@@ -168,19 +150,19 @@ const page = ref(21);
           <tbody v-if="loading == false">
             <tr
               class="pa-3"
-              v-for="(withdrawal, index) in searching()"
+              v-for="(withdrawal, index) in withdrawals"
               :key="withdrawal?.id"
             >
               <td>{{ index + 1 }}</td>
               <td class="font-weight-bold">
-                <span class="text-capitalize">{{ withdrawal?.account_name ?? "No name" }}</span>
+                <span class="text-capitalize">{{
+                  withdrawal?.account_name ?? "---"
+                }}</span>
               </td>
               <td>₦‎ {{ withdrawal?.amount }}</td>
-              <td>{{ withdrawal?.account_number }}</td>
+              <td>{{ withdrawal?.account_number ?? "---" }}</td>
               <td>
-                {{
-                  useDateFormat(withdrawal?.created_at, "DD, MMMM-YYYY").value
-                }}
+                {{ useDateFormat(withdrawal?.created_at, "DD, MMMM-YYYY").value }}
               </td>
               <!-- <td>{{ item.status }}</td> -->
 
@@ -246,26 +228,20 @@ const page = ref(21);
           </tbody>
         </v-table>
 
-        <v-layout
-          v-if="loading == true"
-          class="align-center justify-center w-100 my-5"
-        >
+        <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
 
-        <p
-          v-if="loading == false && withdrawals?.length <= 0"
-          class="text-center py-6"
-        >
+        <p v-if="loading == false && withdrawals?.length <= 0" class="text-center py-6">
           No data available
         </p>
       </v-card>
       <v-pagination
         v-model="page"
         :length="4"
-        @next="getAllWithDrawals(page)"
-        @prev="getAllWithDrawals(page)"
-        @update:modelValue="getAllWithDrawals(page)"
+        @next="getAllWithDrawals(status, page)"
+        @prev="getAllWithDrawals(status, page)"
+        @update:modelValue="getAllWithDrawals(status, page)"
         active-color="red"
         :start="1"
         variant="flat"
@@ -281,8 +257,8 @@ const page = ref(21);
 
         <v-container class="fill-height w-100">
           <v-row
-          align="center"
-          justify="center"
+            align="center"
+            justify="center"
             v-if="fetching == false"
             class="my-5 fill-height w-100 align-center justify-space-between"
           >
@@ -341,10 +317,7 @@ const page = ref(21);
             </v-col>
           </v-row>
         </v-container>
-        <v-layout
-          v-if="fetching == true"
-          class="align-center justify-center w-100 my-10"
-        >
+        <v-layout v-if="fetching == true" class="align-center justify-center w-100 my-10">
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
 
@@ -356,7 +329,7 @@ const page = ref(21);
   </div>
 </template>
 
-<style scoped>
+<style>
 table tbody tr td {
   padding: 15px !important;
 }

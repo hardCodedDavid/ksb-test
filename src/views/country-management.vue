@@ -7,7 +7,7 @@ const { getCountryMgt, giftcardActivation, registrationActivation } =
   useCountryStore();
 const countryHeader = reactive([
   {
-    title: "No.",
+    title: "Code.",
   },
   {
     title: "Country flag",
@@ -33,8 +33,9 @@ const countryHeader = reactive([
 
 const heading = ref("Country Management");
 
+const page = ref(1)
 onMounted(async () => {
-  await getCountryMgt();
+  await getCountryMgt(page.value);
 });
 
 const blockedStatus = (status: string | null) => {
@@ -66,7 +67,7 @@ const statusColor = (status: string | null) => {
         </thead>
         <tbody v-if="loading == false">
           <tr v-for="(countries, index) in countryMgt" :key="countries.id">
-            <td>{{ index + 1 }}</td>
+            <td>{{ countries?.alpha3_code }}</td>
             <td>
               <v-avatar size="45px">
                 <v-img
@@ -145,7 +146,22 @@ const statusColor = (status: string | null) => {
       >
         <v-progress-circular indeterminate></v-progress-circular>
       </v-layout>
+
+      
     </v-card>
+    <v-pagination
+        v-model="page"
+        :length="4"
+        @next="getCountryMgt(page)"
+        @prev="getCountryMgt(page)"
+        @update:modelValue="getCountryMgt(page)"
+        active-color="red"
+        :start="1"
+        variant="flat"
+        class="mt-5"
+        color="bg-secondary"
+        rounded="circle"
+      ></v-pagination>
   </div>
 </template>
 

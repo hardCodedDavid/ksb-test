@@ -62,7 +62,7 @@ const status_color = (status: StatusType) => {
     : "";
 };
 //
-
+const status_options = ref(["Pending", "Completed", "Declined"]);
 onMounted(async () => {
   await getAllGiftCardTransaction();
 });
@@ -72,7 +72,43 @@ onMounted(async () => {
     :title="page.title"
     :breadcrumbs="breadcrumbs"
   ></BaseBreadcrumb>
+       <v-card flat elevation="0" rounded="0" class="my-5 pa-4">
+        <h4>Filter Options:</h4>
+
+        <v-row class="mt-3">
+          <v-col cols="12" sm="6" md="6">
+            <v-select
+              label="Sort by date created"
+              v-model="date"
+              @update:modelValue="filterWithDrawalsByDateCreated"
+              :items="['created_at']"
+              density="compact"
+              variant="outlined"
+            ></v-select>
+          </v-col>
+          <v-col cols="12" sm="6" md="6">
+            <v-select
+              v-model="status"
+              label="Filter by transaction status"
+              density="compact"
+              @update:modelValue="getAllWithDrawals"
+              :items="status_options"
+              variant="outlined"
+            ></v-select>
+          </v-col>
+          <!-- <v-col cols="12" sm="6" md="6">
+            <v-text-field
+              @update:modelValue="searching"
+              v-model="search"
+              label="Search"
+              density="compact"
+              variant="outlined"
+            ></v-text-field>
+          </v-col> -->
+        </v-row>
+      </v-card>
   <v-row>
+  
     <v-col cols="12" sm="12" class="mt-4">
       <v-card class="pa-5">
         <v-table>
@@ -160,6 +196,19 @@ onMounted(async () => {
           No data found
         </p>
       </v-card>
+       <v-pagination
+        v-model="page"
+        :length="4"
+        @next="getAllWithDrawals(status, page)"
+        @prev="getAllWithDrawals(status, page)"
+        @update:modelValue="getAllWithDrawals(status, page)"
+        active-color="red"
+        :start="1"
+        variant="flat"
+        class="mt-5"
+        color="bg-secondary"
+        rounded="circle"
+      ></v-pagination>
     </v-col>
   </v-row>
 </template>

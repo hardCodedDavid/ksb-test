@@ -46,12 +46,12 @@ export const useCountryStore = defineStore({
 
       }
     },
-    async getCountryMgt() {
+    async getCountryMgt(page_no:number) {
       const store = useAuthStore();
       this.loading = true
       try {
         await ksbTechApi
-          .get(countryMgt + '?per_page=' +  100, {
+          .get(countryMgt + '?per_page=' +  100 + '&page=' + page_no, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,

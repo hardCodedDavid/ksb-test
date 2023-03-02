@@ -63,13 +63,109 @@ export const useAssetStore = defineStore("asset", {
   },
   actions: {
     // ASSETS TRANSACTION
-    async getAllAssetTransactions(status:string, page:number) {
+    async getAllAssetTransactions(status:string, page:number, type:string) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       try {
         await ksbTechApi
-          .get(asset + '?filter[status]=' + status.toLowerCase() + '&page=' + page, {
+          .get(asset + '?filter[status]=' + status.toLowerCase() + '&page=' + page + '&filter[trade_type]=' + type.toLowerCase() + '&include=asset', {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { asset_transactions: { data: Data } };
+              };
+            }) => {
+              this.loading = false;
+              notify({
+                title: "Successful",
+                text: res.data.message,
+                type: "success",
+              });
+              this.all_transactions = res.data.data.asset_transactions;
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
+    async getAllAssetTransactionByTradeType(type:string) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(asset + '?filter[trade_type]=' + type.toLowerCase() + '&include=asset', {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { asset_transactions: { data: Data } };
+              };
+            }) => {
+              this.loading = false;
+              notify({
+                title: "Successful",
+                text: res.data.message,
+                type: "success",
+              });
+              this.all_transactions = res.data.data.asset_transactions;
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
+    async getAllAssetTransactionByReference(reference:string) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(asset + '?filter[reference]=' + reference + '&include=asset', {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { asset_transactions: { data: Data } };
+              };
+            }) => {
+              this.loading = false;
+              notify({
+                title: "Successful",
+                text: res.data.message,
+                type: "success",
+              });
+              this.all_transactions = res.data.data.asset_transactions;
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
+    async getAllAssetTransactionByDate(date:string) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(asset + '?filter[creation_date]=' + date + '&include=asset', {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -134,7 +230,7 @@ export const useAssetStore = defineStore("asset", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(asset + "/" + id, {
+          .get(asset + "/" + id + '?include=asset', {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,

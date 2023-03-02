@@ -3,17 +3,20 @@ import { ref, onMounted } from "vue";
 import { useAssetStore } from "../../stores/asset";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
-
+import { watchDebounced } from "@vueuse/core";
 const {
   getAllAssetTransactions,
   approveAssetTransactions,
   declineAssetTransactions,
   getSingleAssetTransactions,
+  getAllAssetTransactionByTradeType,
+  getAllAssetTransactionByReference,
+  getAllAssetTransactionByDate,
 } = useAssetStore();
 const { allTransactions, loading, dialog, single_transactions } = storeToRefs(
   useAssetStore()
 );
-
+const tab = ref(null)
 const page = ref(1);
 
 const header = ref([
@@ -45,8 +48,21 @@ const header = ref([
 ]);
 
 const status = ref("");
+const search = ref("");
+const type = ref("");
+const date = ref("");
+const search_by_reference = () => {
+  watchDebounced(
+    search,
+    async () => {
+      await getAllAssetTransactionByReference(search.value);
+    },
+    { debounce: 1000, maxWait: 1000 }
+  );
+};
+
 onMounted(async () => {
-  await getAllAssetTransactions(status.value, 1);
+  await getAllAssetTransactions(status.value, 1, type.value);
 });
 
 // CHANGE STATUS COLOR
@@ -62,6 +78,10 @@ const status_color = (status: StatusType) => {
     : "";
 };
 //
+
+const open_file = (file: string) => {
+  window.open(file);
+};
 </script>
 
 <template>
@@ -75,8 +95,9 @@ const status_color = (status: StatusType) => {
         <v-row class="mt-3">
           <v-col cols="12" sm="6" md="6">
             <v-text-field
-              label="Search account number"
+              label="Filter by reference number"
               density="compact"
+              @update:modelValue="search_by_reference"
               v-model="search"
               variant="outlined"
             ></v-text-field>
@@ -89,23 +110,31 @@ const status_color = (status: StatusType) => {
               :placeholder="'Select'"
               @update:modelValue="getAllAssetTransactions"
               v-model="status"
-             
               :items="['Approved', 'Declined', 'Transferred', 'Pending']"
               variant="outlined"
-
             ></v-select>
           </v-col>
-          <!-- <v-col cols="12" sm="6" md="6">
+          <v-col cols="12" sm="6" md="6">
             <v-select
               label="Filter by trade type"
               density="compact"
               placeholder="Select"
-              @update:modelValue="getAllAssetTransactions"
-              v-model="status"
+              @update:modelValue="getAllAssetTransactionByTradeType"
+              v-model="type"
               :items="['Buy', 'Sell']"
               variant="outlined"
             ></v-select>
-          </v-col> -->
+          </v-col>
+          <v-col cols="12" sm="6" md="6">
+            <v-text-field
+              label="Filter by date created"
+              density="compact"
+              @update:modelValue="getAllAssetTransactionByDate"
+              v-model="date"
+              type="date"
+              variant="outlined"
+            ></v-text-field>
+          </v-col>
         </v-row>
       </v-card>
       <v-card class="pa-5">
@@ -128,7 +157,7 @@ const status_color = (status: StatusType) => {
                 {{ item.account_name ?? "No name" }}
               </td>
               <td>{{ item.reference }}</td>
-              <td>₦‎{{ item.payable_amount }}</td>
+              <td>₦‎{{ item.payable_amount.toLocaleString() }}</td>
               <td>
                 {{
                   useDateFormat(item?.created_at, "DD, MMMM-YYYY HH:MM a").value
@@ -207,9 +236,9 @@ const status_color = (status: StatusType) => {
       <v-pagination
         v-model="page"
         :length="4"
-        @next="getAllAssetTransactions(status, page)"
-        @prev="getAllAssetTransactions(status, page)"
-        @update:modelValue="getAllAssetTransactions(status, page)"
+        @next="getAllAssetTransactions(status, page, type)"
+        @prev="getAllAssetTransactions(status, page, type)"
+        @update:modelValue="getAllAssetTransactions(status, page, type)"
         active-color="red"
         :start="1"
         variant="flat"
@@ -222,7 +251,14 @@ const status_color = (status: StatusType) => {
     <v-dialog v-model="dialog" width="600">
       <v-card class="pa-3">
         <h3 class="text-center my-3">Asset transactions details</h3>
-        <v-card-text>
+
+        <v-tabs v-model="tab" class="my-4" bg-color="secondary">
+          <v-tab value="one">First view</v-tab>
+          <v-tab value="two">Second view</v-tab>
+        </v-tabs>
+        <v-window v-model="tab">
+          <v-window-item value="one">
+            <v-card-text>
           <div class="d-flex align-center justify-space-between">
             <div>
               <h4>Account name</h4>
@@ -249,31 +285,108 @@ const status_color = (status: StatusType) => {
               <v-chip
                 label
                 class="text-capitalize font-weight-bold pa-3"
-                :color="status_color(item?.status)"
+                :color="status_color(single_transactions?.status)"
                 >{{ single_transactions?.status ?? "No data" }}</v-chip
               >
             </div>
-            <div>
+            <div class="mr-2">
               <h4>Payable amount</h4>
-              <p>₦‎ {{ single_transactions.payable_amount ?? "No data" }}</p>
+              <p>
+                ₦‎
+                {{
+                  single_transactions.payable_amount.toLocaleString() ??
+                  "No data"
+                }}
+              </p>
             </div>
           </div>
           <div class="d-flex align-center justify-space-between my-5">
             <div>
               <h4>Asset amount</h4>
-              <p>₦‎ {{ single_transactions.asset_amount ?? "No data" }}</p>
+              <p>
+                {{single_transactions.asset?.code ?? "No data"}}
+                
+                {{
+                  single_transactions.asset_amount.toLocaleString() ?? "No data"
+                }}
+              </p>
             </div>
-            <div>
+            <div class="mr-4">
               <h4>Service charge</h4>
-              <p>₦‎ {{ single_transactions.service_charge ?? "No data" }}</p>
+              <p>
+                ₦‎
+                {{
+                  single_transactions.service_charge.toLocaleString() ??
+                  "No data"
+                }}
+              </p>
             </div>
           </div>
 
+
           <div class="my-5">
-            <h4>Transaction Receipts</h4>
-            <v-img :src="single_transactions.proof"></v-img>
+            <v-card
+              rounded="0"
+              class="pa-5 my-3 d-flex align-center justify-between w-100"
+            >
+              <div
+                v-if="single_transactions.proof !== null"
+                class="d-flex align-center justify-between w-100"
+              >
+                <v-icon icon="mdi-file-document"></v-icon>
+                <p>Transaction Receipts</p>
+              </div>
+              <v-btn
+                v-if="single_transactions.proof !== null"
+                @click="open_file(single_transactions.proof)"
+                color="secondary"
+                >View reciept</v-btn
+              >
+
+              <p v-else class="text-center py-4">No Transaction Receipts</p>
+            </v-card>
+            <!-- <v-img :src="single_transactions.proof"></v-img> -->
           </div>
         </v-card-text>
+
+       
+          </v-window-item>
+
+           <v-window-item value="two">
+          <v-card-text>
+             <div class="d-flex align-center justify-space-between">
+            <div>
+              <h4>Comments</h4>
+              <p>{{ single_transactions.comments ?? "No data" }}</p>
+            </div>
+            <div >
+              <h4>Selling rate</h4>
+              <p>{{ single_transactions.rate ?? "No data" }}</p>
+            </div>
+          </div>
+             <div class="d-flex align-center justify-space-between my-5">
+            <div>
+              <h4>Wallet address</h4>
+              <p>{{ single_transactions.wallet_address ?? "No data" }}</p>
+            </div>
+            <div>
+              <h4>Trade type</h4>
+              <p>{{ single_transactions.trade_type ?? "No data" }}</p>
+            </div>
+          </div>
+             <div class="d-flex align-center justify-space-between my-5">
+            <div>
+              <h4>Buying rate</h4>
+              <p>{{ single_transactions.asset?.buy_rate ?? "No data" }}</p>
+            </div>
+            <div>
+              <h4>Asset code</h4>
+              <p>{{ single_transactions.asset?.code ?? "No data" }}</p>
+            </div>
+          </div>
+          </v-card-text>
+        </v-window-item>
+        </v-window>
         <!-- <v-card-actions>
           <v-btn color="primary" block @click="dialog = false"
             >Close Dialog</v-btn
