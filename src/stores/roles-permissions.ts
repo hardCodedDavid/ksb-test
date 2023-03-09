@@ -120,7 +120,10 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
                       data: any;
                     };
                   }) => {
+
                     this.getAllRoles()
+
+                    this.router.push('/roles')
                     this.loading = false
                   }
                 );

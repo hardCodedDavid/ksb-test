@@ -367,6 +367,12 @@ const router = createRouter({
             import("@/views/roles/roles-permission.vue"),
         },
         {
+          name: "Create Role",
+          path: "/roles/create-role",
+          component: () =>
+            import("@/views/roles/create-role.vue"),
+        },
+        {
           name: "Users",
           path: "/user/all",
           component: () =>
@@ -411,7 +417,7 @@ const router = createRouter({
       children: [
         {
           name: "Login",
-          path: "/authentication/fulllogin",
+          path: "/auth/login",
           component: () => import("@/views/authentication/FullLogin.vue"),
 
         },

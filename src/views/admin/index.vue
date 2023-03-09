@@ -41,7 +41,7 @@ const header = reactive([
   },
 
   {
-    title: "Joining Date",
+    title: "Date Joined",
   },
   // {
   //   title: "Toggle blocked status",

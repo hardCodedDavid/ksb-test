@@ -73,7 +73,7 @@ export const useAlertStore = defineStore('alert', {
             formData.append("title", alerts.title);
             formData.append("body", alerts.body);
             formData.append("target_user", alerts.target_user.toLowerCase());
-            formData.append("dispatch_datetime", alerts.dispatched_at + ' ' + '5:00');
+            formData.append("dispatch_datetime", alerts.dispatched_at + ' ' + '5:00:00');
             // formData.append("target_user", alert.target_user);
 
             const emails = alerts.channels
@@ -99,6 +99,7 @@ export const useAlertStore = defineStore('alert', {
                       data: any;
                     };
                   }) => {
+                    this.dialog = false
                     this.getAlerts()
                     this.loading = false
                   }

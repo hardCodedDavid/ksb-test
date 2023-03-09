@@ -16,6 +16,7 @@ const {
   getAllGifCardProduct,
   deleteGifCardProducts,
   activationGifCardProduct,
+  editGiftCardProduct
 } = useGiftProductStore();
 const page = ref({ title: "Gift Cards" });
 const breadcrumbs = ref([
@@ -119,9 +120,9 @@ const editItem = (item: never) => {
         <tr v-for="(item, index) in gift_products.data" :key="item?.id">
           <td>{{ index + 1 }}</td>
           <td>{{ item?.name }}</td>
-          <td>{{ item?.sell_rate }}</td>
-          <td>₦‎ {{ item?.sell_min_amount }}</td>
-          <td>₦‎ {{ item?.sell_max_amount }}</td>
+          <td>{{ item.sell_rate.toLocaleString() }}</td>
+          <td>₦‎ {{ item.sell_min_amount.toLocaleString() }}</td>
+          <td>₦‎ {{ item.sell_max_amount.toLocaleString() }}</td>
           <td>{{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}</td>
           <td>
             <v-chip label class="pa-2" :color="statusColor(item?.activated_at)">
@@ -222,7 +223,8 @@ const editItem = (item: never) => {
                     :items="countries"
                     label="Countries*"
                     required
-                    multiple
+                    
+                    chips
                     item-title="name"
                     item-value="id"
                     v-model="giftCard.country"
@@ -235,10 +237,11 @@ const editItem = (item: never) => {
                     :items="giftCardCategories"
                     label="Giftcard categories*"
                     required
-                    multiple
+                    
+                    chips
                     item-title="name"
                     item-value="id"
-                    v-model="giftCard.id"
+                    v-model="giftCard.giftcard_id"
                     hint="This field is required"
                     persistent-hint
                   ></v-autocomplete>
@@ -248,7 +251,8 @@ const editItem = (item: never) => {
                     :items="currencies"
                     label="Currency*"
                     required
-                    multiple
+                    v-model="giftCard.currency"
+                    chips
                     item-title="code"
                     item-value="id"
                     hint="This field is required"
@@ -271,7 +275,7 @@ const editItem = (item: never) => {
           </v-btn>
           <v-btn
             :loading="loading"
-            @click="createGiftCardProduct(giftCard)"
+            @click="edit == true ? editGiftCardProduct(giftCard) : createGiftCardProduct(giftCard)"
             color="secondary"
             class="px-12"
             variant="flat"

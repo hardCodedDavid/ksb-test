@@ -11,7 +11,7 @@ ksbTechApi.interceptors.response.use(
   },
   async function (error: { response: any }) {
     if (error.response.data.code == 100) {
-      await router.push("/authentication/fulllogin");
+      await router.push("/auth/login");
     }
     if (
       error.response.data.code == 101 &&

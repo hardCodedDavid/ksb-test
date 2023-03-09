@@ -11,8 +11,10 @@ const {
   editNetworks,
   deleteNetworks,
   restoreNetworks,
+  getSingleNetwork,
 } = useNetworksStore();
-const { networks, loading, dialog, network } = storeToRefs(useNetworksStore());
+const { networks, loading, dialog, network, dialog2, single_network } =
+  storeToRefs(useNetworksStore());
 const header = ref([
   {
     title: "No.",
@@ -130,25 +132,35 @@ const close = (item: never) => {
                     </template>
                     <v-list>
                       <v-list-item
+                        @click="
+                          dialog2 = true;
+                          getSingleNetwork(item?.id);
+                        "
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> View Network </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
                         @click="editItem(item)"
                         link
                         color="secondary"
                       >
-                        <v-list-item-title> Edit Asset </v-list-item-title>
+                        <v-list-item-title> Edit Network </v-list-item-title>
                       </v-list-item>
                       <v-list-item
                         @click="restoreNetworks(item?.id)"
                         link
                         color="secondary"
                       >
-                        <v-list-item-title> Restore Asset </v-list-item-title>
+                        <v-list-item-title> Restore Network </v-list-item-title>
                       </v-list-item>
                       <v-list-item
                         @click="deleteNetworks(item?.id)"
                         link
                         color="secondary"
                       >
-                        <v-list-item-title> Delete Asset </v-list-item-title>
+                        <v-list-item-title> Delete Network </v-list-item-title>
                       </v-list-item>
                     </v-list>
                   </v-menu>
@@ -226,6 +238,93 @@ const close = (item: never) => {
               </v-form>
             </v-container>
           </v-card-text>
+        </v-card>
+      </v-dialog>
+    </v-row>
+
+    <v-row justify="center">
+      <v-dialog v-model="dialog2" max-width="500px">
+        <v-card>
+          <h3 class="text-center my-4">Network Details</h3>
+          <v-layout
+            v-if="loading == true"
+            class="align-center justify-center w-100 my-5"
+          >
+            <v-progress-circular indeterminate></v-progress-circular>
+          </v-layout>
+          <v-container v-else class="fill-height">
+            <div class="d-flex flex-column">
+              <div class="d-flex flex-column w-full">
+                <div>
+                  <h4 class="text-grey font-weight-light">Name</h4>
+                  <p class="my-1 font-weight-bold">
+                    {{ single_network?.name }}
+                  </p>
+                </div>
+
+                <div class="my-1">
+                  <h4 class="text-grey font-weight-light">Wallet address</h4>
+                  <p class="my-1 font-weight-bold">
+                    {{ single_network?.wallet_address }}
+                  </p>
+                </div>
+              </div>
+              <div v-if="single_network?.assets?.length > 0" class="mt-8">
+                <h3 class="text-grey font-weight-bold">
+                  Asset(s) that belong to this Network:
+                </h3>
+
+                <v-row class="my-1">
+                  <v-col
+                    cols="12"
+                    sm="12"
+                    v-for="asset in single_network?.assets"
+                    :key="asset?.id"
+                    class="py-0 my-2"
+                  >
+                    <div
+                      class="d-flex align-center justify-space-between flex-wrap w-full"
+                    >
+                      <div>
+                        <h4 class="text-grey font-weight-light">Name</h4>
+                        <div class="d-flex align-center">
+                          <v-avatar size="50px">
+                            <v-img
+                              class="img-fluid rounded-circle img-size"
+                              cover
+                              :src="asset?.icon"
+                            ></v-img>
+                          </v-avatar>
+                          <p class="ml-3 font-weight-bold">{{ asset.name }}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <h4 class="text-grey font-weight-light">Code</h4>
+                        <p class="my-3 font-weight-bold">{{ asset.code }}</p>
+                      </div>
+                      <div>
+                        <h4 class="text-grey font-weight-light">Buy Rate</h4>
+                        <p class="my-3 font-weight-bold">
+                          {{ asset.buy_rate }}
+                        </p>
+                      </div>
+                      <div>
+                        <h4 class="text-grey grey-darken-4 font-weight-light">
+                          Sell Rate
+                        </h4>
+                        <p class="my-3 font-weight-bold">
+                          {{ asset.sell_rate }}
+                        </p>
+                      </div>
+                    </div>
+                  </v-col>
+                </v-row>
+              </div>
+              <p v-else class="text-center py-5">
+                This network has no related asset
+              </p>
+            </div>
+          </v-container>
         </v-card>
       </v-dialog>
     </v-row>

@@ -70,6 +70,7 @@ const close = (item: never) => {
   
   edit.value = false;
 };
+const currentDate = ref(new Date().toISOString().slice(0, 10))
 </script>
 
 <template>
@@ -217,12 +218,7 @@ const close = (item: never) => {
                     ></v-select>
                   </v-col>
                   <v-col cols="12" sm="12">
-                    <VueDatePicker
-                      v-model="alert.dispatched_at"
-                      placeholder="Dispatch datetime"
-                      id="dateTime"
-                      :enable-time-picker="false"
-                    />
+                    <v-text-field type="date" :min="currentDate"  hint="Select a date after current date" persistent-hint  placeholder="Dispatch datetime"  v-model="alert.dispatched_at" variant="outlined"></v-text-field>
                   </v-col>
                   <v-col v-if="edit == false" cols="12" sm="12">
                     <v-autocomplete

@@ -16,7 +16,8 @@ export const useNetworksStore = defineStore("networks", {
       wallet_address: "",
     },
     system_data:[],
-    content:""
+    content:"",
+    single_network:{}
   }),
   getters: {},
   actions: {
@@ -224,6 +225,38 @@ export const useNetworksStore = defineStore("networks", {
                 type: "success",
               });
               this.networks = res.data.data.networks.data;
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
+    async getSingleNetwork(id:string) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(network + '/' + id + '?include=assets', {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { networks: any };
+              };
+            }) => {
+              this.loading = false;
+              notify({
+                title: "Successful",
+                text: res.data.message,
+                type: "success",
+              });
+              this.single_network = res.data.data.network;
             }
           );
       } catch (error) {

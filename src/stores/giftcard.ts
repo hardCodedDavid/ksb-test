@@ -94,8 +94,8 @@ export const useGiftCardStore = defineStore("giftcard", {
       const store = useAuthStore();
       this.loading = true
       try {
-        await ksbTechApi
-          .get(giftCard, {
+        await ksbTechApi 
+          .get(giftCard + '?per_page=100' + '&include=user', {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,

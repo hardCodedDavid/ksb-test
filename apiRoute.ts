@@ -24,6 +24,7 @@ export const asset = '/admin/asset-transactions'
 export const assets = '/admin/assets'
 
 export const network = '/admin/networks'
+export const all_network = '/networks'
 
 export const country = '/countries'
 export const countryMgt = '/admin/countries'

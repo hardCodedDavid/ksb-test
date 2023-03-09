@@ -233,7 +233,7 @@ export const useAuthStore = defineStore("auth", {
               this.loginLoading = false;
 
               // @ts-ignore
-              this.$router.push("/authentication/fulllogin");
+              this.$router.push("/auth/login");
             }
           );
       } catch (error: any) {
@@ -246,7 +246,13 @@ export const useAuthStore = defineStore("auth", {
       }
     },
     async ksbTechLogout() {
-      this.LoggingOut = true;
+    
+      // @ts-ignore
+      this.router.push('/auth/login');
+      this.isLoggedIn = false;
+      
+     
+      this.LoggingOut = false;
       const { notify } = useNotification();
       try {
         await ksbTechApi
@@ -262,20 +268,20 @@ export const useAuthStore = defineStore("auth", {
               text: res.data.message,
               type: "success",
             });
-
+            //  this.router.push('/auth/login');
             this.token = "";
             this.isLoggedIn = false;
             // @ts-ignore
-            this.$router.push({ name: "Login" });
+           
             this.LoggingOut = false;
             console.log(res, "grgrg");
           })
           .catch((error: any) => {
-            notify({
-              title: "Successful",
-              text: error.response.message,
-              type: "error",
-            });
+            // notify({
+            //   title: "Successful",
+            //   text: error.response.message,
+            //   type: "error",
+            // });
           });
       } catch (error: any) {
         this.LoggingOut = false;

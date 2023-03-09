@@ -28,6 +28,7 @@ interface GiftProductPayload {
   sell_min_amount: string;
   sell_max_amount: string;
   id:string,
+  giftcard_id:string,
   data:any,
   
 }
@@ -36,7 +37,7 @@ export const useGiftProductStore = defineStore("gift_product", {
   state: (): GiftCardProduct => ({
     giftCard: {
       name: "",
-      currency: "98545e1f-434c-4592-a3e4-3402be9e3cab",
+      currency: "",
       country: [],
       sell_rate: 0,
       sell_min_amount: "",
@@ -52,6 +53,7 @@ export const useGiftProductStore = defineStore("gift_product", {
       sell_max_amount: '',
       id:'',
       data:'',
+      giftcard_id:''
     },
     dialog: false,
     singleGiftProduct:{}
@@ -65,7 +67,7 @@ export const useGiftProductStore = defineStore("gift_product", {
       const store = useAuthStore();
       try {
         await ksbTechApi
-          .get(giftCardProducts, {
+          .get(giftCardProducts + '?include=currency,giftcardCategory,country', {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -113,6 +115,61 @@ export const useGiftProductStore = defineStore("gift_product", {
       try {
         await ksbTechApi
           .post(giftCardProducts, formData, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+              };
+            }) => {
+              this.loading = false;
+              notify({
+                title: "Successful",
+                text: res.data.message,
+                type: "success",
+              });
+              this.dialog = false;
+              this.getAllGifCardProduct();
+            }
+          );
+      } catch (error: any) {
+        this.loading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
+      }
+    },
+    async editGiftCardProduct(payload: GiftProductPayload) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+
+      //   const country_id = this.country_id;
+
+      var formData = new FormData();
+      formData.append(
+        "giftcard_category_id",
+        payload.id
+      );
+      formData.append("country_id", payload.country);
+      formData.append("currency_id", payload.currency);
+
+      formData.append("name", payload.name);
+      formData.append("sell_rate", payload.sell_rate);
+      formData.append("sell_min_amount", payload.sell_min_amount);
+      formData.append("sell_max_amount", payload.sell_max_amount);
+      formData.append('_method', 'PATCH');
+      // formData.append("country_id", JSON.stringify(this.giftCard.country));
+
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .post(giftCardProducts + '/' + payload.id, formData, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,

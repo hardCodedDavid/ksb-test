@@ -41,7 +41,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(withdrawals + '?include=' + 'user' + '&page=' + page_no + '&filter[status]=' + status , {
+          .get(withdrawals + '?include=' + 'user' + '&page=' + page_no + '&filter[status]=' + status + '&per_page=100' , {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -165,7 +165,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
                 text: res.data.message,
                 type: "success",
               });
-              this.getAllWithDrawals(1)
+              this.getAllWithDrawals('', 1)
             }
           );
       } catch (error: any) {
@@ -202,7 +202,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
                 text: res.data.message,
                 type: "success",
               });
-              this.getAllWithDrawals(1)
+              this.getAllWithDrawals('', 1)
             }
           );
       } catch (error: any) {

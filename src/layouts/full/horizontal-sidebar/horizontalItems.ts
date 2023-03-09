@@ -378,7 +378,7 @@ export default [
       {
         title: "Login",
         icon: "mdi mdi-account-key",
-        to: "/authentication/fulllogin",
+        to: "/auth/login",
       },
       {
         title: "Boxed Register",

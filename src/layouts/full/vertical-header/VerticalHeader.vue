@@ -185,9 +185,8 @@ const userAvatar = computed(() => {
         <v-btn
           block
           @click="action.ksbTechLogout()"
-          :loading="action.LoggingOut"
+         
           color="secondary"
-          to="/authentication/boxedlogin"
           variant="flat"
           class="mt-4 py-4"
           >Logout</v-btn

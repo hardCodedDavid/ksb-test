@@ -4,11 +4,25 @@ import { useAssetStore } from "../../stores/asset";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
 
-const { getAllAsset, deleteAsset, createAssets, restoreAsset, updateAssets } =
-  useAssetStore();
-const { allTransactions, loading, dialog, asset, assets } = storeToRefs(
-  useAssetStore()
-);
+const {
+  getAllAsset,
+  deleteAsset,
+  createAssets,
+  restoreAsset,
+  updateAssets,
+  getAllNetworks,
+  getSingleAsset,
+} = useAssetStore();
+const {
+  allTransactions,
+  loading,
+  dialog,
+  asset,
+  assets,
+  all_networks,
+  dialog2,
+  asset_details,
+} = storeToRefs(useAssetStore());
 
 const header = ref([
   {
@@ -39,6 +53,7 @@ const header = ref([
 ]);
 onMounted(async () => {
   await getAllAsset();
+  await getAllNetworks();
 });
 
 // CHANGE STATUS COLOR
@@ -123,6 +138,16 @@ const get_selected_file = (e: any) => {
                       </v-btn>
                     </template>
                     <v-list>
+                      <v-list-item
+                        @click="
+                          dialog2 = true;
+                          getSingleAsset(item?.id);
+                        "
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> View Asset </v-list-item-title>
+                      </v-list-item>
                       <v-list-item
                         @click="restoreAsset(item?.id)"
                         link
@@ -213,6 +238,19 @@ const get_selected_file = (e: any) => {
                       type="number"
                     ></v-text-field>
                   </v-col>
+                  <v-col cols="12" sm="12">
+                    <v-select
+                      variant="outlined"
+                      item-title="name"
+                      item-value="id"
+                      :items="all_networks"
+                      multiple
+                      v-model="asset.network_id"
+                      label="Select Networks"
+                      required
+                    >
+                    </v-select>
+                  </v-col>
                 </v-row>
                 <v-card-actions>
                   <v-spacer></v-spacer>
@@ -227,7 +265,6 @@ const get_selected_file = (e: any) => {
                   <v-btn
                     color="secondary"
                     class="px-12"
-                  
                     :loading="loading"
                     variant="flat"
                     type="submit"
@@ -241,11 +278,98 @@ const get_selected_file = (e: any) => {
         </v-card>
       </v-dialog>
     </v-row>
+
+    <v-row justify="center">
+      <v-dialog v-model="dialog2" max-width="500px">
+        <v-card>
+          <h3 class="text-center my-4">Asset Details</h3>
+          <v-layout
+            v-if="loading == true"
+            class="align-center justify-center w-100 my-5"
+          >
+            <v-progress-circular indeterminate></v-progress-circular>
+          </v-layout>
+          <v-container v-else class="fill-height">
+            <div class="d-flex flex-column">
+              <div class="d-flex align-center justify-space-between w-full">
+                <div>
+                  <h4 class="text-grey font-weight-light">Name</h4>
+                  <div class="d-flex align-center">
+                    <v-avatar size="50px">
+                      <v-img
+                        class="img-fluid rounded-circle img-size"
+                        cover
+                        :src="asset_details?.icon"
+                      ></v-img>
+                    </v-avatar>
+                    <p class="ml-3 font-weight-bold">
+                      {{ asset_details.name }}
+                    </p>
+                  </div>
+                </div>
+                <div>
+                  <h4 class="text-grey font-weight-light">Code</h4>
+                  <p class="my-3 font-weight-bold">{{ asset_details.code }}</p>
+                </div>
+                <div>
+                  <h4 class="text-grey font-weight-light">Buy Rate</h4>
+                  <p class="my-3 font-weight-bold">
+                    {{ asset_details.buy_rate }}
+                  </p>
+                </div>
+                <div>
+                  <h4 class="text-grey grey-darken-4 font-weight-light">
+                    Sell Rate
+                  </h4>
+                  <p class="my-3 font-weight-bold">
+                    {{ asset_details.sell_rate }}
+                  </p>
+                </div>
+              </div>
+              <div v-if="asset_details?.networks?.length > 0" class="mt-8">
+                <h3 class="text-grey font-weight-bold">
+                  Network(s) that belong to this asset:
+                </h3>
+
+                <v-row class="">
+                  <v-col
+                    cols="12"
+                    sm="6"
+                    v-for="network in asset_details?.networks"
+                    :key="network?.id"
+                  >
+                    <div class="mb-2">
+                      <h4 class="mb-1 text-grey font-weight-light">Name</h4>
+                      <p class="font-weight-bold">{{ network.name }}</p>
+                    </div>
+                    <div class="mb-2">
+                      <h4 class="mb-1 text-grey font-weight-light">
+                        Wallet address
+                      </h4>
+                      <p class="font-weight-bold">
+                        {{ network.wallet_address }}
+                      </p>
+                    </div>
+                  </v-col>
+                </v-row>
+              </div>
+              <p v-else class="text-center py-5">
+                This asset has no related network
+              </p>
+            </div>
+          </v-container>
+        </v-card>
+      </v-dialog>
+    </v-row>
   </v-row>
 </template>
 
 <style scoped>
 table tbody tr td {
   padding: 15px !important;
+}
+
+.text-grey {
+  color: #afafaf;
 }
 </style>

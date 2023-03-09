@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import ksbTechApi from "../../axios";
-import { asset, assets } from "../../apiRoute";
+import { asset, assets, all_network } from "../../apiRoute";
 import { useNotification } from "@kyvg/vue3-notification";
 import { useAuthStore } from "./auth";
 
@@ -19,24 +19,29 @@ interface Asset {
   icon: string | Blob;
   buy_rate: string;
   sell_rate: string;
-  id:string
+  id:string;
+  network_id:[]
 }
 
 interface State {
   loading: boolean;
   dialog: boolean;
+  dialog2: boolean;
   all_transactions: {
     data: Data;
   };
   single_transactions: any;
   asset: Asset;
   assets: [];
+  all_networks: [];
+  asset_details:{}
 }
 
 export const useAssetStore = defineStore("asset", {
   state: (): State => ({
     loading: false,
     dialog: false,
+    dialog2: false,
     all_transactions: {
       data: {
         id: "",
@@ -54,9 +59,12 @@ export const useAssetStore = defineStore("asset", {
       icon: '',
       buy_rate: "",
       sell_rate: "",
-      id:''
+      id:'',
+      network_id:[]
     },
     assets: [],
+    all_networks: [],
+    asset_details:{}
   }),
   getters: {
     allTransactions: (state) => state.all_transactions.data,
@@ -365,6 +373,35 @@ export const useAssetStore = defineStore("asset", {
         this.loading = false;
       }
     },
+    async getSingleAsset(id:string) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi 
+          .get(assets + '/' + id + '?include=networks', {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { assets: any };
+              };
+            }) => {
+              this.loading = false;
+             
+              this.asset_details = res.data.data.asset;
+              
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
     async createAssets(asset_t:Asset) {
       const store = useAuthStore();
       var formData = new FormData();
@@ -377,6 +414,12 @@ export const useAssetStore = defineStore("asset", {
       formData.append("buy_rate", asset_t.buy_rate);
       formData.append("sell_rate", asset_t.sell_rate);
   
+      const ids = this.asset.network_id
+
+      for (let i = 0; i < ids.length; i++) {
+        formData.append('networks[]', ids[i]);
+      }
+
       const { notify } = useNotification();
       try {
         await ksbTechApi
@@ -538,5 +581,35 @@ export const useAssetStore = defineStore("asset", {
       }
     },
    
+    async getAllNetworks() {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(all_network, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { assets: any };
+              };
+            }) => {
+              this.loading = false;
+             
+              this.all_networks = res.data.data.networks.data;
+              
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
+
   },
 });

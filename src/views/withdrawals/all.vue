@@ -13,14 +13,15 @@ const {
   getSingleWithDrawals,
   filterWithDrawalsByDateCreated,
 } = useWithdrawalsStore();
-const { withdrawals, loading, singleWithdrawal } = storeToRefs(useWithdrawalsStore());
+const { withdrawals, loading, singleWithdrawal } = storeToRefs(
+  useWithdrawalsStore()
+);
 const status = ref("");
 onMounted(async () => {
   await getAllWithDrawals(status.value, 1);
 });
 
 // const search = ref("");
-
 
 const page_title = ref({ title: "Withdrawals" });
 const breadcrumbs = ref([
@@ -41,7 +42,7 @@ const header = ref([
     title: "No.",
   },
   {
-    title: "Account name",
+    title: "Full name",
   },
   {
     title: "Amount (NGN)",
@@ -96,7 +97,10 @@ const date = ref("");
   <!-- ----------------------------------------------------------------------------- -->
   <!-- <v-data-table></v-data-table> -->
   <div>
-    <BaseBreadcrumb :title="page_title.title" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
+    <BaseBreadcrumb
+      :title="page_title.title"
+      :breadcrumbs="breadcrumbs"
+    ></BaseBreadcrumb>
     <div class="mt-4">
       <v-card flat rounded="1" class="my-5 pa-4">
         <h4>Filter Options:</h4>
@@ -155,14 +159,17 @@ const date = ref("");
             >
               <td>{{ index + 1 }}</td>
               <td class="font-weight-bold">
-                <span class="text-capitalize">{{
-                  withdrawal?.account_name ?? "---"
-                }}</span>
+                <span class="text-capitalize">
+                  {{ withdrawal?.user?.firstname ?? "---" }}
+                  {{ withdrawal?.user?.lastname ?? "---" }}</span
+                >
               </td>
-              <td>₦‎ {{ withdrawal?.amount }}</td>
+              <td>₦‎ {{ withdrawal.amount.toLocaleString() }}</td>
               <td>{{ withdrawal?.account_number ?? "---" }}</td>
               <td>
-                {{ useDateFormat(withdrawal?.created_at, "DD, MMMM-YYYY").value }}
+                {{
+                  useDateFormat(withdrawal?.created_at, "DD, MMMM-YYYY").value
+                }}
               </td>
               <!-- <td>{{ item.status }}</td> -->
 
@@ -228,11 +235,17 @@ const date = ref("");
           </tbody>
         </v-table>
 
-        <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
+        <v-layout
+          v-if="loading == true"
+          class="align-center justify-center w-100 my-5"
+        >
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
 
-        <p v-if="loading == false && withdrawals?.length <= 0" class="text-center py-6">
+        <p
+          v-if="loading == false && withdrawals?.length <= 0"
+          class="text-center py-6"
+        >
           No data available
         </p>
       </v-card>
@@ -251,79 +264,165 @@ const date = ref("");
       ></v-pagination>
     </div>
 
-    <v-dialog v-if="dialog" v-model="dialog" max-width="450px">
-      <v-card class="pa-5">
-        <h3 class="text-center">Withdrawal Request</h3>
-
-        <v-container class="fill-height w-100">
+    <v-dialog v-if="dialog" v-model="dialog" max-width="600px">
+      <v-card class="">
+        <h3 class="text-justify pa-5">Withdrawal request details</h3>
+        <v-divider></v-divider>
+        <v-container
+          v-if="fetching == false && loading == false"
+          class="fill-height w-100 pa-5 d-flex justify-space-between"
+        >
           <v-row
             align="center"
             justify="center"
-            v-if="fetching == false"
-            class="my-5 fill-height w-100 align-center justify-space-between"
+            class="fill-height w-100 align-center justify-space-between"
           >
-            <v-col cols="12" sm="6">
-              <h4>Status</h4>
+            <v-col cols="12" sm="12" class="pb-0"> <h3>General info</h3></v-col>
+            <v-col>
+              <div class="mb-4">
+                <!-- <v-icon></v-icon> -->
+                <div>
+                  <h5 class="text-h6">User name</h5>
+                  <p class="text-subtitle-1 text-medium-emphasis">
+                    {{ singleWithdrawal?.user?.firstname }}
+                  </p>
+                </div>
+              </div>
 
-              <v-chip
-                :label="true"
-                class="text-capitalize font-weight-bold"
-                :color="status_color(singleWithdrawal?.status)"
-                >{{ singleWithdrawal?.status }}</v-chip
+              <div class="mb-4">
+                <!-- <v-icon></v-icon> -->
+                <div>
+                  <h5 class="text-h6">Email address</h5>
+                  <p class="text-subtitle-1 text-medium-emphasis">
+                    {{ singleWithdrawal?.user?.email }}
+                  </p>
+                </div>
+              </div>
+              <div class="mb-4">
+                <!-- <v-icon></v-icon> -->
+                <div>
+                  <h5 class="text-h6">Amount</h5>
+                  <p class="text-subtitle-1 text-medium-emphasis">
+                    ₦‎{{ singleWithdrawal?.amount?.toLocaleString() }}
+                  </p>
+                </div>
+              </div>
+              <div class="mb-4">
+                <!-- <v-icon></v-icon> -->
+                <div>
+                  <h5 class="text-h6">Wallet balance</h5>
+                  <p class="text-subtitle-1 text-medium-emphasis">
+                    ₦‎{{
+                      singleWithdrawal?.user?.wallet_balance.toLocaleString()
+                    }}
+                  </p>
+                </div>
+              </div>
+              <div class="mb-4">
+                <!-- <v-icon></v-icon> -->
+                <div>
+                  <h5 class="text-h6">Date & time</h5>
+                  <p class="text-subtitle-1 text-medium-emphasis">
+                    {{
+                      useDateFormat(
+                        singleWithdrawal?.created_at,
+                        "DD, MMMM-YYYY"
+                      ).value
+                    }}
+                  </p>
+                </div>
+              </div>
+              <div class="mb-4">
+                <!-- <v-icon></v-icon> -->
+                <div>
+                  <h5 class="text-h6">Status</h5>
+                  <v-chip
+                    label
+                    class="text-capitalize font-weight-bold pa-3"
+                    :color="status_color(singleWithdrawal?.status)"
+                    >{{ singleWithdrawal?.status }}</v-chip
+                  >
+                </div>
+              </div>
+            </v-col>
+          </v-row>
+          <v-row
+            align="center"
+            justify="center"
+            class="fill-height w-100 align-center justify-space-between ml-4"
+          >
+            <v-col cols="12" sm="12" class="pb-0"> <h3>Payment info</h3></v-col>
+            <v-col>
+              <div class="mb-4">
+                <!-- <v-icon></v-icon> -->
+                <div>
+                  <h5 class="text-h6">Bank name</h5>
+                  <p class="text-subtitle-1 text-medium-emphasis">
+                    {{ singleWithdrawal?.bank?.name ?? "No data" }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <!-- <v-icon></v-icon> -->
+                <div>
+                  <h5 class="text-h6">Account name</h5>
+                  <p class="text-subtitle-1 text-medium-emphasis">
+                    {{ singleWithdrawal?.account_name ?? "No data" }}
+                  </p>
+                </div>
+              </div>
+              <div class="mb-4">
+                <!-- <v-icon></v-icon> -->
+                <div>
+                  <h5 class="text-h6">Account number</h5>
+                  <p class="text-subtitle-1 text-medium-emphasis">
+                    {{ singleWithdrawal?.account_number ?? "No data" }}
+                  </p>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col
+              cols="12"
+              sm="12"
+              class="py-0 d-flex mt-12 align-start flex-column"
+            >
+              <h3>Action</h3>
+              <div
+                v-if="singleWithdrawal?.status == 'pending'"
+                class="d-flex align-center mt-5"
               >
-            </v-col>
-            <v-col cols="12" sm="6">
-              <h4>Wallet Balance</h4>
-              <p class="grey-lighten-2 text-subtitle-1">
-                ₦ {{ singleWithdrawal.user?.wallet_balance }}
-              </p>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <h4>Email Address</h4>
-              <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal.user?.email }}
-              </p>
-            </v-col>
-
-            <v-col cols="12" sm="6">
-              <h4>First name</h4>
-              <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal?.user?.firstname }}
-              </p>
-            </v-col>
-
-            <v-col cols="12" sm="6">
-              <h4>Last name</h4>
-              <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal?.user?.lastname }}
-              </p>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <h4>Account name</h4>
-              <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal?.account_name }}
-              </p>
-            </v-col>
-
-            <v-col cols="12" sm="6">
-              <h4>Account number</h4>
-              <p>{{ singleWithdrawal?.account_number }}</p>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <h4>Bank name</h4>
-              <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal?.bank?.name }}
-              </p>
+                <v-btn
+                  @click="approveRequest(singleWithdrawal?.id)"
+                  width="130px"
+                  color="secondary"
+                >
+                  Approve request
+                </v-btn>
+                <v-btn
+                  @click="declineRequest(singleWithdrawal?.id)"
+                  width="130px"
+                  class="ml-2"
+                  color="error"
+                >
+                  Disprove request
+                </v-btn>
+              </div>
+              <p v-else>This request has been attended to</p>
             </v-col>
           </v-row>
         </v-container>
-        <v-layout v-if="fetching == true" class="align-center justify-center w-100 my-10">
+        <v-layout
+          v-if="fetching == true || loading == true"
+          class="align-center justify-center w-100 my-10"
+        >
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
 
-        <v-btn color="secondary" class="my-2" block @click="dialog = false"
+        <!-- <v-btn color="secondary" class="my-2" block @click="dialog = false"
           >Close Dialog</v-btn
-        >
+        > -->
       </v-card>
     </v-dialog>
   </div>

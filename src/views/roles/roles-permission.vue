@@ -91,7 +91,7 @@ const close = () => {
       <v-window v-model="tab">
         <v-window-item value="one">
           <div class="d-flex justify-end w-100">
-            <v-btn @click="dialog = true" color="secondary"
+            <v-btn @click="$router.push('/roles/create-role')" color="secondary"
               >Create a Role</v-btn
             >
           </div>

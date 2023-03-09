@@ -85,7 +85,7 @@ const edit = ref(false);
 const btnText = ref("Create Item");
 const editItem = (item: never) => {
   giftCard.value = Object.assign({}, item);
-  btnText.value = "Update Item";
+  btnText.value = "Update category";
   dialog.value = true;
   edit.value = true;
 };

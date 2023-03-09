@@ -100,16 +100,6 @@ const nextPage = () => {
                   >Sign In</v-btn
                 >
               </v-form>
-              <!-- <div class="text-center mt-6">
-                <div class="d-flex align-center justify-center gap-2">
-                  <v-btn icon color="secondary">
-                    <v-icon>mdi-twitter</v-icon>
-                  </v-btn>
-                  <v-btn icon color="primary">
-                    <v-icon>mdi-github</v-icon>
-                  </v-btn>
-                </div>
-              </div> -->
             </v-col>
           </v-row>
         </div>
