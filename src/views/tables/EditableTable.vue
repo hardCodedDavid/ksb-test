@@ -242,7 +242,7 @@ const breadcrumbs = ref([
                   </div>
                 </td>
                 <td>{{ item.phone }}</td>
-                <td>{{ item.jdate }}</td>
+                <td>{{ item.date }}</td>
                 <td>
                   <v-chip :color="item.rolestatus" label>{{
                     item.role

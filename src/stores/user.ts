@@ -6,23 +6,23 @@ import { useCountryStore } from "../stores/country";
 import { useNotification } from "@kyvg/vue3-notification";
 
 interface Admin {
-  firstname: string,
-  lastname: string,
-  email: string,
-  phone_number: string,
-  avatar: string,
-  id: string,
-  blocked_at:boolean
+  firstname: string;
+  lastname: string;
+  email: string;
+  phone_number: string;
+  avatar: string;
+  id: string;
+  blocked_at: boolean;
 }
 interface User {
-  firstname: string,
-  lastname: string,
-  email: string,
-  phone_number: string,
-  avatar: string,
-  wallet_balance: string,
-  id: string,
-  username:string
+  firstname: string;
+  lastname: string;
+  email: string;
+  phone_number: string;
+  avatar: string;
+  wallet_balance: string;
+  id: string;
+  username: string;
 }
 
 // interface AdminDetails {
@@ -33,20 +33,22 @@ interface User {
 // }
 
 interface State {
-  user: User[]
-  admin: Admin[],
-  fund: any,
-  adminDetails: any,
-  id: string,
-  loading: boolean,
-  dialog: boolean,
-  dialog2: boolean,
-  single_admin:any
+  user: User[];
+  users: [];
+  admin: Admin[];
+  fund: any;
+  adminDetails: any;
+  id: string;
+  loading: boolean;
+  dialog: boolean;
+  dialog2: boolean;
+  single_admin: any;
 }
 
 export const useUserStore = defineStore("user", {
   state: (): State => ({
     user: [] as User[],
+    users: [],
     admin: [] as Admin[],
     loading: false,
     dialog: false,
@@ -61,13 +63,13 @@ export const useUserStore = defineStore("user", {
       email: "",
       country_name: "",
     },
-    id: '',
-    single_admin:""
+    id: "",
+    single_admin: "",
   }),
   getters: {
     filterUserById: (state) => (id: string) =>
-      state.user.filter((selectedUser) => {
-        return selectedUser['id'] == id;
+      state.user?.data.filter((selectedUser:any) => {
+        return selectedUser["id"] == id;
       }),
     country_id() {
       const store = useCountryStore();
@@ -77,20 +79,62 @@ export const useUserStore = defineStore("user", {
         }
       });
     },
-   toggleActivationText: (state) => !state.single_admin?.blocked_at ? 'block' : 'restore access' 
+    toggleActivationText: (state) =>
+      !state.single_admin?.blocked_at ? "block" : "restore access",
   },
   actions: {
-    updateAdmin(){
-       return this.adminDetails = {...this.admin.filter((user) => user['id'] == this.id)}
+    updateAdmin() {
+      return (this.adminDetails = {
+        ...this.admin.filter((user) => user["id"] == this.id),
+      });
     },
 
-    async getUsers() {
+    async getUsers(
+      page: number = 1,
+      name: string,
+      email: string = "",
+      date1: string = "",
+      date2: string = ""
+    ) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       try {
         await ksbTechApi
-          .get(user, {
+          .get(
+            `${user}?filter[name]=${name}&filter[email]=${email}&filter[registration_date]=${date1}${
+              date2 !== "" ? `,${date2}` : ""
+            }&page=${page}`,
+            {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${store.token}`,
+              },
+            }
+          )
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.loading = false;
+
+              this.user = res.data.data.users;
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
+    async getAllUsers() {
+      const store = useAuthStore();
+
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(`/user/users`, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -104,12 +148,8 @@ export const useUserStore = defineStore("user", {
               };
             }) => {
               this.loading = false;
-              notify({
-                title: "Successful",
-                text: res.data.message,
-                type: "success",
-              });
-              this.user = res.data.data.users.data;
+
+              // this.users = res.data.data.users.data;
             }
           );
       } catch (error) {
@@ -136,11 +176,7 @@ export const useUserStore = defineStore("user", {
               };
             }) => {
               this.loading = false;
-              notify({
-                title: "Successful",
-                text: res.data.message,
-                type: "success",
-              });
+         
               this.admin = res.data.data.admins.data;
             }
           );
@@ -148,14 +184,14 @@ export const useUserStore = defineStore("user", {
         this.loading = false;
       }
     },
-    async getSingleAdmin(id:string) {
+    async getSingleAdmin(id: string) {
       const store = useAuthStore();
       const { notify } = useNotification();
-      this.dialog2 = true
-      this.loading = true
+      this.dialog2 = true;
+      this.loading = true;
       try {
         await ksbTechApi
-          .get(admin + '/' + id, {
+          .get(admin + "/" + id, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -169,18 +205,13 @@ export const useUserStore = defineStore("user", {
               };
             }) => {
               this.loading = false;
+
               
-              notify({
-                title: "Successful",
-                text: res.data.message,
-                type: "success",
-              });
               this.single_admin = res.data.data.admin;
             }
           );
       } catch (error) {
         this.loading = false;
-       
       }
     },
     async blockUsers(id: string) {
@@ -208,7 +239,7 @@ export const useUserStore = defineStore("user", {
                 text: res.data.message,
                 type: "success",
               });
-              this.getUsers();
+              this.getUsers(1,"", "", "", "");
             }
           );
       } catch (error) {
@@ -240,7 +271,7 @@ export const useUserStore = defineStore("user", {
                 text: res.data.message,
                 type: "success",
               });
-              this.getUsers();
+              this.getUsers(1,"", "", "", "");
             }
           );
       } catch (error) {
@@ -262,10 +293,10 @@ export const useUserStore = defineStore("user", {
         await ksbTechApi
           .post(
             user +
-            "/" +
-            id +
-            "/finance/" +
-            financeTrans.type.toLocaleLowerCase(),
+              "/" +
+              id +
+              "/finance/" +
+              financeTrans.type.toLocaleLowerCase(),
             formData,
             {
               headers: {
@@ -287,7 +318,7 @@ export const useUserStore = defineStore("user", {
                 text: res.data.message,
                 type: "success",
               });
-              this.getUsers();
+              this.getUsers(1,"", "", "", "");
             }
           );
       } catch (error: any) {
@@ -331,9 +362,8 @@ export const useUserStore = defineStore("user", {
                 text: res.data.message,
                 type: "success",
               });
-              this.dialog = false
+              this.dialog = false;
               this.getAdmin();
-
             }
           );
       } catch (error: any) {
@@ -345,7 +375,7 @@ export const useUserStore = defineStore("user", {
         });
       }
     },
-    async updateAdminDetails(id:string) {
+    async updateAdminDetails(id: string) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
@@ -355,11 +385,11 @@ export const useUserStore = defineStore("user", {
       formData.append("firstname", this.adminDetails.firstname);
       formData.append("lastname", this.adminDetails.lastname);
       formData.append("email", this.adminDetails.email);
-      formData.append('_method', 'PATCH');
+      formData.append("_method", "PATCH");
 
       try {
         await ksbTechApi
-          .post(admin + '/' + id, formData, {
+          .post(admin + "/" + id, formData, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -378,9 +408,8 @@ export const useUserStore = defineStore("user", {
                 text: res.data.message,
                 type: "success",
               });
-              this.dialog = false
+              this.dialog = false;
               this.getAdmin();
-
             }
           );
       } catch (error: any) {
@@ -415,10 +444,10 @@ export const useUserStore = defineStore("user", {
               }) => {
                 notify({
                   title: "Success",
-                  text: 'Admin deleted successfully',
+                  text: "Admin deleted successfully",
                   type: "success",
                 });
-                this.getAdmin()
+                this.getAdmin();
               }
             );
         } catch (error: any) {
@@ -437,7 +466,7 @@ export const useUserStore = defineStore("user", {
         const store = useAuthStore();
         try {
           await ksbTechApi
-            .patch(admin + "/" + id + '/restore', "", {
+            .patch(admin + "/" + id + "/restore", "", {
               headers: {
                 Accept: "application/json",
                 Authorization: `Bearer ${store.token}`,
@@ -455,7 +484,7 @@ export const useUserStore = defineStore("user", {
                   text: res.data.message,
                   type: "success",
                 });
-                this.getAdmin()
+                this.getAdmin();
               }
             );
         } catch (error: any) {
@@ -469,12 +498,16 @@ export const useUserStore = defineStore("user", {
     },
     async blockAdmin(id: string) {
       // confirm()
-      if (confirm(`Are you sure you want to ${this.toggleActivationText} this admin ?`)) {
+      if (
+        confirm(
+          `Are you sure you want to ${this.toggleActivationText} this admin ?`
+        )
+      ) {
         const { notify } = useNotification();
         const store = useAuthStore();
         try {
           await ksbTechApi
-            .patch(admin + "/" + id + '/block', "", {
+            .patch(admin + "/" + id + "/block", "", {
               headers: {
                 Accept: "application/json",
                 Authorization: `Bearer ${store.token}`,
@@ -492,8 +525,8 @@ export const useUserStore = defineStore("user", {
                   text: res.data.message,
                   type: "success",
                 });
-                this.getAdmin()
-                this.dialog2 = false
+                this.getAdmin();
+                this.dialog2 = false;
               }
             );
         } catch (error: any) {

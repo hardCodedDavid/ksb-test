@@ -42,8 +42,16 @@ onMounted(async () => {
   await alert_action.getAlerts();
 });
 
-const statusColor = (status: string | null) => {
-  return !status ? "green lighten-3" : "red lighten-3";
+type status_type = 'pending' | 'ongoing' | 'successful'
+const statusColor = (status: status_type) => {
+  if (status == 'pending') {
+      return  'yellow-darken-3'
+  }
+
+  else if(status == 'ongoing') return 'light-green-darken-2'
+
+  else return "green lighten-3"
+  
 };
 
 const edit = ref(false);
@@ -67,10 +75,10 @@ const close = (item: never) => {
     }
   );
   btnText.value = "Create Network";
-  
+
   edit.value = false;
 };
-const currentDate = ref(new Date().toISOString().slice(0, 10))
+const currentDate = ref(new Date().toISOString().slice(0, 10));
 </script>
 
 <template>
@@ -170,16 +178,10 @@ const currentDate = ref(new Date().toISOString().slice(0, 10))
         </tbody>
       </v-table>
 
-      <v-layout
-        v-if="loading == true"
-        class="align-center justify-center w-100 my-5"
-      >
+      <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
         <v-progress-circular indeterminate></v-progress-circular>
       </v-layout>
-      <p
-        v-if="loading == false && alerts?.length <= 0"
-        class="text-center py-6"
-      >
+      <p v-if="loading == false && alerts?.length <= 0" class="text-center py-6">
         No data available
       </p>
     </v-card>
@@ -187,7 +189,12 @@ const currentDate = ref(new Date().toISOString().slice(0, 10))
     <v-row justify="center">
       <v-dialog v-model="dialog" max-width="500px">
         <v-card>
-          <h3 class="text-h5 font-weight-bold pa-7">{{ btnText }}</h3>
+          <div class="d-flex align-center w-100 justify-space-between pa-7">
+            <h3 class="text-h5 font-weight-bold ">{{ btnText }}</h3>
+            <v-btn @click="close" color="secondary" variant="outlined" icon="mdi-close">
+              <v-icon icon="mdi-close"></v-icon>
+            </v-btn>
+          </div>
           <v-card-text>
             <v-container>
               <v-form lazy-validation>
@@ -214,11 +221,19 @@ const currentDate = ref(new Date().toISOString().slice(0, 10))
                       variant="outlined"
                       label="Target user*"
                       required
-                      :items="['All']"
+                      :items="['All','Verified']"
                     ></v-select>
                   </v-col>
                   <v-col cols="12" sm="12">
-                    <v-text-field type="date" :min="currentDate"  hint="Select a date after current date" persistent-hint  placeholder="Dispatch datetime"  v-model="alert.dispatched_at" variant="outlined"></v-text-field>
+                    <v-text-field
+                      type="date"
+                      :min="currentDate"
+                      hint="Select a date after current date"
+                      persistent-hint
+                      placeholder="Dispatch datetime"
+                      v-model="alert.dispatched_at"
+                      variant="outlined"
+                    ></v-text-field>
                   </v-col>
                   <v-col v-if="edit == false" cols="12" sm="12">
                     <v-autocomplete
@@ -239,12 +254,7 @@ const currentDate = ref(new Date().toISOString().slice(0, 10))
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-              color="secondary"
-              class="px-7"
-              variant="outlined"
-              @click="close"
-            >
+            <v-btn color="secondary" class="px-7" variant="outlined" @click="close">
               Close
             </v-btn>
             <v-btn

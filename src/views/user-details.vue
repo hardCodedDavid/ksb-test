@@ -1,30 +1,30 @@
 <template>
   <div>
-    <v-card rounded="0" class="pa-5">
-      <v-tabs v-model="tab">
-        <v-tab value="one" class="font-weight-bold">User Information</v-tab>
-        <!-- <v-tab value="two" class="font-weight-bold">Giftcard Transactions</v-tab>
-        <v-tab value="three" class="font-weight-bold">All Transactions</v-tab> -->
-        <v-tab value="four" class="font-weight-bold">Asset Transactions</v-tab>
-      </v-tabs>
-      <v-window v-model="tab">
-        <v-window-item value="one">
-          <div class="d-flex align-center justify-center w-100 my-7">
-            <div
-              class="d-flex align-center justify-center flex-column w-100"
-              v-for="(detail, index) in userDetails"
-              :key="index"
-            >
-              <v-avatar color="secondary" :size="80" class="my-4 position-relative">
-                <v-img cover v-if="detail.avatar !== null" :src="detail.avatar"></v-img>
-                <span v-else class="text-h5 text-uppercase">{{
-                  detail.email.slice(0, 2)
-                }}</span>
-              </v-avatar>
+    <v-card rounded="1" class="pa-5">
 
-              <h3>{{ detail.firstname }} {{ detail.lastname }}</h3>
+      <div class="d-flex align-center justify-center w-100 my-7">
+        <div
+          class="d-flex align-center justify-center flex-column w-100"
+          v-for="(detail, index) in userDetails"
+          :key="index"
+        >
+          <v-avatar color="secondary" :size="80" class="my-4 position-relative">
+            <v-img
+              cover
+              v-if="detail.avatar !== null"
+              :src="detail.avatar"
+            ></v-img>
+            <span v-else class="text-h5 text-uppercase">{{
+              detail.email.slice(0, 2)
+            }}</span>
+          </v-avatar>
 
-              <div class="text-center">
+          <h3>{{ detail.firstname }} {{ detail.lastname }}</h3>
+          <p>{{ detail.email }}</p>
+          <p class="font-weight-bold mt-2">
+                  Phone: <span class="font-weight-light">{{ detail.phone_number }}</span>
+            </p>
+          <!-- <div class="text-center">
                 <p>{{ detail.email }}</p>
                 <p class="font-weight-bold mt-2">
                   Phone: <span class="font-weight-light">{{ detail.phone_number }}</span>
@@ -50,12 +50,18 @@
                     :label="'Toggle Blocked Status'"
                   ></v-switch>
                 </div>
-              </div>
-            </div>
-          </div>
-        </v-window-item>
+              </div> -->
+        </div>
+      </div>
+      <v-tabs>
+        <!-- <v-tab value="one" class="font-weight-bold">User Information</v-tab> -->
+        <v-tab value="one" class="font-weight-bold">Asset Transactions</v-tab>
+      </v-tabs>
+    </v-card>
+    <v-window v-model="tab">
+      <!-- <v-window-item value="one"> </v-window-item> -->
 
-        <!-- <v-window-item value="two"> 
+      <!-- <v-window-item value="two"> 
         
           <v-table class="mt-7">
             <thead>
@@ -74,150 +80,255 @@
          </v-window-item>
 
         <v-window-item value="three"> Three </v-window-item> -->
-        <v-window-item value="four">
-          <v-table class="mt-5">
-            <thead>
-              <tr>
-                <th v-for="(headings, index) in header" :key="index" class="text-left">
-                  {{ headings.title }}
-                </th>
-              </tr>
-            </thead>
-            <tbody v-if="allTransactions?.length > 0 && loading == false">
-              <tr v-for="item in allTransactions" :key="item.id">
-                <td :class="{ 'font-weight-bold': item.account_name == null }">
-                  {{ item.account_name ?? "No name" }}
-                </td>
-                <td>{{ item.reference }}</td>
-                <td>₦‎{{ item.asset_amount }}</td>
-                <td>
-                  {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}
-                </td>
-                <td>{{ item.trade_type }}</td>
+      <v-window-item value="one">
+       <v-card class="my-4">
+        <v-table class="mt-5">
+          <thead>
+            <tr>
+              <th
+                v-for="(headings, index) in header"
+                :key="index"
+                class="text-left"
+              >
+                {{ headings.title }}
+              </th>
+            </tr>
+          </thead>
+          <tbody v-if="allTransactions?.data?.length > 0 && loading == false">
+            <tr v-for="(item, index) in allTransactions.data" :key="item.id">
+            <td>{{index + 1}}</td>
+               <td class="font-weight-bold">
+                {{ item.user?.firstname ?? "No name" }}
+                {{ item.user?.lastname ?? "No name" }}
+              </td>
+              <td>{{ item.reference }}</td>
+              <td>₦‎{{ item.asset_amount }}</td>
+              <td>
+                {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}
+              </td>
+              <td>{{ item.trade_type }}</td>
 
-                <td>
-                  <v-chip
-                    label
-                    class="text-capitalize font-weight-bold pa-3"
-                    :color="status_color(item?.status)"
-                    >{{ item?.status }}</v-chip
-                  >
-                </td>
-                <td>
-                  <!-- <v-icon icon="mdi-dots-vertical"></v-icon> -->
-                  <v-row justify="center">
-                    <v-menu transition="scroll-y-transition">
-                      <template v-slot:activator="{ props }">
-                        <v-btn
-                          text
-                          icon="mdi-dots-vertical"
-                          color="transparent"
-                          class="ma-2"
-                          v-bind="props"
-                        >
-                        </v-btn>
-                      </template>
-                      <v-list>
-                        <v-list-item
-                          @click="getSingleAssetTransactions(item?.id)"
-                          link
-                          color="secondary"
-                        >
-                          <v-list-item-title> View Details </v-list-item-title>
-                        </v-list-item>
-                        <v-list-item
-                          v-if="item?.status == 'transferred'"
-                          @click="approveAssetTransactions(item?.id)"
-                          link
-                          color="secondary"
-                        >
-                          <v-list-item-title> Approve Request </v-list-item-title>
-                        </v-list-item>
-                        <v-list-item
-                          v-if="item?.status == 'transferred'"
-                          @click="declineAssetTransactions(item?.id)"
-                          link
-                          color="secondary"
-                        >
-                          <v-list-item-title> Decline Request </v-list-item-title>
-                        </v-list-item>
-                      </v-list>
-                    </v-menu>
-                  </v-row>
-                </td>
-              </tr>
-            </tbody>
-          </v-table>
+              <td>
+                <v-chip
+                  label
+                  class="text-capitalize font-weight-bold pa-3"
+                  :color="status_color(item?.status)"
+                  >{{ item?.status }}</v-chip
+                >
+              </td>
+              <td>
+                <!-- <v-icon icon="mdi-dots-vertical"></v-icon> -->
+                <v-row justify="center">
+                  <v-menu transition="scroll-y-transition">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                        text
+                        icon="mdi-dots-vertical"
+                        color="transparent"
+                        class="ma-2"
+                        v-bind="props"
+                      >
+                      </v-btn>
+                    </template>
+                    <v-list>
+                      <v-list-item
+                        @click="getSingleAssetTransactions(item?.id)"
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> View Details </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        v-if="item?.status == 'transferred'"
+                        @click="approveAssetTransactions(item?.id)"
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> Approve Request </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        v-if="item?.status == 'transferred'"
+                        @click="declineAssetTransactions(item?.id)"
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> Decline Request </v-list-item-title>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-row>
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+       </v-card>
 
-          <p
-            class="font-weight-bold text-center my-3"
-            v-if="allTransactions?.length <= 0 && loading == false"
-          >
-            No data found
-          </p>
+      <v-pagination
+        v-model="page"
+        :length="allTransactions?.last_page"
+        @next="getSingleAssetTransactions(page)"
+        @prev="getSingleAssetTransactions(page)"
+        @update:modelValue="getSingleAssetTransactions(page)"
+        active-color="red"
+        :start="1"
+        variant="flat"
+        class="mt-5"
+        color="bg-secondary"
+        rounded="circle"
+      ></v-pagination>
+        <p
+          class="font-weight-bold text-center my-3"
+          v-if="allTransactions?.data?.length <= 0 && loading == false"
+        >
+          No data found
+        </p>
 
-          <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
-            <v-progress-circular indeterminate></v-progress-circular>
-          </v-layout>
-        </v-window-item>
-      </v-window>
-    </v-card>
+        <v-layout
+          v-if="loading == true"
+          class="align-center justify-center w-100 my-5"
+        >
+          <v-progress-circular indeterminate></v-progress-circular>
+        </v-layout>
+      </v-window-item>
+    </v-window>
 
     <v-dialog v-model="dialog" width="600">
       <v-card class="pa-3">
         <h3 class="text-center my-3">Asset transactions details</h3>
-        <v-card-text>
-          <div class="d-flex align-center justify-space-between">
-            <div>
-              <h4>Account name</h4>
-              <p>{{ single_transactions.account_name ?? "No data" }}</p>
-            </div>
-            <div>
-              <h4>Account number</h4>
-              <p>{{ single_transactions.account_number ?? "No data" }}</p>
-            </div>
-          </div>
-          <div class="d-flex align-center justify-space-between my-5">
-            <div>
-              <h4>Reference</h4>
-              <p>{{ single_transactions.reference ?? "No data" }}</p>
-            </div>
-            <div>
-              <h4>Account number</h4>
-              <p>{{ single_transactions.account_number ?? "No data" }}</p>
-            </div>
-          </div>
-          <div class="d-flex align-center justify-space-between my-5">
-            <div>
-              <h4>Status</h4>
-              <v-chip
-                label
-                class="text-capitalize font-weight-bold pa-3"
-                :color="status_color(item?.status)"
-                >{{ single_transactions?.status ?? "No data" }}</v-chip
-              >
-            </div>
-            <div>
-              <h4>Payable amount</h4>
-              <p>₦‎ {{ single_transactions.payable_amount ?? "No data" }}</p>
-            </div>
-          </div>
-          <div class="d-flex align-center justify-space-between my-5">
-            <div>
-              <h4>Asset amount</h4>
-              <p>₦‎ {{ single_transactions.asset_amount ?? "No data" }}</p>
-            </div>
-            <div>
-              <h4>Service charge</h4>
-              <p>₦‎ {{ single_transactions.service_charge ?? "No data" }}</p>
-            </div>
-          </div>
 
-          <div class="my-5">
-            <h4>Transaction Receipts</h4>
-            <v-img :src="single_transactions.proof"></v-img>
-          </div>
-        </v-card-text>
+        <v-tabs v-model="tab_one" class="my-4" bg-color="secondary">
+          <v-tab value="one">First view</v-tab>
+          <v-tab value="two">Second view</v-tab>
+        </v-tabs>
+        <v-window v-model="tab_one">
+          <v-window-item value="one">
+            <v-card-text>
+              <div class="d-flex align-center justify-space-between">
+                <div>
+                  <h4>Account name</h4>
+                  <p>{{ single_transactions.account_name ?? "No data" }}</p>
+                </div>
+                <div>
+                  <h4>Account number</h4>
+                  <p>{{ single_transactions.account_number ?? "No data" }}</p>
+                </div>
+              </div>
+              <div class="d-flex align-center justify-space-between my-5">
+                <div>
+                  <h4>Reference</h4>
+                  <p>{{ single_transactions.reference ?? "No data" }}</p>
+                </div>
+                <div>
+                  <h4>Account number</h4>
+                  <p>{{ single_transactions.account_number ?? "No data" }}</p>
+                </div>
+              </div>
+              <div class="d-flex align-center justify-space-between my-5">
+                <div>
+                  <h4>Status</h4>
+                  <v-chip
+                    label
+                    class="text-capitalize font-weight-bold pa-3"
+                    :color="status_color(single_transactions?.status)"
+                    >{{ single_transactions?.status ?? "No data" }}</v-chip
+                  >
+                </div>
+                <div class="mr-2">
+                  <h4>Payable amount</h4>
+                  <p>
+                    ₦‎
+                    {{
+                      single_transactions.payable_amount.toLocaleString() ??
+                      "No data"
+                    }}
+                  </p>
+                </div>
+              </div>
+              <div class="d-flex align-center justify-space-between my-5">
+                <div>
+                  <h4>Asset amount</h4>
+                  <p>
+                    {{ single_transactions.asset?.code ?? "No data" }}
+
+                    {{
+                      single_transactions.asset_amount.toLocaleString() ??
+                      "No data"
+                    }}
+                  </p>
+                </div>
+                <div class="mr-4">
+                  <h4>Service charge</h4>
+                  <p>
+                    ₦‎
+                    {{
+                      single_transactions.service_charge.toLocaleString() ??
+                      "No data"
+                    }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="my-5">
+                <v-card
+                  rounded="0"
+                  class="pa-5 my-3 d-flex align-center justify-between w-100"
+                >
+                  <div
+                    v-if="single_transactions.proof !== null"
+                    class="d-flex align-center justify-between w-100"
+                  >
+                    <v-icon icon="mdi-file-document"></v-icon>
+                    <p>Transaction Receipts</p>
+                  </div>
+                  <v-btn
+                    v-if="single_transactions.proof !== null"
+                    @click="open_file(single_transactions.proof)"
+                    color="secondary"
+                    >View reciept</v-btn
+                  >
+
+                  <p v-else class="text-center py-4">No Transaction Receipts</p>
+                </v-card>
+                <!-- <v-img :src="single_transactions.proof"></v-img> -->
+              </div>
+            </v-card-text>
+          </v-window-item>
+
+          <v-window-item value="two">
+            <v-card-text>
+              <div class="d-flex align-center justify-space-between">
+                <div>
+                  <h4>Comments</h4>
+                  <p>{{ single_transactions.comments ?? "No data" }}</p>
+                </div>
+                <div>
+                  <h4>Selling rate</h4>
+                  <p>{{ single_transactions.rate ?? "No data" }}</p>
+                </div>
+              </div>
+              <div class="d-flex align-center justify-space-between my-5">
+                <div>
+                  <h4>Wallet address</h4>
+                  <p>{{ single_transactions.wallet_address ?? "No data" }}</p>
+                </div>
+                <div>
+                  <h4>Trade type</h4>
+                  <p>{{ single_transactions.trade_type ?? "No data" }}</p>
+                </div>
+              </div>
+              <div class="d-flex align-center justify-space-between my-5">
+                <div>
+                  <h4>Buying rate</h4>
+                  <p>{{ single_transactions.asset?.buy_rate ?? "No data" }}</p>
+                </div>
+                <div>
+                  <h4>Asset code</h4>
+                  <p>{{ single_transactions.asset?.code ?? "No data" }}</p>
+                </div>
+              </div>
+            </v-card-text>
+          </v-window-item>
+        </v-window>
         <!-- <v-card-actions>
           <v-btn color="primary" block @click="dialog = false"
             >Close Dialog</v-btn
@@ -237,7 +348,7 @@ import { useRoute } from "vue-router";
 import { useDateFormat } from "@vueuse/core";
 const { getUsers, restoreUsers, blockUsers } = useUserStore();
 const { user, filterUserById } = storeToRefs(useUserStore());
-const { allTransactions, loading } = storeToRefs(useAssetStore());
+const { allTransactions, loading, dialog } = storeToRefs(useAssetStore());
 const {
   getAllAssetTransactionsByUserId,
   declineAssetTransactions,
@@ -246,13 +357,20 @@ const {
   single_transactions,
 } = useAssetStore();
 const tab = ref(null);
+const tab_one = ref(null);
 const route: any = useRoute();
 
 const userDetails = ref<any>([]);
 
+const name = ref("");
+const email = ref("");
+const date1 = ref("");
+const date2 = ref("");
+const page = ref(1);
+
 onMounted(async () => {
   await getAllAssetTransactionsByUserId(route.params.id);
-  await getUsers();
+  await getUsers(1, name.value, email.value, date1.value, date2.value);
   userDetails.value = { ...filterUserById.value(route.params.id) };
 });
 const giftCardCategoryHeader = reactive([
@@ -278,7 +396,10 @@ const giftCardCategoryHeader = reactive([
 ]);
 const header = ref([
   {
-    title: "Account name",
+    title: "No",
+  },
+  {
+    title: "Full name",
   },
   {
     title: "Reference No.",
@@ -301,17 +422,21 @@ const header = ref([
   },
 ]);
 
-type StatusType = "pending" | "transferred" | "declined";
+type StatusType = "pending" | "approved" | "declined";
 
 const status_color = (status: StatusType) => {
   return status == "pending"
-    ? "yellow lighten-3"
-    : status == "transferred"
-    ? "green lighten-3"
+    ? "yellow-darken-2"
+    : status == "approved"
+    ? "green-darken-2"
     : status == "declined"
     ? "red lighten-3"
     : "";
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+table tbody tr td {
+  padding: 15px !important;
+}
+</style>

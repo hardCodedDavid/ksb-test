@@ -392,6 +392,12 @@ const router = createRouter({
             import("@/views/country-management.vue"),
         },
         {
+          name: "Currencies",
+          path: "/currencies/all",
+          component: () =>
+            import("@/views/currency.vue"),
+        },
+        {
           name: "Assets",
           path: "/assets/all",
           component: () =>

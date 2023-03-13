@@ -11,6 +11,8 @@ export const useCountryStore = defineStore({
     countryMgt: [],
     currencies: [],
     giftCategories: [],
+    dialog:false,
+    exchange_rate_to_ngn:"",
     loading: false
   }),
   getters: {
@@ -90,7 +92,7 @@ export const useCountryStore = defineStore({
                 data: any;
               };
             }) => {
-              this.getCountryMgt()
+              this.getCountryMgt(1)
               this.loading = false
             }
           );
@@ -117,7 +119,7 @@ export const useCountryStore = defineStore({
                 data: any;
               };
             }) => {
-              this.getCountryMgt()
+              this.getCountryMgt(1)
               this.loading = false
             }
           );
@@ -125,8 +127,10 @@ export const useCountryStore = defineStore({
         this.loading = false
       }
     },
-    async getCurrency() {
+    
+    async getCurrency(name:string = '') {
       try {
+        this.loading = true
         await ksbTechApi
           .get('/currencies' + '?do_not_paginate=' + 1, {
             headers: {
@@ -141,10 +145,49 @@ export const useCountryStore = defineStore({
               };
             }) => {
               this.currencies = res.data.data.currencies;
+              this.loading = false
             }
           );
       } catch (error) {
 
+        this.loading = false
+      }
+    },
+    async updateCurrency(id:string) {
+      try {
+        const { notify } = useNotification();
+        const store = useAuthStore();
+        this.loading = true
+        var formData = new FormData()
+
+        formData.append("exchange_rate_to_ngn", this.exchange_rate_to_ngn);
+        formData.append("_method", "PATCH");
+
+        await ksbTechApi
+          .post('/admin/currencies' + '/' + id, formData ,{
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              notify({
+                title: "Successful",
+                text: res.data.message,
+                type: "success",
+              });
+              this.loading =false
+              this.dialog =false
+            }
+          );
+      } catch (error) {
+        this.loading =false
       }
     },
     async getProducts() {

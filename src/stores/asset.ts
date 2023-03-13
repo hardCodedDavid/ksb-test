@@ -27,9 +27,7 @@ interface State {
   loading: boolean;
   dialog: boolean;
   dialog2: boolean;
-  all_transactions: {
-    data: Data;
-  };
+  all_transactions: [];
   single_transactions: any;
   asset: Asset;
   assets: [];
@@ -42,16 +40,7 @@ export const useAssetStore = defineStore("asset", {
     loading: false,
     dialog: false,
     dialog2: false,
-    all_transactions: {
-      data: {
-        id: "",
-        account_name: "",
-        amount: "",
-        created_at: "",
-        status: "",
-        trade_type: "",
-      },
-    },
+    all_transactions:[],
     single_transactions: [],
     asset: {
       name: "",
@@ -67,17 +56,51 @@ export const useAssetStore = defineStore("asset", {
     asset_details:{}
   }),
   getters: {
-    allTransactions: (state) => state.all_transactions.data,
+    allTransactions: (state) => state.all_transactions,
   },
   actions: {
     // ASSETS TRANSACTION
     async getAllAssetTransactions(status:string, page:number, type:string) {
+      console.log(status, page, type)
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       try {
         await ksbTechApi
-          .get(asset + '?filter[status]=' + status.toLowerCase() + '&page=' + page + '&filter[trade_type]=' + type.toLowerCase() + '&include=asset', {
+          .get(asset + '?filter[status]=' + status.toLowerCase() + '&page=' + page + '&filter[trade_type]=' + type.toLowerCase() + '&include=user', {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { asset_transactions: { data: Data } };
+              };
+            }) => {
+              this.loading = false;
+              notify({
+                title: "Successful",
+                text: res.data.message,
+                type: "success",
+              });
+              this.all_transactions = res.data.data.asset_transactions;
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
+    async getAllAssetTransactionsStatus(status:string, page:number) {
+      // console.log(status, page, type)
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(asset + '?filter[status]=' + status.toLowerCase() + '&page=' + page , {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -205,7 +228,7 @@ export const useAssetStore = defineStore("asset", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(asset + '?filter[user_id]=' + id, {
+          .get(asset + '?filter[user_id]=' + id + '&include=user', {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -219,11 +242,7 @@ export const useAssetStore = defineStore("asset", {
               };
             }) => {
               this.loading = false;
-              notify({
-                title: "Successful",
-                text: res.data.message,
-                type: "success",
-              });
+          
               this.all_transactions = res.data.data.asset_transactions;
             }
           );
@@ -232,13 +251,13 @@ export const useAssetStore = defineStore("asset", {
       }
     },
    
-    async getSingleAssetTransactions(id: string) {
+    async getSingleAssetTransactions(id: string, page:number = 1) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       try {
         await ksbTechApi
-          .get(asset + "/" + id + '?include=asset', {
+          .get(asset + "/" + id + '?include=asset' + '&page=' + page, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,

@@ -17,7 +17,7 @@ import { useCountryStore } from "../../stores/country";
 const { admin, loading, dialog, adminDetails, id, dialog2, single_admin } =
   storeToRefs(useUserStore());
 const form = ref(null);
-const { countryNames } = storeToRefs(useCountryStore());
+const { countryMgt } = storeToRefs(useCountryStore());
 // @ts-ignore
 import { reactive, onMounted, ref } from "vue";
 const header = reactive([
@@ -62,10 +62,10 @@ const statusColor = (status: string | null) => {
 };
 
 const edit = ref(false);
-const btnText = ref("Create Item");
+const btnText = ref("Create Admin");
 const editAdmin = async (item: string) => {
  adminDetails.value = Object.assign({}, item);
-  btnText.value = "Edit Item";
+  btnText.value = "Update admin details";
   dialog.value = true;
    edit.value = true;
 };
@@ -205,7 +205,7 @@ const valid = ref(null);
       <v-dialog v-model="dialog" persistent max-width="550px">
         <v-card>
           <v-card-title class="py-4">
-            <h3 class="text-h5 font-weight-bold">New Admin</h3>
+            <h3 class="text-h5 font-weight-bold">{{btnText}}</h3>
           </v-card-title>
           <v-card-text>
             <v-container>
@@ -234,12 +234,13 @@ const valid = ref(null);
                   </v-col>
                   <v-col cols="12" sm="12">
                     <v-autocomplete
-                      :items="[...countryNames]"
+                      :items="[...countryMgt]"
                       label="Countries"
                       required
+                      item-title="name"
+                      item-value="id"
                       v-model="adminDetails.country_name"
-                      hint="This field is optional"
-                      persistent-hint
+                     
                     ></v-autocomplete>
                   </v-col>
                 </v-row>
@@ -263,7 +264,7 @@ const valid = ref(null);
               class="px-12"
               variant="flat"
             >
-             {{btnText}}
+            Submit
             </v-btn>
           </v-card-actions>
         </v-card>

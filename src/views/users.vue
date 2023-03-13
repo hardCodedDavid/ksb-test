@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, reactive } from "vue";
 import { useUserStore } from "../stores/user";
-import  { useRouter } from 'vue-router'
+import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
+import { useDateFormat, watchDebounced } from "@vueuse/core";
 const { getUsers, restoreUsers, blockUsers, financeUsers } = useUserStore();
 const { user, loading, filterUserById } = storeToRefs(useUserStore());
-onMounted(async () => {
-  await getUsers();
-});
+
 const dialog = ref(false);
 const dialog2 = ref(false);
+
+const page = ref(1)
 const header = ref([
   { title: "No." },
   { title: "User Info" },
@@ -17,7 +18,13 @@ const header = ref([
     title: "Phone Number",
   },
   {
+    title: "Date and Time Joined",
+  },
+  {
     title: "Wallet Balance",
+  },
+  {
+    title: "Status",
   },
 
   {
@@ -26,7 +33,7 @@ const header = ref([
 ]);
 
 const userDetails = ref<any>([]);
-const router = useRouter()
+const router = useRouter();
 
 // user initials
 const userInitials = computed(() => {
@@ -45,9 +52,48 @@ const viewUsers = (id: string) => {
   userDetails.value = filterUserById.value(id);
 
   return router.push({
-    name:"UserDetails",
-    params:{id: id}
-  })
+    name: "UserDetails",
+    params: { id: id },
+  });
+};
+
+const status_color = (status: string | null) => {
+  return status == null ? "green-darken-3" : "red-darken-3";
+};
+
+const name = ref("");
+const email = ref("");
+const date1 = ref("");
+const date2 = ref("");
+
+const clear_name = () => {
+  name.value = ""
+}
+const clear_email = () => {
+  email.value = ""
+}
+
+onMounted(async () => {
+  await getUsers(page.value, name.value, email.value, date1.value, date2.value);
+});
+
+const search_by_name = () => {
+  watchDebounced(
+    name,
+    async () => {
+      await getUsers(page.value, name.value);
+    },
+    { debounce: 5000, maxWait: 5000 }
+  );
+};
+const search_by_email = () => {
+  watchDebounced(
+    email,
+    async () => {
+      await getUsers(page.value,name.value, email.value, date1.value, date2.value);
+    },
+    { debounce: 1000, maxWait: 5000 }
+  );
 };
 </script>
 
@@ -55,14 +101,58 @@ const viewUsers = (id: string) => {
   <div>
     <h3 class="my-7">All Users</h3>
 
-
-
-    <v-card>
-      <v-row class="ml-3 mt-3">
-         <v-col cols="12" sm="6" lg="4">
-          <v-text-field label="Search Users" variant="outlined" density="compact"></v-text-field>
-         </v-col>
+    <v-card class="py-4 px-5 my-4">
+      <h4>Filter options:</h4>
+      <v-row class="mt-3">
+        <v-col cols="12" sm="6" lg="3">
+          <v-text-field
+            label="Search Users"
+            variant="outlined"
+            v-model="name"
+            clearable
+            @click:clear="clear_name"
+            @update:modelValue="search_by_name"
+            density="compact"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="6" lg="3">
+          <v-text-field
+            label="Filter by email"
+            variant="outlined"
+            v-model="email"
+            clearable
+            @click:clear="clear"
+            @update:modelValue="search_by_email"
+            density="compact"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="6" lg="3">
+          <v-text-field
+            label="Filter date joined from"
+            variant="outlined"
+            density="compact"
+            type="date"
+            @update:modelValue="
+              (...args) => getUsers(name, email, ...args, date2)
+            "
+            v-model="date1"
+          ></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="6" lg="3">
+          <v-text-field
+            label="Filter date joined to"
+            variant="outlined"
+            type="date"
+            v-model="date2"
+            @update:modelValue="
+              (...args) => getUsers(name, email, date1, ...args)
+            "
+            density="compact"
+          ></v-text-field>
+        </v-col>
       </v-row>
+    </v-card>
+    <v-card>
       <v-table>
         <thead>
           <tr>
@@ -77,33 +167,45 @@ const viewUsers = (id: string) => {
         </thead>
 
         <tbody v-if="!loading">
-          <tr class="pa-3" v-for="(item,index) in user" :key="item?.id">
-           <td># {{ index + 1 }}</td>
+          <tr class="pa-3" v-for="(item, index) in user?.data" :key="item?.id">
+            <td>{{ index + 1 }}</td>
             <td>
               <!-- <v-avatar>
                 <v-img class="border-radius" :src="item?.avatar"></v-img>
               </v-avatar> -->
 
               <div class="d-flex align-center">
-                <v-avatar size="45px">
+                <!-- <v-avatar size="45px">
                   <v-img
                      cover
                     :src="item?.avatar ?? 'https://via.placeholder.com/15'"
                     class="rounded-circle"
                   >
                   </v-img>
-                </v-avatar>
-                <div class="ml-4">
-                  <span class="font-weight-bold"> {{ item?.firstname.substring(0,10) }}</span>
+                </v-avatar> -->
+                <div>
+                  <span class="font-weight-bold">
+                    {{ item?.firstname.substring(0, 10) }}</span
+                  >
                   <span class="ml-1 font-weight-bold">
-                    {{ item?.lastname.substring(0,10) }}</span
+                    {{ item?.lastname.substring(0, 10) }}</span
                   >
                   <p>{{ item?.email ?? "No data" }}</p>
                 </div>
               </div>
             </td>
-            <td>{{ item?.phone_number }}</td>
-            <td>₦ {{ item?.wallet_balance }}</td>
+            <td>(+234) {{ item?.phone_number }}</td>
+            <td>
+              {{
+                useDateFormat(item?.created_at, "DD, MMMM-YYYY hh:mm a").value
+              }}
+            </td>
+            <td>₦ {{ item.wallet_balance.toLocaleString() }}</td>
+            <td>
+              <v-chip label :color="status_color(item?.blocked_at)">
+                {{ item?.blocked_at == null ? "Active" : "Blocked" }}
+              </v-chip>
+            </td>
             <!-- 
             <td>
               <v-switch
@@ -149,11 +251,25 @@ const viewUsers = (id: string) => {
           </tr>
         </tbody>
       </v-table>
+      <p class="pa-6 text-center" v-if="user?.data?.length <= 0 && loading == false">No data</p>
       <v-layout v-if="loading" class="align-center justify-center ma-12 w-100">
         <v-progress-circular indeterminate></v-progress-circular>
       </v-layout>
     </v-card>
 
+     <v-pagination
+        v-model="page"
+        :length="user?.last_page"
+        @next="getUsers(page,date1, date2)"
+        @prev="getUsers( page,date1, date2)"
+        @update:modelValue="getUsers(page,date1, date2)"
+        active-color="red"
+        :start="1"
+        variant="flat"
+        class="mt-5"
+        color="bg-secondary"
+        rounded="circle"
+      ></v-pagination>
     <!-- <v-dialog max-width="800px" v-model="dialog">
       <v-card class="pa-5">
         <h3>User Details</h3>
@@ -223,8 +339,8 @@ const viewUsers = (id: string) => {
 .max-w-lg {
   max-width: 600px !important;
 }
-.rounded-full{
-  border-radius:50% !important;
+.rounded-full {
+  border-radius: 50% !important;
 }
 table tbody tr td {
   padding: 15px !important;

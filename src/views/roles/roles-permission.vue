@@ -19,7 +19,7 @@ const role_header = ref([
     title: "name",
   },
   {
-    title: "Guard name",
+    title: "Permission count",
   },
   {
     title: "Description",
@@ -113,7 +113,7 @@ const close = () => {
                 <td class="text-capitalize font-weight-bold">
                   {{ data?.name }}
                 </td>
-                <td>{{ data?.guard_name }}</td>
+                <td>{{ '---'}}</td>
                 <!-- <td>{{ data?.group_name }}</td> -->
                 <td>{{ data?.description }}</td>
                 <td>

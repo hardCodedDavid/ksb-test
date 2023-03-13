@@ -43,10 +43,12 @@
             <v-progress-circular indeterminate></v-progress-circular>
           </v-layout>
           <v-checkbox
+            density="compact"
             v-else
             :label="permission.description"
             v-for="(permission, index) in permissions"
             :key="index"
+            class="py-0 my-0"
             @click="role.permission_id.push(permission.id)"
             v-model="permission.id"
           ></v-checkbox>

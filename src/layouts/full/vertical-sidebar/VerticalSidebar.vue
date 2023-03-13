@@ -114,3 +114,10 @@ onMounted(async () => {
     </perfect-scrollbar>
   </v-navigation-drawer>
 </template>
+
+
+<style>
+.text-h5{
+  font-family: "DM Sans", sans-serif !important;
+}
+</style>

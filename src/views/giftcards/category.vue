@@ -7,8 +7,9 @@ import { useCountryStore } from "../../stores/country";
 import { useGiftCardStore } from "../../stores/giftcard";
 
 const { countries } = storeToRefs(useCountryStore());
-const { giftCard, loading, dialog, gift_categories, singleGiftCard } =
-  storeToRefs(useGiftCardStore());
+const { giftCard, loading, dialog, gift_categories, singleGiftCard } = storeToRefs(
+  useGiftCardStore()
+);
 const {
   createGiftCardCategory,
   getAllGifCardCategories,
@@ -17,8 +18,13 @@ const {
   restoreGifCardCategories,
   activationGifCardCategories,
   editGiftCardCategory,
+  purchaseActivationGifCardCategories
 } = useGiftCardStore();
 const page = ref({ title: "Gift Cards" });
+
+const sale_activation = ref('')
+const purchase_activation = ref('')
+
 const breadcrumbs = ref([
   {
     text: "Cards",
@@ -49,12 +55,12 @@ const giftCardCategoryHeader = reactive([
     title: "Created At",
   },
   {
-    title: "Status",
+    title: "Sale activation status",
   },
 
-  {
-    title: "Toggle Activation",
-  },
+  // {
+  //   title: "Toggle  Activation",
+  // },
   {
     title: "Actions",
   },
@@ -127,10 +133,7 @@ const statusColor = (status: string | null) => {
 </script>
 
 <template>
-  <BaseBreadcrumb
-    :title="page.title"
-    :breadcrumbs="breadcrumbs"
-  ></BaseBreadcrumb>
+  <BaseBreadcrumb :title="page.title" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
   <div class="w-full d-flex justify-end my-3">
     <v-btn
       prepend-icon="mdi-plus"
@@ -155,11 +158,7 @@ const statusColor = (status: string | null) => {
         </tr>
       </thead>
       <tbody v-if="loading == false && gift_categories?.data?.length > 0">
-        <tr
-          class="pa-2"
-          v-for="(item, index) in gift_categories.data"
-          :key="item.id"
-        >
+        <tr class="pa-2" v-for="(item, index) in gift_categories.data" :key="item.id">
           <td>{{ index + 1 }}</td>
           <td>
             <v-avatar size="50px">
@@ -175,14 +174,14 @@ const statusColor = (status: string | null) => {
           <!-- <td>{{ item?.sale_term }}</td> -->
           <td>{{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}</td>
           <td>
-            <v-chip label class="pa-2" :color="statusColor(item?.activated_at)">
-              {{ blockedStatus(item?.activated_at) }}
+            <v-chip label class="pa-2" :color="statusColor(item?.sale_activated_at)">
+              {{ blockedStatus(item?.sale_activated_at) }}
             </v-chip>
           </td>
           <!-- <td>
           <v-switch @input="restoreGifCardCategories(item?.id)"></v-switch>
         </td> -->
-          <td>
+          <!-- <td>
             <v-switch
               
               density="compact"
@@ -193,7 +192,7 @@ const statusColor = (status: string | null) => {
               :color="item?.activated_at !== null ? 'secondary' : null"
               @input="activationGifCardCategories(item?.id)"
             ></v-switch>
-          </td>
+          </td> -->
           <td>
             <v-icon
               small
@@ -221,10 +220,7 @@ const statusColor = (status: string | null) => {
       </tbody>
     </v-table>
 
-    <v-layout
-      v-if="loading == true"
-      class="align-center justify-center w-100 my-5"
-    >
+    <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
       <v-progress-circular indeterminate></v-progress-circular>
     </v-layout>
 
@@ -294,12 +290,7 @@ const statusColor = (status: string | null) => {
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            color="secondary"
-            class="px-7"
-            variant="outlined"
-            @click="close()"
-          >
+          <v-btn color="secondary" class="px-7" variant="outlined" @click="close()">
             Close
           </v-btn>
           <v-btn
@@ -327,13 +318,10 @@ const statusColor = (status: string | null) => {
       <div class="w-100 d-flex align-center justify-center">
         <v-row class="my-12 w-100 max-w-lg">
           <v-col cols="12" sm="12" lg="12">
+            
             <div class="d-flex align-center">
               <v-avatar size="70px">
-                <v-img
-                  cover
-                  class="rounded-circle img-fluid"
-                  :src="singleGiftCard?.icon"
-                >
+                <v-img cover class="rounded-circle img-fluid" :src="singleGiftCard?.icon">
                 </v-img>
               </v-avatar>
               <div class="ml-4">
@@ -343,13 +331,15 @@ const statusColor = (status: string | null) => {
             </div>
           </v-col>
           <v-col cols="12" sm="6" lg="12">
-            <h4 class="py-1">Activation status:</h4>
-            <v-chip
-              label
-              class="pa-2"
-              :color="statusColor(singleGiftCard?.activated_at)"
-            >
-              {{ blockedStatus(singleGiftCard?.activated_at) }}
+            <h4 class="py-1">Sale activation status:</h4>
+            <v-chip label class="pa-2" :color="statusColor(singleGiftCard?.sale_activated_at)">
+              {{ blockedStatus(singleGiftCard?.sale_activated_at) }}
+            </v-chip>
+          </v-col>
+          <v-col cols="12" sm="6" lg="12">
+            <h4 class="py-1">Purchase activation status:</h4>
+            <v-chip label class="pa-2" :color="statusColor(singleGiftCard?.purchase_activated_at)">
+              {{ blockedStatus(singleGiftCard?.purchase_activated_at) }}
             </v-chip>
           </v-col>
           <v-col cols="12" sm="6" lg="12">
@@ -366,7 +356,37 @@ const statusColor = (status: string | null) => {
           </v-col>
           <v-col cols="12" sm="6" lg="12">
             <h4 class="py-1">Giftcard countries:</h4>
-            <v-chip v-for="country in singleGiftCard?.countries" :key="country.id" class="ma-2" color="secondary"> {{country?.name}} </v-chip>
+            <v-chip
+              v-for="country in singleGiftCard?.countries"
+              :key="country.id"
+              class="ma-2"
+              color="secondary"
+            >
+              {{ country?.name }}
+            </v-chip>
+          </v-col>
+
+          <v-col cols="12" sm="6" lg="12">
+            <v-switch
+              density="compact"
+              :flat="true"
+              :value="singleGiftCard.sale_activated_at"
+              v-model="sale_activation"
+              focused
+              label="Toggle Sale Activation"
+              :color="singleGiftCard?.sale_activated_at == null ? '' : 'secondary'"
+              @input="activationGifCardCategories(singleGiftCard?.id)"
+            ></v-switch>
+            <v-switch
+              density="compact"
+              :flat="true"
+              v-model="purchase_activation"
+              focused
+              :value="singleGiftCard.purchase_activated_at"
+              label="Toggle Purchase Activation"
+              :color="singleGiftCard?.purchase_activated_at !== null ? '' : 'secondary'"
+              @input="purchaseActivationGifCardCategories(singleGiftCard?.id)"
+            ></v-switch>
           </v-col>
         </v-row>
       </div>

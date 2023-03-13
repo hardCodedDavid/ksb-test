@@ -13,7 +13,7 @@ const {
   getSingleWithDrawals,
   filterWithDrawalsByDateCreated,
 } = useWithdrawalsStore();
-const { withdrawals, loading, singleWithdrawal } = storeToRefs(
+const { withdrawals, loading, singleWithdrawal, dialog, disapproving, approving } = storeToRefs(
   useWithdrawalsStore()
 );
 const status = ref("");
@@ -77,7 +77,7 @@ const status_color = (status: StatusType) => {
 };
 //
 // VIEW WITHDRAWAL
-const dialog = ref(false);
+// const dialog = ref(false);
 const fetching = ref(false);
 const viewWithDrawalRequest = async (id: string) => {
   dialog.value = true;
@@ -121,7 +121,7 @@ const date = ref("");
               v-model="status"
               label="Filter by transaction status"
               density="compact"
-              @update:modelValue="getAllWithDrawals"
+              @update:modelValue="(...args) => getAllWithDrawals(...args, page)"
               :items="status_options"
               variant="outlined"
             ></v-select>
@@ -159,7 +159,15 @@ const date = ref("");
             >
               <td>{{ index + 1 }}</td>
               <td class="font-weight-bold">
-                <span class="text-capitalize">
+                <span
+                  @click="
+                    $router.push({
+                      name: 'UserDetails',
+                      params: { id: withdrawal?.user_id },
+                    })
+                  "
+                  class="text-capitalize username"
+                >
                   {{ withdrawal?.user?.firstname ?? "---" }}
                   {{ withdrawal?.user?.lastname ?? "---" }}</span
                 >
@@ -264,54 +272,43 @@ const date = ref("");
       ></v-pagination>
     </div>
 
-    <v-dialog v-if="dialog" v-model="dialog" max-width="600px">
-      <v-card class="">
-        <h3 class="text-justify pa-5">Withdrawal request details</h3>
-        <v-divider></v-divider>
-        <v-container
+    <v-dialog v-model="dialog" max-width="429px" min-height="476px">
+      <v-card class="view-dialog pa-4">
+        <div class="mb-3 d-flex justify-space-between">
+          <h3 class="text-justify mt-7">Withdrawal request details</h3>
+          <v-btn @click="dialog = false" icon="mdi-close" color="secondary" variant="text">
+            <v-icon icon="mdi-close"></v-icon>
+          </v-btn>
+        </div>
+        <div class="my-3">
+          <!-- <v-icon></v-icon> -->
+          <div>
+            <v-chip
+              label
+              size="small"
+              density="comfortable"
+              class="text-capitalize font-weight-bold pa-3"
+              :color="status_color(singleWithdrawal?.status)"
+              >{{ singleWithdrawal?.status }}</v-chip
+            >
+          </div>
+        </div>
+        <div
           v-if="fetching == false && loading == false"
-          class="fill-height w-100 pa-5 d-flex justify-space-between"
+          class="w-100 d-flex align-center justify-space-between"
         >
           <v-row
             align="center"
             justify="center"
-            class="fill-height w-100 align-center justify-space-between"
+            no-gutters
+            class="w-100 align-center justify-space-between"
           >
-            <v-col cols="12" sm="12" class="pb-0"> <h3>General info</h3></v-col>
-            <v-col>
+            <v-col class="pa-0">
               <div class="mb-4">
                 <!-- <v-icon></v-icon> -->
                 <div>
-                  <h5 class="text-h6">User name</h5>
-                  <p class="text-subtitle-1 text-medium-emphasis">
-                    {{ singleWithdrawal?.user?.firstname }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="mb-4">
-                <!-- <v-icon></v-icon> -->
-                <div>
-                  <h5 class="text-h6">Email address</h5>
-                  <p class="text-subtitle-1 text-medium-emphasis">
-                    {{ singleWithdrawal?.user?.email }}
-                  </p>
-                </div>
-              </div>
-              <div class="mb-4">
-                <!-- <v-icon></v-icon> -->
-                <div>
-                  <h5 class="text-h6">Amount</h5>
-                  <p class="text-subtitle-1 text-medium-emphasis">
-                    ₦‎{{ singleWithdrawal?.amount?.toLocaleString() }}
-                  </p>
-                </div>
-              </div>
-              <div class="mb-4">
-                <!-- <v-icon></v-icon> -->
-                <div>
-                  <h5 class="text-h6">Wallet balance</h5>
-                  <p class="text-subtitle-1 text-medium-emphasis">
+                  <h5>Wallet balance</h5>
+                  <p class="font-weight-bold">
                     ₦‎{{
                       singleWithdrawal?.user?.wallet_balance.toLocaleString()
                     }}
@@ -321,8 +318,28 @@ const date = ref("");
               <div class="mb-4">
                 <!-- <v-icon></v-icon> -->
                 <div>
-                  <h5 class="text-h6">Date & time</h5>
-                  <p class="text-subtitle-1 text-medium-emphasis">
+                  <h5 class="">User name</h5>
+                  <p class="">
+                    {{ singleWithdrawal?.user?.firstname }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <!-- <v-icon></v-icon> -->
+                <div>
+                  <h5 class="">Email address</h5>
+                  <p class="">
+                    {{ singleWithdrawal?.user?.email }}
+                  </p>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <!-- <v-icon></v-icon> -->
+                <div>
+                  <h5 class="">Date & time</h5>
+                  <p class="">
                     {{
                       useDateFormat(
                         singleWithdrawal?.created_at,
@@ -332,32 +349,29 @@ const date = ref("");
                   </p>
                 </div>
               </div>
-              <div class="mb-4">
-                <!-- <v-icon></v-icon> -->
-                <div>
-                  <h5 class="text-h6">Status</h5>
-                  <v-chip
-                    label
-                    class="text-capitalize font-weight-bold pa-3"
-                    :color="status_color(singleWithdrawal?.status)"
-                    >{{ singleWithdrawal?.status }}</v-chip
-                  >
-                </div>
-              </div>
             </v-col>
           </v-row>
           <v-row
             align="center"
             justify="center"
-            class="fill-height w-100 align-center justify-space-between ml-4"
+            no-gutters
+            class="w-100 align-center justify-space-between ml-5"
           >
-            <v-col cols="12" sm="12" class="pb-0"> <h3>Payment info</h3></v-col>
-            <v-col>
+            <v-col class="pa-0">
               <div class="mb-4">
                 <!-- <v-icon></v-icon> -->
                 <div>
-                  <h5 class="text-h6">Bank name</h5>
-                  <p class="text-subtitle-1 text-medium-emphasis">
+                  <h5>Amount</h5>
+                  <p class="font-weight-bold">
+                    ₦‎{{ singleWithdrawal?.amount?.toLocaleString() }}
+                  </p>
+                </div>
+              </div>
+              <div class="mb-4">
+                <!-- <v-icon></v-icon> -->
+                <div>
+                  <h5 class="">Bank name</h5>
+                  <p class="">
                     {{ singleWithdrawal?.bank?.name ?? "No data" }}
                   </p>
                 </div>
@@ -366,8 +380,8 @@ const date = ref("");
               <div class="mb-4">
                 <!-- <v-icon></v-icon> -->
                 <div>
-                  <h5 class="text-h6">Account name</h5>
-                  <p class="text-subtitle-1 text-medium-emphasis">
+                  <h5 class="">Account name</h5>
+                  <p class="">
                     {{ singleWithdrawal?.account_name ?? "No data" }}
                   </p>
                 </div>
@@ -375,44 +389,15 @@ const date = ref("");
               <div class="mb-4">
                 <!-- <v-icon></v-icon> -->
                 <div>
-                  <h5 class="text-h6">Account number</h5>
-                  <p class="text-subtitle-1 text-medium-emphasis">
+                  <h5 class="">Account number</h5>
+                  <p class="">
                     {{ singleWithdrawal?.account_number ?? "No data" }}
                   </p>
                 </div>
               </div>
             </v-col>
-
-            <v-col
-              cols="12"
-              sm="12"
-              class="py-0 d-flex mt-12 align-start flex-column"
-            >
-              <h3>Action</h3>
-              <div
-                v-if="singleWithdrawal?.status == 'pending'"
-                class="d-flex align-center mt-5"
-              >
-                <v-btn
-                  @click="approveRequest(singleWithdrawal?.id)"
-                  width="130px"
-                  color="secondary"
-                >
-                  Approve request
-                </v-btn>
-                <v-btn
-                  @click="declineRequest(singleWithdrawal?.id)"
-                  width="130px"
-                  class="ml-2"
-                  color="error"
-                >
-                  Disprove request
-                </v-btn>
-              </div>
-              <p v-else>This request has been attended to</p>
-            </v-col>
           </v-row>
-        </v-container>
+        </div>
         <v-layout
           v-if="fetching == true || loading == true"
           class="align-center justify-center w-100 my-10"
@@ -423,13 +408,72 @@ const date = ref("");
         <!-- <v-btn color="secondary" class="my-2" block @click="dialog = false"
           >Close Dialog</v-btn
         > -->
+
+        <div v-if="singleWithdrawal.status == 'pending' && fetching == false ">
+          <v-btn
+            @click="declineRequest(singleWithdrawal?.id)"
+            class="wallet-btn"
+            variant="outlined"
+            color="error"
+            :loading="disapproving"
+          >
+            Disapprove request
+          </v-btn>
+          <v-btn
+            @click="approveRequest(singleWithdrawal?.id)"
+            class="wallet-btn ml-4"
+            color="secondary"
+            :loading="approving"
+          >
+            Approve request
+          </v-btn>
+        </div>
       </v-card>
     </v-dialog>
   </div>
 </template>
 
-<style>
+<style lang="scss">
 table tbody tr td {
   padding: 15px !important;
+}
+
+.username {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.view-dialog {
+  background: #ffffff;
+  border-radius: 16px !important;
+
+  h3 {
+    font-weight: 600;
+    font-size: 24px;
+    width: 50%;
+    line-height: 24px;
+  }
+
+  h5 {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 12px;
+    line-height: 24px;
+    color: #afafaf;
+  }
+
+  p {
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px !important;
+    line-height: 24px;
+  }
+
+  .wallet-btn {
+    padding: 22px;
+    border-radius: 8px;
+    width: 188px;
+    height: 64px;
+  }
 }
 </style>

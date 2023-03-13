@@ -19,7 +19,10 @@ interface Data {
 interface State {
   withdrawal: any,
   loading: boolean,
-  singleWithdrawal: any
+  disapproving:boolean,
+  approving:boolean,
+  singleWithdrawal: any,
+  dialog:boolean
 }
 
 
@@ -29,7 +32,10 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
       
     },
     loading: false,
-    singleWithdrawal: {}
+    disapproving: false,
+    approving: false,
+    singleWithdrawal: {},
+    dialog:false
   }),
   getters: {
     withdrawals: (state) => state.withdrawal.data
@@ -55,11 +61,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
               };
             }) => {
               this.loading = false;
-              notify({
-                title: "Successful",
-                text: res.data.message,
-                type: "success",
-              });
+            
               this.withdrawal = res.data.data.wallet_transactions;
             }
           );
@@ -119,11 +121,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
               };
             }) => {
 
-              notify({
-                title: "Successful",
-                text: res.data.message,
-                type: "success",
-              });
+             
               this.singleWithdrawal = res.data.data.wallet_transaction;
             }
           );
@@ -159,17 +157,19 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
                 data: { withdrawal_requests: object };
               };
             }) => {
-              this.loading = false;
+              this.approving = false;
               notify({
                 title: "Successful",
                 text: res.data.message,
                 type: "success",
               });
               this.getAllWithDrawals('', 1)
+              this.dialog = false 
             }
           );
       } catch (error: any) {
-        this.loading = false;
+        this.approving = false;
+        this.dialog = false;
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
@@ -180,7 +180,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
     async declineRequest(id: string) {
       const store = useAuthStore();
       const { notify } = useNotification();
-      this.loading = true;
+      this.disapproving = true;
       try {
         await ksbTechApi
           .patch(withdrawals + '/' + id + '/decline', "", {
@@ -196,17 +196,20 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
                 data: { withdrawal_requests: object };
               };
             }) => {
-              this.loading = false;
+              this.disapproving = false;
+              this.dialog = false;
               notify({
                 title: "Successful",
                 text: res.data.message,
                 type: "success",
               });
               this.getAllWithDrawals('', 1)
+              
             }
           );
       } catch (error: any) {
-        this.loading = false;
+        this.disapproving = false;
+        this.dialog = false;
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,

@@ -210,6 +210,11 @@ const sidebarItem: menu[] = [
         icon: "",
         to: "/assets/all",
       },
+      {
+        title: "Currencies",
+        icon: "",
+        to: "/currencies/all",
+      },
 ],
   },
   {
