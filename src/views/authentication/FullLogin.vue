@@ -12,8 +12,8 @@ const { loginLoading } = storeToRefs(useAuthStore());
 const checkbox = ref(false);
 const valid = ref(true);
 const show1 = ref(false);
-const password = ref("A59b29nnn");
-const email = ref("jahbuchimokoli3@gmail.com");
+const password = ref("");
+const email = ref("");
 
 const passwordRules = ref([(v: string) => !!v || "Password is required"]);
 const emailRules = ref([
