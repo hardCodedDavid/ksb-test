@@ -16,7 +16,7 @@ const {
   getAllGifCardProduct,
   deleteGifCardProducts,
   activationGifCardProduct,
-  editGiftCardProduct
+  editGiftCardProduct,
 } = useGiftProductStore();
 const page = ref({ title: "Gift Cards" });
 const breadcrumbs = ref([
@@ -130,8 +130,12 @@ const editItem = (item: never) => {
             </v-chip>
           </td>
           <td>
-            <v-switch :color="item?.activated_at !== null ? 'secondary' : null"  :value="item?.activated_at"
-              v-model="item.activated_at" @input="activationGifCardProduct(item?.id)"></v-switch>
+            <v-switch
+              :color="item?.activated_at !== null ? 'secondary' : null"
+              :value="item?.activated_at"
+              v-model="item.activated_at"
+              @input="activationGifCardProduct(item?.id)"
+            ></v-switch>
           </td>
           <td>
             <!-- <v-icon
@@ -223,7 +227,6 @@ const editItem = (item: never) => {
                     :items="countries"
                     label="Countries*"
                     required
-                    
                     chips
                     item-title="name"
                     item-value="id"
@@ -237,11 +240,10 @@ const editItem = (item: never) => {
                     :items="giftCardCategories"
                     label="Giftcard categories*"
                     required
-                    
                     chips
                     item-title="name"
                     item-value="id"
-                    v-model="giftCard.giftcard_id"
+                    v-model="giftCard.giftcard_category.id"
                     hint="This field is required"
                     persistent-hint
                   ></v-autocomplete>
@@ -275,7 +277,11 @@ const editItem = (item: never) => {
           </v-btn>
           <v-btn
             :loading="loading"
-            @click="edit == true ? editGiftCardProduct(giftCard) : createGiftCardProduct(giftCard)"
+            @click="
+              edit == true
+                ? editGiftCardProduct(giftCard)
+                : createGiftCardProduct(giftCard)
+            "
             color="secondary"
             class="px-12"
             variant="flat"
