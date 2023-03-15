@@ -60,7 +60,7 @@ export const useAuthStore = defineStore("auth", {
           id: notice["id"],
         };
       }),
-    // tenNotifications: (state) => state.notification?.splice(0,10)
+    // tenNotifications: (state) => state.notification?.9(0,10)
   },
   actions: {
     async ksbTechLogin(loginDetails: { email: string; password: string }) {

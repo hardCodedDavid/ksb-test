@@ -12,6 +12,16 @@ const {
 const { gift_transactions, loading, singleGiftCardTransaction, declining, approving , dialog} = storeToRefs(useGiftCardStore());
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 
+const dialog2 = ref(false)
+const note = ref('')
+const id = ref('')
+const disapprove = () => {
+  if (dialog.value == true) {
+    dialog.value = false;
+  }
+   dialog2.value = true;
+};
+
 const header = ref([
   {
     title: "No.",
@@ -253,7 +263,7 @@ onMounted(async () => {
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'pending'"
-                        @click="declineRequest(item?.id)"
+                        @click="id = item?.id; disapprove()"
                         link
                         color="secondary"
                       >
@@ -481,6 +491,24 @@ onMounted(async () => {
         </div>
       </v-card>
     </v-dialog>
+
+    <v-expand-transition>
+      <v-dialog v-if="dialog2" v-model="dialog2" activator="parent" max-width="500px" width="auto">
+        <v-card>
+          <v-card-text>
+            <p>Enter Reasons for Declining this withdrawal request</p>
+          </v-card-text>
+
+          <v-container class="mt-7">
+            <v-textarea label="Comments" v-model="note" variant="outlined"></v-textarea>
+
+            <v-btn color="secondary"  class="my-5" block @click="declineRequest(id, note)"
+              >Submit</v-btn
+            >
+          </v-container>
+        </v-card>
+      </v-dialog>
+    </v-expand-transition>
   </v-row>
 </template>
 

@@ -207,12 +207,13 @@ export const useGiftCardStore = defineStore("giftcard", {
         });
       }
     },
-    async declineRequest(id: string) {
+    async declineRequest(id: string, note:string) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.declining = true;
 
       var formdata = new FormData();
+      formdata.append("review_note", note)
       formdata.append("_method", "PATCH");
       try {
         await ksbTechApi
@@ -248,6 +249,9 @@ export const useGiftCardStore = defineStore("giftcard", {
         });
       }
     },
+
+
+
     async getSingleGifCardCategories(id: string) {
       const { notify } = useNotification();
       const store = useAuthStore();

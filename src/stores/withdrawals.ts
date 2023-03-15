@@ -177,13 +177,16 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
         });
       }
     },
-    async declineRequest(id: string) {
+    async declineRequest(id: string, note:string) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.disapproving = true;
+
+      var formData = new FormData();
+      formData.append("note", note);
       try {
         await ksbTechApi
-          .patch(withdrawals + '/' + id + '/decline', "", {
+          .patch(withdrawals + '/' + id + '/decline', formData, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,

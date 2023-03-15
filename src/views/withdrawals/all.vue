@@ -13,10 +13,16 @@ const {
   getSingleWithDrawals,
   filterWithDrawalsByDateCreated,
 } = useWithdrawalsStore();
-const { withdrawals, loading, singleWithdrawal, dialog, disapproving, approving } = storeToRefs(
-  useWithdrawalsStore()
-);
+const {
+  withdrawals,
+  loading,
+  singleWithdrawal,
+  dialog,
+  disapproving,
+  approving,
+} = storeToRefs(useWithdrawalsStore());
 const status = ref("");
+const dialog2 = ref(false);
 onMounted(async () => {
   await getAllWithDrawals(status.value, 1);
 });
@@ -24,6 +30,7 @@ onMounted(async () => {
 // const search = ref("");
 
 const page_title = ref({ title: "Withdrawals" });
+const note = ref('')
 const breadcrumbs = ref([
   {
     text: "Transactions",
@@ -61,6 +68,14 @@ const header = ref([
   },
 ]);
 
+const id = ref('')
+const disapprove = () => {
+  if (dialog.value == true) {
+    dialog.value = false;
+  }
+   dialog2.value = true;
+};
+
 const status_options = ref(["Pending", "Completed", "Declined"]);
 
 // CHANGE STATUS COLOR
@@ -97,10 +112,7 @@ const date = ref("");
   <!-- ----------------------------------------------------------------------------- -->
   <!-- <v-data-table></v-data-table> -->
   <div>
-    <BaseBreadcrumb
-      :title="page_title.title"
-      :breadcrumbs="breadcrumbs"
-    ></BaseBreadcrumb>
+    <BaseBreadcrumb :title="page_title.title" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
     <div class="mt-4">
       <v-card flat rounded="1" class="my-5 pa-4">
         <h4>Filter Options:</h4>
@@ -175,9 +187,7 @@ const date = ref("");
               <td>₦‎ {{ withdrawal.amount.toLocaleString() }}</td>
               <td>{{ withdrawal?.account_number ?? "---" }}</td>
               <td>
-                {{
-                  useDateFormat(withdrawal?.created_at, "DD, MMMM-YYYY").value
-                }}
+                {{ useDateFormat(withdrawal?.created_at, "DD, MMMM-YYYY").value }}
               </td>
               <!-- <td>{{ item.status }}</td> -->
 
@@ -227,7 +237,7 @@ const date = ref("");
                       </v-list-item>
                       <v-list-item
                         v-if="withdrawal?.status == 'pending'"
-                        @click="declineRequest(withdrawal?.id)"
+                        @click="id = withdrawal?.id; disapprove()"
                         link
                         color="secondary"
                       >
@@ -243,17 +253,11 @@ const date = ref("");
           </tbody>
         </v-table>
 
-        <v-layout
-          v-if="loading == true"
-          class="align-center justify-center w-100 my-5"
-        >
+        <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
 
-        <p
-          v-if="loading == false && withdrawals?.length <= 0"
-          class="text-center py-6"
-        >
+        <p v-if="loading == false && withdrawals?.length <= 0" class="text-center py-6">
           No data available
         </p>
       </v-card>
@@ -276,7 +280,12 @@ const date = ref("");
       <v-card class="view-dialog pa-4">
         <div class="mb-3 d-flex justify-space-between">
           <h3 class="text-justify mt-7">Withdrawal request details</h3>
-          <v-btn @click="dialog = false" icon="mdi-close" color="secondary" variant="text">
+          <v-btn
+            @click="dialog = false"
+            icon="mdi-close"
+            color="secondary"
+            variant="text"
+          >
             <v-icon icon="mdi-close"></v-icon>
           </v-btn>
         </div>
@@ -309,9 +318,7 @@ const date = ref("");
                 <div>
                   <h5>Wallet balance</h5>
                   <p class="font-weight-bold">
-                    ₦‎{{
-                      singleWithdrawal?.user?.wallet_balance.toLocaleString()
-                    }}
+                    ₦‎{{ singleWithdrawal?.user?.wallet_balance.toLocaleString() }}
                   </p>
                 </div>
               </div>
@@ -341,10 +348,7 @@ const date = ref("");
                   <h5 class="">Date & time</h5>
                   <p class="">
                     {{
-                      useDateFormat(
-                        singleWithdrawal?.created_at,
-                        "DD, MMMM-YYYY"
-                      ).value
+                      useDateFormat(singleWithdrawal?.created_at, "DD, MMMM-YYYY").value
                     }}
                   </p>
                 </div>
@@ -409,9 +413,9 @@ const date = ref("");
           >Close Dialog</v-btn
         > -->
 
-        <div v-if="singleWithdrawal.status == 'pending' && fetching == false ">
+        <div v-if="singleWithdrawal.status == 'pending' && fetching == false">
           <v-btn
-            @click="declineRequest(singleWithdrawal?.id)"
+            @click="disapprove"
             class="wallet-btn"
             variant="outlined"
             color="error"
@@ -419,6 +423,7 @@ const date = ref("");
           >
             Disapprove request
           </v-btn>
+          <!-- declineRequest(singleWithdrawal?.id) -->
           <v-btn
             @click="approveRequest(singleWithdrawal?.id)"
             class="wallet-btn ml-4"
@@ -430,6 +435,24 @@ const date = ref("");
         </div>
       </v-card>
     </v-dialog>
+
+    <v-expand-transition>
+      <v-dialog v-if="dialog2" v-model="dialog2" activator="parent" max-width="500px" width="auto">
+        <v-card>
+          <v-card-text>
+            <p>Enter Reasons for Declining this withdrawal request</p>
+          </v-card-text>
+
+          <v-container class="mt-7">
+            <v-textarea label="Comments" v-model="note" variant="outlined"></v-textarea>
+
+            <v-btn color="secondary"  class="my-5" block @click="declineRequest(id, note)"
+              >Submit</v-btn
+            >
+          </v-container>
+        </v-card>
+      </v-dialog>
+    </v-expand-transition>
   </div>
 </template>
 
