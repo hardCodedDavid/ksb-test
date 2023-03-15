@@ -11,7 +11,6 @@ interface GiftCard {
     icon: File | null;
     sale_term: string;
     country: any;
-
     data: string;
   };
   loading: boolean;

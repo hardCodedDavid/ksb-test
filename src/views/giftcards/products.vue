@@ -134,13 +134,13 @@ const editItem = (item: never) => {
               v-model="item.activated_at" @input="activationGifCardProduct(item?.id)"></v-switch>
           </td>
           <td>
-            <!-- <v-icon
+            <v-icon
               small
               class="mr-2 text-secondary cursor-pointer"
               @click="showDetails(item?.id)"
               title="view"
               >mdi-eye</v-icon
-            > -->
+            >
             <v-icon
               small
               class="mr-2 text-primary cursor-pointer"

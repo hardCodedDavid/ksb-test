@@ -163,7 +163,7 @@ const open_file = (file: string) => {
               <td>{{ index + 1 }}</td>
               <td class="font-weight-bold">
                 {{ item.user?.firstname ?? "No name" }}
-                {{ item.user?.lastname ?? "No name" }}
+                {{ item.user?.lastname }}
               </td>
               <td>{{ item.reference }}</td>
               <td>₦‎{{ item.payable_amount.toLocaleString() }}</td>
