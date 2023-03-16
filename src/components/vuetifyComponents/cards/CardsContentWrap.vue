@@ -28,7 +28,7 @@ const messages = ref([
   <!-- Content Wrap -->
   <!-- ----------------------------------------------------------------------------- -->
   <div class="pa-3">
-  <v-row justify="space-around">
+    <v-row justify="space-around">
       <v-card width="400">
         <v-img
           height="200"
@@ -36,17 +36,12 @@ const messages = ref([
           cover
           class="text-white"
         >
-          <v-toolbar
-            color="rgba(0, 0, 0, 0)"
-            theme="dark"
-          >
+          <v-toolbar color="rgba(0, 0, 0, 0)" theme="dark">
             <template v-slot:prepend>
               <v-btn icon="$menu" color="text-white"></v-btn>
             </template>
 
-            <v-toolbar-title class="text-h6">
-              Messages
-            </v-toolbar-title>
+            <v-toolbar-title class="text-h6"> Messages </v-toolbar-title>
 
             <template v-slot:append>
               <v-btn icon="mdi-dots-vertical" color="text-white"></v-btn>
@@ -55,9 +50,7 @@ const messages = ref([
         </v-img>
 
         <v-card-text>
-          <div class="font-weight-bold ml-1 mb-2">
-            Today
-          </div>
+          <div class="font-weight-bold ml-1 mb-2">Today</div>
 
           <v-timeline density="compact" align="start">
             <v-timeline-item

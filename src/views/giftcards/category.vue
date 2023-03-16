@@ -7,9 +7,8 @@ import { useCountryStore } from "../../stores/country";
 import { useGiftCardStore } from "../../stores/giftcard";
 
 const { countries } = storeToRefs(useCountryStore());
-const { giftCard, loading, dialog, gift_categories, singleGiftCard } = storeToRefs(
-  useGiftCardStore()
-);
+const { giftCard, loading, dialog, gift_categories, singleGiftCard } =
+  storeToRefs(useGiftCardStore());
 const {
   createGiftCardCategory,
   getAllGifCardCategories,
@@ -18,12 +17,12 @@ const {
   restoreGifCardCategories,
   activationGifCardCategories,
   editGiftCardCategory,
-  purchaseActivationGifCardCategories
+  purchaseActivationGifCardCategories,
 } = useGiftCardStore();
 const page = ref({ title: "Gift Cards" });
 
-const sale_activation = ref('')
-const purchase_activation = ref('')
+const sale_activation = ref("");
+const purchase_activation = ref("");
 
 const breadcrumbs = ref([
   {
@@ -94,6 +93,7 @@ const editItem = (item: never) => {
   btnText.value = "Update category";
   dialog.value = true;
   edit.value = true;
+  console.log(item, giftCard.value);
 };
 
 const close = () => {
@@ -104,7 +104,7 @@ const close = () => {
       name: "",
       icon: null,
       sale_term: "",
-      country: [],
+      countries: [],
 
       data: "",
     }
@@ -133,7 +133,10 @@ const statusColor = (status: string | null) => {
 </script>
 
 <template>
-  <BaseBreadcrumb :title="page.title" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
+  <BaseBreadcrumb
+    :title="page.title"
+    :breadcrumbs="breadcrumbs"
+  ></BaseBreadcrumb>
   <div class="w-full d-flex justify-end my-3">
     <v-btn
       prepend-icon="mdi-plus"
@@ -158,7 +161,11 @@ const statusColor = (status: string | null) => {
         </tr>
       </thead>
       <tbody v-if="loading == false && gift_categories?.data?.length > 0">
-        <tr class="pa-2" v-for="(item, index) in gift_categories.data" :key="item.id">
+        <tr
+          class="pa-2"
+          v-for="(item, index) in gift_categories.data"
+          :key="item.id"
+        >
           <td>{{ index + 1 }}</td>
           <td>
             <v-avatar size="50px">
@@ -174,7 +181,11 @@ const statusColor = (status: string | null) => {
           <!-- <td>{{ item?.sale_term }}</td> -->
           <td>{{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}</td>
           <td>
-            <v-chip label class="pa-2" :color="statusColor(item?.sale_activated_at)">
+            <v-chip
+              label
+              class="pa-2"
+              :color="statusColor(item?.sale_activated_at)"
+            >
               {{ blockedStatus(item?.sale_activated_at) }}
             </v-chip>
           </td>
@@ -220,7 +231,10 @@ const statusColor = (status: string | null) => {
       </tbody>
     </v-table>
 
-    <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
+    <v-layout
+      v-if="loading == true"
+      class="align-center justify-center w-100 my-5"
+    >
       <v-progress-circular indeterminate></v-progress-circular>
     </v-layout>
 
@@ -279,7 +293,7 @@ const statusColor = (status: string | null) => {
                     multiple
                     item-title="name"
                     item-value="id"
-                    v-model="giftCard.country"
+                    v-model="giftCard.countries"
                     hint="This field is optional"
                     persistent-hint
                   ></v-autocomplete>
@@ -290,7 +304,12 @@ const statusColor = (status: string | null) => {
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="secondary" class="px-7" variant="outlined" @click="close()">
+          <v-btn
+            color="secondary"
+            class="px-7"
+            variant="outlined"
+            @click="close()"
+          >
             Close
           </v-btn>
           <v-btn
@@ -318,10 +337,13 @@ const statusColor = (status: string | null) => {
       <div class="w-100 d-flex align-center justify-center">
         <v-row class="my-12 w-100 max-w-lg">
           <v-col cols="12" sm="12" lg="12">
-            
             <div class="d-flex align-center">
               <v-avatar size="70px">
-                <v-img cover class="rounded-circle img-fluid" :src="singleGiftCard?.icon">
+                <v-img
+                  cover
+                  class="rounded-circle img-fluid"
+                  :src="singleGiftCard?.icon"
+                >
                 </v-img>
               </v-avatar>
               <div class="ml-4">
@@ -332,13 +354,21 @@ const statusColor = (status: string | null) => {
           </v-col>
           <v-col cols="12" sm="6" lg="12">
             <h4 class="py-1">Sale activation status:</h4>
-            <v-chip label class="pa-2" :color="statusColor(singleGiftCard?.sale_activated_at)">
+            <v-chip
+              label
+              class="pa-2"
+              :color="statusColor(singleGiftCard?.sale_activated_at)"
+            >
               {{ blockedStatus(singleGiftCard?.sale_activated_at) }}
             </v-chip>
           </v-col>
           <v-col cols="12" sm="6" lg="12">
             <h4 class="py-1">Purchase activation status:</h4>
-            <v-chip label class="pa-2" :color="statusColor(singleGiftCard?.purchase_activated_at)">
+            <v-chip
+              label
+              class="pa-2"
+              :color="statusColor(singleGiftCard?.purchase_activated_at)"
+            >
               {{ blockedStatus(singleGiftCard?.purchase_activated_at) }}
             </v-chip>
           </v-col>
@@ -351,7 +381,9 @@ const statusColor = (status: string | null) => {
           <v-col cols="12" sm="6" lg="12">
             <h4 class="py-1">Date created:</h4>
             <p class="mb-0 grey-lighten-1">
-              {{ useDateFormat(singleGiftCard?.created_at, "DD, MMMM-YYYY").value }}
+              {{
+                useDateFormat(singleGiftCard?.created_at, "DD, MMMM-YYYY").value
+              }}
             </p>
           </v-col>
           <v-col cols="12" sm="6" lg="12">
@@ -374,7 +406,9 @@ const statusColor = (status: string | null) => {
               v-model="sale_activation"
               focused
               label="Toggle Sale Activation"
-              :color="singleGiftCard?.sale_activated_at == null ? '' : 'secondary'"
+              :color="
+                singleGiftCard?.sale_activated_at == null ? '' : 'secondary'
+              "
               @input="activationGifCardCategories(singleGiftCard?.id)"
             ></v-switch>
             <v-switch
@@ -384,7 +418,11 @@ const statusColor = (status: string | null) => {
               focused
               :value="singleGiftCard.purchase_activated_at"
               label="Toggle Purchase Activation"
-              :color="singleGiftCard?.purchase_activated_at !== null ? '' : 'secondary'"
+              :color="
+                singleGiftCard?.purchase_activated_at !== null
+                  ? ''
+                  : 'secondary'
+              "
               @input="purchaseActivationGifCardCategories(singleGiftCard?.id)"
             ></v-switch>
           </v-col>

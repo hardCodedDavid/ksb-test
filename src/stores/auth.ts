@@ -481,7 +481,6 @@ export const useAuthStore = defineStore("auth", {
               };
             }) => {
               this.notification = res.data.data.notifications.data;
-              console.log(this.notification);
             }
           );
       } catch (error: any) {
