@@ -31,6 +31,11 @@ const router = createRouter({
           path: "/withdrawals/all",
           component: () => import("@/views/withdrawals/all.vue"),
         },
+        {
+          name: "viewWithdrawals",
+          path: "/withdrawals/:id",
+          component: () => import("@/views/withdrawals/view-withdrawals/Index.vue"),
+        },
         // {
         //   name: "ContactList",
         //   path: "apps/contact-list",
