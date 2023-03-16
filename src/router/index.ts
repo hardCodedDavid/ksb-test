@@ -67,6 +67,11 @@ const router = createRouter({
           component: () => import("@/views/giftcards/transaction.vue"),
         },
         {
+          name: "ViewGiftCardTransaction",
+          path: "/giftcards/transaction/:id",
+          component: () => import("@/views/giftcards/view-transaction/Index.vue"),
+        },
+        {
           name: "GiftCardCategory",
           path: "/giftcards/categories",
           component: () => import("@/views/giftcards/category.vue"),
