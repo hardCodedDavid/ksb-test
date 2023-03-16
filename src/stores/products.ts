@@ -22,11 +22,12 @@ interface GiftCardProduct {
 
 interface GiftProductPayload {
   name: string;
-  country: string;
-  currency: string;
+  country_id: string;
+  currency_id: string;
   sell_rate: string;
   sell_min_amount: string;
   sell_max_amount: string;
+  giftcard_category_id:string,
   id:string,
   giftcard_id:string,
   data:any,
@@ -46,11 +47,12 @@ export const useGiftProductStore = defineStore("gift_product", {
     loading: false,
     gift_products: {
       name: '',
-      country: '',
-      currency: '',
+      country_id: '',
+      currency_id: '',
       sell_rate: '',
       sell_min_amount: '',
       sell_max_amount: '',
+      giftcard_category_id:'',
       id:'',
       data:'',
       giftcard_id:''
@@ -149,15 +151,13 @@ export const useGiftProductStore = defineStore("gift_product", {
       const store = useAuthStore();
       const { notify } = useNotification();
 
-      //   const country_id = this.country_id;
-
       var formData = new FormData();
       formData.append(
         "giftcard_category_id",
-        payload.id
+        payload.giftcard_category_id
       );
-      formData.append("country_id", payload.country);
-      formData.append("currency_id", payload.currency);
+      formData.append("country_id", payload.country_id);
+      formData.append("currency_id", payload.currency_id);
 
       formData.append("name", payload.name);
       formData.append("sell_rate", payload.sell_rate);
