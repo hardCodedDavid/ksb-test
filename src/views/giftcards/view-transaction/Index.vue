@@ -7,19 +7,19 @@ import { useDateFormat } from "@vueuse/core";
 const { 
     declineRequest,
     approveRequest,
-    getAllGiftCardTransactionByUserId 
+    getAllGiftCardTransactionByUserId ,
 } = useGiftCardStore();
-const { loading, approving, declining, singleGiftCardTransaction} = storeToRefs(useGiftCardStore());
+const { loading, approving, declining, singleGiftCardTransaction, dialog} = storeToRefs(useGiftCardStore());
 
 const route = useRoute();
 
-const dialog2 = ref(false)
+// const dialog2 = ref(false)
 
 const note = ref("");
 const id = ref("")
 
-const disapprove = (selected) => {
-  dialog2.value = true;
+const disapprove = (selected:any) => {
+  dialog.value = true;
   id.value = selected;
 };
 
@@ -39,13 +39,17 @@ const status_color = (status: StatusType) => {
 type TradeType = "sell" | "buy";
 
 const trade_color = (status: StatusType) => {
-  return status == "buy"
+  return status === "buy"
     ? "green lighten-3"
-    : status == "sell"
+    : status === "sell"
     ? "red lighten-3"
     : "";
 };
 //
+const reproof = ref('')
+const get_reproof = (e:any) => {
+  reproof.value = e.target.files[0]
+}
 
 onMounted(() => {
   getAllGiftCardTransactionByUserId(route.params.id);
@@ -83,10 +87,10 @@ onMounted(() => {
                 src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
               ></v-img>
 
-              <v-card-item>
-                <v-card-title>GiftCard Information</v-card-title>
-
-                <v-card-subtitle>
+              <v-card-item class="pa-0 mb-5">
+                <v-card-title class="pa-4">GiftCard Information</v-card-title>
+                <v-divider></v-divider>
+                <v-card-subtitle class="ml-6 my-2">
                   <span class="mr-1">Reference:</span>
 
                   <span>{{ singleGiftCardTransaction.reference }}</span>
@@ -94,7 +98,7 @@ onMounted(() => {
               </v-card-item>
 
               <v-card-text>
-                <v-row align="center" class="mx-0">
+                <v-row align="center" class="mx-0 mb-3">
                   <v-chip
                     label
                     size="small"
@@ -114,12 +118,12 @@ onMounted(() => {
                   >
                 </v-row>
 
-                <div class="my-4 text-subtitle-1">
+                <div class="mb-5">
                   <strong>Card type:</strong>
                   {{ singleGiftCardTransaction?.card_type }}
                 </div>
 
-                <div>
+                <div class="mb-4">
                   {{ singleGiftCardTransaction?.comment }}
                 </div>
 
@@ -157,6 +161,10 @@ onMounted(() => {
                         singleGiftCardTransaction?.updated_at,
                         "DD, MMMM-YYYY"
                       ).value }}
+                </div>
+                <div class="font-weight-normal mb-4">
+                  <strong>Review Note:</strong>
+                  {{ singleGiftCardTransaction?.review_note}}
                 </div>
               </v-card-text>
 
@@ -198,6 +206,7 @@ onMounted(() => {
               <v-card-item>
                 <v-card-title>User Information</v-card-title>
               </v-card-item>
+              <v-divider></v-divider>
               <v-card-text>
                 <div class="font-weight-normal mb-4">
                   <strong>First name:</strong>
@@ -215,10 +224,14 @@ onMounted(() => {
                 </div>
               </v-card-text>
 
-              <v-divider class="mx-4 mb-1"></v-divider>
+              <!-- <v-divider class="mx-4 mb-1"></v-divider> -->
 
+              
+            </v-card>
+            
+            <v-card>
               <v-card-title>Bank Information</v-card-title>
-
+                 <v-divider></v-divider>
               <v-card-text>
                 <div class="font-weight-normal mb-4">
                   <strong>Bank name:</strong>
@@ -243,14 +256,16 @@ onMounted(() => {
     </v-col>
 
       <v-dialog
-        v-if="dialog2"
-        v-model="dialog2"
+        v-if="dialog"
+        v-model="dialog"
         max-width="500px"
-        width="auto"
+        width="100%"
       >
-        <v-card>
+        <v-card max-width="500px">
           <v-card-text>
-            <p>Enter Reasons for Declining this withdrawal request</p>
+            <h3>Decline Request</h3>
+            <p>Enter Reasons for Declining 
+             this withdrawal request</p>
           </v-card-text>
 
           <v-container class="mt-7">
@@ -260,12 +275,15 @@ onMounted(() => {
               variant="outlined"
             ></v-textarea>
 
+<v-file-input @change="get_reproof" hint="Optional" persistent-hint label="Review proof" append-inner-icon="mdi-paperclip"
+                    prepend-icon=""></v-file-input>
+
             <v-btn
               color="secondary"
               class="my-5"
               block
-              :loadind="declining"
-              @click="declineRequest(id, note)"
+              :loading="declining"
+              @click="declineRequest(id, note, reproof)"
               >Submit</v-btn
             >
           </v-container>

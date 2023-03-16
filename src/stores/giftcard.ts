@@ -115,7 +115,7 @@ export const useGiftCardStore = defineStore("giftcard", {
                 data: any;
               };
             }) => {
-              this.gift_transactions = res.data.data.giftcards.data;
+              this.gift_transactions = res.data.data.giftcards;
               this.loading = false
             }
           );
@@ -165,10 +165,10 @@ export const useGiftCardStore = defineStore("giftcard", {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.approving = true;
-
+      
 
       var formdata = new FormData();
-      formdata.append("complete_approval", "1");
+      formdata.append("complete_approval",  '0');
       formdata.append("review_note", "bypassing the card won't do anything, we need to back up the digital HTTP array!");
       // formdata.append("review_proof", fileInput.files[0], "payment-receipt.png");
       formdata.append("_method", "PATCH");
@@ -196,6 +196,7 @@ export const useGiftCardStore = defineStore("giftcard", {
                 type: "success",
               });
               this.getAllGiftCardTransaction('', '', 1, '', '')
+              
             }
           );
       } catch (error: any) {
@@ -207,7 +208,7 @@ export const useGiftCardStore = defineStore("giftcard", {
         });
       }
     },
-    async declineRequest(id: string, note:string) {
+    async declineRequest(id: string, note:string, reproof:File) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.declining = true;
@@ -215,6 +216,7 @@ export const useGiftCardStore = defineStore("giftcard", {
       var formdata = new FormData();
       formdata.append("review_note", note)
       formdata.append("_method", "PATCH");
+      formdata.append("review_proof", reproof);
       try {
         await ksbTechApi
           .post(giftCard + '/' + id + '/decline', formdata, {

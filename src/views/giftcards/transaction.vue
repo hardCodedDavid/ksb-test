@@ -29,6 +29,13 @@ const disapprove = () => {
   dialog2.value = true;
 };
 
+
+const reproof = ref('')
+const get_reproof = (e:any) => {
+  reproof.value = e.target.files[0]
+}
+
+
 const header = ref([
   {
     title: "No.",
@@ -206,8 +213,8 @@ onMounted(async () => {
               </th>
             </tr>
           </thead>
-          <tbody v-if="gift_transactions?.length > 0 && loading == false">
-            <tr v-for="(item, index) in gift_transactions" :key="item.id">
+          <tbody v-if="gift_transactions?.data?.length > 0 && loading == false">
+            <tr v-for="(item, index) in gift_transactions.data" :key="item.id">
               <td>{{ index + 1 }}</td>
               <td
                 class="font-weight-bold username"
@@ -300,14 +307,14 @@ onMounted(async () => {
         </v-layout>
         <p
           class="font-weight-bold text-center my-3"
-          v-if="gift_transactions?.length <= 0 && loading == false"
+          v-if="gift_transactions?.data?.length <= 0 && loading == false"
         >
           No data found
         </p>
       </v-card>
       <v-pagination
         v-model="page_no"
-        :length="4"
+        :length="gift_transactions?.last_page"
         @next="
           getAllGiftCardTransaction(status, trade, page_no, date_from, date_to)
         "
@@ -514,16 +521,17 @@ onMounted(async () => {
     </v-dialog>
 
     <v-expand-transition>
-      <v-dialog
+       <v-dialog
         v-if="dialog2"
         v-model="dialog2"
-        activator="parent"
         max-width="500px"
-        width="auto"
+        width="100%"
       >
-        <v-card>
+        <v-card max-width="500px">
           <v-card-text>
-            <p>Enter Reasons for Declining this withdrawal request</p>
+            <h3>Decline Request</h3>
+            <p>Enter Reasons for Declining 
+             this withdrawal request</p>
           </v-card-text>
 
           <v-container class="mt-7">
@@ -533,11 +541,15 @@ onMounted(async () => {
               variant="outlined"
             ></v-textarea>
 
+<v-file-input @change="get_reproof" hint="Optional" persistent-hint label="Review proof" append-inner-icon="mdi-paperclip"
+                    prepend-icon=""></v-file-input>
+
             <v-btn
               color="secondary"
               class="my-5"
               block
-              @click="declineRequest(id, note)"
+              :loading="declining"
+              @click="declineRequest(id, note, reproof)"
               >Submit</v-btn
             >
           </v-container>
