@@ -10,7 +10,8 @@ interface GiftCard {
     name: string;
     icon: File | null;
     sale_term: string;
-    country: any;
+    countries: any;
+
     data: string;
   };
   loading: boolean;
@@ -28,7 +29,7 @@ interface GiftCategoryPayload {
   name: string;
   icon: any;
   sale_term: string;
-  country: string;
+  countries: any;
   id?: string
 }
 
@@ -38,7 +39,7 @@ export const useGiftCardStore = defineStore("giftcard", {
       name: "",
       icon: null,
       sale_term: "",
-      country: [],
+      countries: [],
 
       data: ""
     },
@@ -69,7 +70,7 @@ export const useGiftCardStore = defineStore("giftcard", {
       this.loading = true
       try {
         await ksbTechApi
-          .get(giftCardCategory, {
+          .get(giftCardCategory + '?include=countries', {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -133,7 +134,7 @@ export const useGiftCardStore = defineStore("giftcard", {
       this.loading = true
       try {
         await ksbTechApi
-          .get(`${giftCard}/${id}?include=user` , {
+          .get(`${giftCard}/${id}?include=user,bank` , {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -438,11 +439,11 @@ export const useGiftCardStore = defineStore("giftcard", {
 
       var formData = new FormData();
       formData.append("name", payload.name);
-      formData.append("icon", file, file.name);
+      formData.append("icon", file);
       formData.append("sale_term", payload.sale_term);
 
 
-      const ids = this.giftCard.country
+      const ids = this.giftCard.countries
 
       for (let i = 0; i < ids.length; i++) {
         formData.append('countries[]', ids[i]);
@@ -489,16 +490,22 @@ export const useGiftCardStore = defineStore("giftcard", {
       const { notify } = useNotification();
 
       // const country_id = {...this.country_id};
-      // console.log(country_id)
+      console.log(payload.countries)
       let file = payload.icon;
+      let countries = [];
 
       var formData = new FormData();
       formData.append("name", payload.name);
       !file.name ? '' : formData.append("icon", file, file.name);
       !payload?.sale_term ? '' : formData.append("sale_term", payload?.sale_term);
-      // formData.append("countries[]", country_id.id);
+      for (let country in Object.keys(payload.countries)) {
+        countries.push(payload.countries[country].id)
+      }
+      for (let id in countries) {
+        formData.append('countries[]', countries[id]);
+      }
       formData.append('_method', 'PATCH');
-
+      
       this.loading = true;
       try {
         await ksbTechApi

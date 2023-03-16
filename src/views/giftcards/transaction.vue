@@ -9,17 +9,24 @@ const {
   approveRequest,
   getAllGiftCardTransactionByUserId,
 } = useGiftCardStore();
-const { gift_transactions, loading, singleGiftCardTransaction, declining, approving , dialog} = storeToRefs(useGiftCardStore());
+const {
+  gift_transactions,
+  loading,
+  singleGiftCardTransaction,
+  declining,
+  approving,
+  dialog,
+} = storeToRefs(useGiftCardStore());
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 
-const dialog2 = ref(false)
-const note = ref('')
-const id = ref('')
+const dialog2 = ref(false);
+const note = ref("");
+const id = ref("");
 const disapprove = () => {
   if (dialog.value == true) {
     dialog.value = false;
   }
-   dialog2.value = true;
+  dialog2.value = true;
 };
 
 const header = ref([
@@ -245,7 +252,10 @@ onMounted(async () => {
                     </template>
                     <v-list>
                       <v-list-item
-                        @click="dialog = true; getAllGiftCardTransactionByUserId(item?.id)"
+                        :to="{
+                          name: 'ViewGiftCardTransaction',
+                          params: { id: item.id },
+                        }"
                         link
                         color="secondary"
                       >
@@ -263,7 +273,10 @@ onMounted(async () => {
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'pending'"
-                        @click="id = item?.id; disapprove()"
+                        @click="
+                          id = item?.id;
+                          disapprove();
+                        "
                         link
                         color="secondary"
                       >
@@ -317,7 +330,12 @@ onMounted(async () => {
       <v-card class="view-dialog pa-4">
         <div class="mb-3 d-flex justify-space-between">
           <h3 class="text-justify mt-7">Transactions details</h3>
-          <v-btn @click="dialog = false" icon="mdi-close" color="secondary" variant="text">
+          <v-btn
+            @click="dialog = false"
+            icon="mdi-close"
+            color="secondary"
+            variant="text"
+          >
             <v-icon icon="mdi-close"></v-icon>
           </v-btn>
         </div>
@@ -361,7 +379,8 @@ onMounted(async () => {
                 <div>
                   <h5 class="">User name</h5>
                   <p class="">
-                    {{ singleGiftCardTransaction?.user?.firstname }} {{ singleGiftCardTransaction?.user?.lastname }}
+                    {{ singleGiftCardTransaction?.user?.firstname }}
+                    {{ singleGiftCardTransaction?.user?.lastname }}
                   </p>
                 </div>
               </div>
@@ -395,9 +414,7 @@ onMounted(async () => {
                 <div>
                   <h5 class="">Reference</h5>
                   <p class="">
-                    {{
-                      singleGiftCardTransaction.reference
-                    }}
+                    {{ singleGiftCardTransaction.reference }}
                   </p>
                 </div>
               </div>
@@ -460,7 +477,7 @@ onMounted(async () => {
           </v-row>
         </div>
         <v-layout
-          v-if=" loading == true"
+          v-if="loading == true"
           class="align-center justify-center w-100 my-10"
         >
           <v-progress-circular indeterminate></v-progress-circular>
@@ -470,7 +487,11 @@ onMounted(async () => {
           >Close Dialog</v-btn
         > -->
 
-        <div v-if="singleGiftCardTransaction.status == 'pending' && loading == false">
+        <div
+          v-if="
+            singleGiftCardTransaction.status == 'pending' && loading == false
+          "
+        >
           <v-btn
             @click="declineRequest(singleGiftCardTransaction?.id)"
             class="wallet-btn"
@@ -493,16 +514,30 @@ onMounted(async () => {
     </v-dialog>
 
     <v-expand-transition>
-      <v-dialog v-if="dialog2" v-model="dialog2" activator="parent" max-width="500px" width="auto">
+      <v-dialog
+        v-if="dialog2"
+        v-model="dialog2"
+        activator="parent"
+        max-width="500px"
+        width="auto"
+      >
         <v-card>
           <v-card-text>
             <p>Enter Reasons for Declining this withdrawal request</p>
           </v-card-text>
 
           <v-container class="mt-7">
-            <v-textarea label="Comments" v-model="note" variant="outlined"></v-textarea>
+            <v-textarea
+              label="Comments"
+              v-model="note"
+              variant="outlined"
+            ></v-textarea>
 
-            <v-btn color="secondary"  class="my-5" block @click="declineRequest(id, note)"
+            <v-btn
+              color="secondary"
+              class="my-5"
+              block
+              @click="declineRequest(id, note)"
               >Submit</v-btn
             >
           </v-container>
