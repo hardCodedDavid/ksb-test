@@ -58,6 +58,17 @@ onMounted(() => {
 
 <template>
   <v-row>
+    <v-btn 
+        class="ml-4" 
+        link
+        size="large"
+        variant="plain"
+        color="grey-darken-4"
+        :to="{name:'GiftCardTransaction'}"
+    >
+        <v-icon start icon="mdi-arrow-left"></v-icon>
+        GiftCard Transactions
+    </v-btn>
     <v-col cols="12" sm="12" lg="12">
       <v-card>
         <v-toolbar color="transparent">
@@ -166,6 +177,19 @@ onMounted(() => {
                   <strong>Review Note:</strong>
                   {{ singleGiftCardTransaction?.review_note}}
                 </div>
+                <div class="font-weight-normal mb-4">
+                  <strong>Review By:</strong>
+                  {{ singleGiftCardTransaction?.reviewed_by}}
+                </div>
+                <div class="font-weight-normal mb-4">
+                  <strong>Review At:</strong>
+                  <span v-if="singleGiftCardTransaction.reviewed_at">
+                    {{ useDateFormat(
+                        singleGiftCardTransaction?.reviewed_at,
+                        "DD, MMMM-YYYY"
+                      ).value }}
+                  </span>
+                </div>
               </v-card-text>
 
               <v-divider v-if="singleGiftCardTransaction.status == 'pending'" class="mx-4 mb-1"></v-divider>
@@ -249,6 +273,22 @@ onMounted(() => {
                 </div>
               </v-card-text>
             </v-card>
+
+            <v-card class="my-12">
+              <v-card-title>Card Information</v-card-title>
+                 <v-divider></v-divider>
+              <v-card-text>
+                <div class="font-weight-normal mb-4">
+                  <strong>Code:</strong>
+                  {{ singleGiftCardTransaction.code ? singleGiftCardTransaction.code : ""}}
+                </div>
+
+                <div class="font-weight-normal mb-4">
+                  <strong>Pin:</strong>
+                  {{ singleGiftCardTransaction.code ? singleGiftCardTransaction.pin : ""}}
+                </div>
+              </v-card-text>
+            </v-card>
             </v-col>
             
         </v-row>
@@ -275,7 +315,7 @@ onMounted(() => {
               variant="outlined"
             ></v-textarea>
 
-<v-file-input @change="get_reproof" hint="Optional" persistent-hint label="Review proof" append-inner-icon="mdi-paperclip"
+              <v-file-input @change="get_reproof" hint="Optional" persistent-hint label="Review proof" append-inner-icon="mdi-paperclip"
                     prepend-icon=""></v-file-input>
 
             <v-btn
