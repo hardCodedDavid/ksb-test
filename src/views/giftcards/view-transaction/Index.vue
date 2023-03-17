@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useGiftCardStore } from "@/stores/giftcard";
@@ -51,6 +51,15 @@ const get_reproof = (e:any) => {
   reproof.value = e.target.files[0]
 }
 
+const image = computed(() => {
+  if(singleGiftCardTransaction.value.cards.length <= 0){
+    return "https://cdn.vuetifyjs.com/images/cards/cooking.png"
+  }
+  else{
+    return singleGiftCardTransaction.value?.cards[0].original_url
+  }
+})
+
 onMounted(() => {
   getAllGiftCardTransactionByUserId(route.params.id);
 });
@@ -93,9 +102,10 @@ onMounted(() => {
               </template>
 
               <v-img
+                v-if="singleGiftCardTransaction?.cards"
                 cover
                 height="250"
-                src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+                :src="image"
               ></v-img>
 
               <v-card-item class="pa-0 mb-5">
@@ -173,23 +183,7 @@ onMounted(() => {
                         "DD, MMMM-YYYY"
                       ).value }}
                 </div>
-                <div class="font-weight-normal mb-4">
-                  <strong>Review Note:</strong>
-                  {{ singleGiftCardTransaction?.review_note}}
-                </div>
-                <div class="font-weight-normal mb-4">
-                  <strong>Review By:</strong>
-                  {{ singleGiftCardTransaction?.reviewed_by}}
-                </div>
-                <div class="font-weight-normal mb-4">
-                  <strong>Review At:</strong>
-                  <span v-if="singleGiftCardTransaction.reviewed_at">
-                    {{ useDateFormat(
-                        singleGiftCardTransaction?.reviewed_at,
-                        "DD, MMMM-YYYY"
-                      ).value }}
-                  </span>
-                </div>
+                
               </v-card-text>
 
               <v-divider v-if="singleGiftCardTransaction.status == 'pending'" class="mx-4 mb-1"></v-divider>
@@ -213,6 +207,36 @@ onMounted(() => {
                   Decline
                 </v-btn>
               </v-card-actions>
+            </v-card>
+
+            <v-card class="my-12">
+              <v-card-title>Other Information</v-card-title>
+                 <v-divider></v-divider>
+              <v-card-text>
+                <div class="font-weight-normal mb-4">
+                  <strong>Review Note:</strong>
+                  {{ singleGiftCardTransaction?.review_note}}
+                </div>
+                <div class="font-weight-normal mb-4">
+                  <strong>Review By:</strong>
+                  {{ singleGiftCardTransaction?.reviewed_by}}
+                </div>
+                <div class="font-weight-normal mb-4">
+                  <strong>Review At:</strong>
+                  <span v-if="singleGiftCardTransaction.reviewed_at">
+                    {{ useDateFormat(
+                        singleGiftCardTransaction?.reviewed_at,
+                        "DD, MMMM-YYYY"
+                      ).value }}
+                  </span>
+                </div>
+                <div class="font-weight-normal mb-4">
+                  <strong>Review Proof:</strong>
+                  <span v-if="singleGiftCardTransaction.reviewed_at">
+                    {{ singleGiftCardTransaction.review_proof }}
+                  </span>
+                </div>
+              </v-card-text>
             </v-card>
             </v-col>
 
@@ -242,10 +266,13 @@ onMounted(() => {
                   {{ singleGiftCardTransaction.user?.lastname}}
                 </div>
 
-                <div class="font-weight-normal mb-4">
-                  <strong>Email:</strong>
-                  {{ singleGiftCardTransaction.user?.email}}
-                </div>
+                
+                  <div v-if="singleGiftCardTransaction.user_id" class="font-weight-normal mb-4">
+                    <strong class="mr-1">Email:</strong>
+                    <router-link :to="{name:'UserDetails', params: {id : singleGiftCardTransaction.user_id} }">
+                      {{ singleGiftCardTransaction.user?.email}}
+                    </router-link>
+                  </div>
               </v-card-text>
 
               <!-- <v-divider class="mx-4 mb-1"></v-divider> -->
