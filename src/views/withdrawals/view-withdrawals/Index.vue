@@ -17,7 +17,6 @@ const id = ref("");
 const disapprove = (selected: any) => {
   dialog.value = true;
   id.value = selected;
-  console.log(id.value)
 };
 
 // CHANGE STATUS COLOR
