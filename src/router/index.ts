@@ -67,6 +67,12 @@ const router = createRouter({
           component: () => import("@/views/asset/all-transactions.vue"),
         },
         {
+          name: "ViewAssetsTransaction",
+          path: "/asset/transaction/:id",
+          component: () => import("@/views/asset/transaction-view.vue"),
+          props:true
+        },
+        {
           name: "GiftCardTransaction",
           path: "/giftcards/transaction",
           component: () => import("@/views/giftcards/transaction.vue"),

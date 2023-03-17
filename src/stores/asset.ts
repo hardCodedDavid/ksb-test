@@ -67,7 +67,7 @@ export const useAssetStore = defineStore("asset", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(asset + '?filter[status]=' + status.toLowerCase() + '&page=' + page + '&filter[trade_type]=' + type.toLowerCase() + '&include=user', {
+          .get(asset + '?filter[status]=' + status.toLowerCase() + '&page=' + page + '&filter[trade_type]=' + type.toLowerCase() + '&include=user' + '&per_page=100', {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -257,7 +257,7 @@ export const useAssetStore = defineStore("asset", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(asset + "/" + id + '?include=asset' + '&page=' + page, {
+          .get(asset + "/" + id + '?include=asset,user,bank' + '&page=' + page, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -271,7 +271,7 @@ export const useAssetStore = defineStore("asset", {
               };
             }) => {
               this.loading = false;
-              this.dialog = true;
+              this.dialog = false;
               this.single_transactions = res.data.data.asset_transaction;
             }
           );
@@ -302,12 +302,13 @@ export const useAssetStore = defineStore("asset", {
               };
             }) => {
               this.loading = false;
+              this.dialog = false;
               notify({
                 title: "Approval Successful",
                 text: res.data.message,
                 type: "success",
               });
-              this.getAllAssetTransactions();
+              this.getAllAssetTransactions("",1, "");
             }
           );
       } catch (error: any) {
@@ -342,12 +343,13 @@ export const useAssetStore = defineStore("asset", {
               };
             }) => {
               this.loading = false;
+              this.dialog = false;
               notify({
                 title: "Decline Successful",
                 text: res.data.message,
                 type: "success",
               });
-              this.getAllAssetTransactions();
+              this.getAllAssetTransactions("",1, "");
             }
           );
       } catch (error: any) {

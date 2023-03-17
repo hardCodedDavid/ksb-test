@@ -38,7 +38,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
     dialog:false
   }),
   getters: {
-    withdrawals: (state) => state.withdrawal.data
+    withdrawals: (state) => state.withdrawal
   },
   actions: {
     async getAllWithDrawals(status:string, page_no:number) {

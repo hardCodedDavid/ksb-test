@@ -120,4 +120,11 @@ onMounted(async () => {
 .text-h5{
   font-family: "DM Sans", sans-serif !important;
 }
+.v-list-item-title{
+  font-size:13px;
+}
+
+p{
+ font-size:13px; 
+}
 </style>

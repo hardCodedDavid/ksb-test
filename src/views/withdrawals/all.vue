@@ -169,7 +169,7 @@ const date = ref("");
           <tbody v-if="loading == false">
             <tr
               class="pa-3"
-              v-for="(withdrawal, index) in withdrawals"
+              v-for="(withdrawal, index) in withdrawals?.data"
               :key="withdrawal?.id"
             >
               <td>{{ index + 1 }}</td>
@@ -272,7 +272,7 @@ const date = ref("");
         </v-layout>
 
         <p
-          v-if="loading == false && withdrawals?.length <= 0"
+          v-if="loading == false && withdrawals?.data?.length <= 0"
           class="text-center py-6"
         >
           No data available
@@ -280,7 +280,7 @@ const date = ref("");
       </v-card>
       <v-pagination
         v-model="page"
-        :length="4"
+        :length="withdrawals?.last_page"
         @next="getAllWithDrawals(status, page)"
         @prev="getAllWithDrawals(status, page)"
         @update:modelValue="getAllWithDrawals(status, page)"
@@ -493,14 +493,18 @@ const date = ref("");
 </template>
 
 <style lang="scss">
+
 table tbody tr td {
   padding: 15px !important;
+  font-size: 12px;
 }
 
 .username {
   text-decoration: underline;
   cursor: pointer;
 }
+
+
 
 .view-dialog {
   background: #ffffff;
