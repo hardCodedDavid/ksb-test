@@ -1,9 +1,24 @@
 <template>
   <div>
-    <v-card rounded="1" class="pa-5">
-
-      <div class="d-flex align-center justify-center w-100 my-7">
+    <v-btn
+      class="mb-2"
+      link
+      size="large"
+      variant="plain"
+      color="grey-darken-4"
+      :to="{ name: 'Users' }"
+    >
+      <v-icon start icon="mdi-arrow-left"></v-icon>
+      Users
+    </v-btn>
+    <v-card rounded="1">
+      <div class="w-100">
         <div
+          class="w-100"
+          style="height: 150px; background-color: #34384f"
+        ></div>
+        <div
+          style="margin-top: -60px"
           class="d-flex align-center justify-center flex-column w-100"
           v-for="(detail, index) in userDetails"
           :key="index"
@@ -20,10 +35,11 @@
           </v-avatar>
 
           <h3>{{ detail.firstname }} {{ detail.lastname }}</h3>
-          <p>{{ detail.email }}</p>
+          <!-- <p>{{ detail.email }}</p>
           <p class="font-weight-bold mt-2">
-                  Phone: <span class="font-weight-light">{{ detail.phone_number }}</span>
-            </p>
+            Phone:
+            <span class="font-weight-light">{{ detail.phone_number }}</span>
+          </p> -->
           <!-- <div class="text-center">
                 <p>{{ detail.email }}</p>
                 <p class="font-weight-bold mt-2">
@@ -53,129 +69,156 @@
               </div> -->
         </div>
       </div>
-      <v-tabs>
-        <!-- <v-tab value="one" class="font-weight-bold">User Information</v-tab> -->
-        <v-tab value="one" class="font-weight-bold">Asset Transactions</v-tab>
-      </v-tabs>
+      <div class="d-flex justify-end">
+        <v-tabs v-model="tab">
+          <v-tab value="one" class="font-weight-bold">User Information</v-tab>
+          <v-tab value="two" class="font-weight-bold">Asset Transactions</v-tab>
+        </v-tabs>
+      </div>
     </v-card>
-    <v-window v-model="tab">
-      <!-- <v-window-item value="one"> </v-window-item> -->
-
-      <!-- <v-window-item value="two"> 
-        
-          <v-table class="mt-7">
-            <thead>
-            
-            <tr>
-             <th
-            :key="index"
-            v-for="(headerTitle, index) in giftCardCategoryHeader"
-            class="text-left"
-          >
-            {{ headerTitle.title }}
-          </th>
-            </tr>
-            </thead>
-          </v-table>
-         </v-window-item>
-
-        <v-window-item value="three"> Three </v-window-item> -->
+    <v-window v-model="tab" class="mt-8">
       <v-window-item value="one">
-       <v-card class="my-4">
-        <v-table class="mt-5">
-          <thead>
-            <tr>
-              <th
-                v-for="(headings, index) in header"
-                :key="index"
-                class="text-left"
-              >
-                {{ headings.title }}
-              </th>
-            </tr>
-          </thead>
-          <tbody v-if="allTransactions?.data?.length > 0 && loading == false">
-            <tr v-for="(item, index) in allTransactions.data" :key="item.id">
-            <td>{{index + 1}}</td>
-               <td class="font-weight-bold">
-                {{ item.user?.firstname ?? "No name" }}
-                {{ item.user?.lastname ?? "No name" }}
-              </td>
-              <td>{{ item.reference }}</td>
-              <td>₦‎{{ item.asset_amount }}</td>
-              <td>
-                {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}
-              </td>
-              <td>{{ item.trade_type }}</td>
+        <v-row>
+          <v-col cols="12" sm="12" lg="6">
+            <v-card>
+              <v-card-title class="ml-4">User Information</v-card-title>
+              <v-card-text>
+                <!-- <p class="mb-4">
+                  Hello, I am Mathew Anderson. I love making websites and
+                  graphics. Lorem ipsum dolor sit amet, consectetur adipiscing
+                  elit.
+                </p> -->
 
-              <td>
-                <v-chip
-                  label
-                  class="text-capitalize font-weight-bold pa-3"
-                  :color="status_color(item?.status)"
-                  >{{ item?.status }}</v-chip
+                <div class="mb-4">
+                  <v-chip label :color="status_color(detail?.blocked_at)">
+                    {{ detail?.blocked_at == null ? "Active" : "Blocked" }}
+                  </v-chip>
+                </div>
+
+                <div class="mb-5">
+                  <strong>Username:</strong>
+                </div>
+
+                <div class="mb-5">
+                  <strong>Email:</strong>
+                </div>
+
+                <div class="mb-5">
+                  <strong>Phone number:</strong>
+                </div>
+
+                <div class="mb-5">
+                  <strong>Wallet balance:</strong>
+                </div>
+
+                <div class="mb-5">
+                  <strong>Created:</strong>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-window-item>
+      <v-window-item value="two">
+        <v-card class="my-4">
+          <v-table class="mt-5">
+            <thead>
+              <tr>
+                <th
+                  v-for="(headings, index) in header"
+                  :key="index"
+                  class="text-left"
                 >
-              </td>
-              <td>
-                <!-- <v-icon icon="mdi-dots-vertical"></v-icon> -->
-                <v-row justify="center">
-                  <v-menu transition="scroll-y-transition">
-                    <template v-slot:activator="{ props }">
-                      <v-btn
-                        text
-                        icon="mdi-dots-vertical"
-                        color="transparent"
-                        class="ma-2"
-                        v-bind="props"
-                      >
-                      </v-btn>
-                    </template>
-                    <v-list>
-                      <v-list-item
-                        @click="getSingleAssetTransactions(item?.id)"
-                        link
-                        color="secondary"
-                      >
-                        <v-list-item-title> View Details </v-list-item-title>
-                      </v-list-item>
-                      <v-list-item
-                        v-if="item?.status == 'transferred'"
-                        @click="approveAssetTransactions(item?.id)"
-                        link
-                        color="secondary"
-                      >
-                        <v-list-item-title> Approve Request </v-list-item-title>
-                      </v-list-item>
-                      <v-list-item
-                        v-if="item?.status == 'transferred'"
-                        @click="declineAssetTransactions(item?.id)"
-                        link
-                        color="secondary"
-                      >
-                        <v-list-item-title> Decline Request </v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </v-row>
-              </td>
-            </tr>
-          </tbody>
-        </v-table>
-       </v-card>
+                  {{ headings.title }}
+                </th>
+              </tr>
+            </thead>
+            <tbody v-if="allTransactions?.data?.length > 0 && loading == false">
+              <tr v-for="(item, index) in allTransactions.data" :key="item.id">
+                <td>{{ index + 1 }}</td>
+                <td class="font-weight-bold">
+                  {{ item.user?.firstname ?? "No name" }}
+                  {{ item.user?.lastname ?? "No name" }}
+                </td>
+                <td>{{ item.reference }}</td>
+                <td>₦‎{{ item.asset_amount }}</td>
+                <td>
+                  {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}
+                </td>
+                <td>{{ item.trade_type }}</td>
 
-      <v-pagination
-        v-model="page"
-        :length="allTransactions?.last_page"
-        @next="getSingleAssetTransactions(page)"
-        @prev="getSingleAssetTransactions(page)"
-        @update:modelValue="getSingleAssetTransactions(page)"
-        active-color="red"
-        :start="1"
-        variant="flat"
-        class="mt-5"
-        color="bg-secondary"
-        rounded="circle"
-      ></v-pagination>
+                <td>
+                  <v-chip
+                    label
+                    class="text-capitalize font-weight-bold pa-3"
+                    :color="status_color(item?.status)"
+                    >{{ item?.status }}</v-chip
+                  >
+                </td>
+                <td>
+                  <!-- <v-icon icon="mdi-dots-vertical"></v-icon> -->
+                  <v-row justify="center">
+                    <v-menu transition="scroll-y-transition">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          text
+                          icon="mdi-dots-vertical"
+                          color="transparent"
+                          class="ma-2"
+                          v-bind="props"
+                        >
+                        </v-btn>
+                      </template>
+                      <v-list>
+                        <v-list-item
+                          @click="getSingleAssetTransactions(item?.id)"
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title> View Details </v-list-item-title>
+                        </v-list-item>
+                        <v-list-item
+                          v-if="item?.status == 'transferred'"
+                          @click="approveAssetTransactions(item?.id)"
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title>
+                            Approve Request
+                          </v-list-item-title>
+                        </v-list-item>
+                        <v-list-item
+                          v-if="item?.status == 'transferred'"
+                          @click="declineAssetTransactions(item?.id)"
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title>
+                            Decline Request
+                          </v-list-item-title>
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
+                  </v-row>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card>
+
+        <v-pagination
+          v-model="page"
+          :length="allTransactions?.last_page"
+          @next="getSingleAssetTransactions(page)"
+          @prev="getSingleAssetTransactions(page)"
+          @update:modelValue="getSingleAssetTransactions(page)"
+          active-color="red"
+          :start="1"
+          variant="flat"
+          class="mt-5"
+          color="bg-secondary"
+          rounded="circle"
+        ></v-pagination>
         <p
           class="font-weight-bold text-center my-3"
           v-if="allTransactions?.data?.length <= 0 && loading == false"
@@ -372,6 +415,7 @@ onMounted(async () => {
   await getAllAssetTransactionsByUserId(route.params.id);
   await getUsers(1, name.value, email.value, date1.value, date2.value);
   userDetails.value = { ...filterUserById.value(route.params.id) };
+  console.log(userDetails.value);
 });
 const giftCardCategoryHeader = reactive([
   {
@@ -422,16 +466,8 @@ const header = ref([
   },
 ]);
 
-type StatusType = "pending" | "approved" | "declined";
-
-const status_color = (status: StatusType) => {
-  return status == "pending"
-    ? "yellow-darken-2"
-    : status == "approved"
-    ? "green-darken-2"
-    : status == "declined"
-    ? "red lighten-3"
-    : "";
+const status_color = (status: string | null) => {
+  return status == null ? "green-darken-3" : "red-darken-3";
 };
 </script>
 
