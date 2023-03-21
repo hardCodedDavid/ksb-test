@@ -4,21 +4,19 @@ import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useGiftCardStore } from "@/stores/giftcard";
 import { useDateFormat } from "@vueuse/core";
-const { 
-    declineRequest,
-    approveRequest,
-    getAllGiftCardTransactionByUserId ,
-} = useGiftCardStore();
-const { loading, approving, declining, singleGiftCardTransaction, dialog} = storeToRefs(useGiftCardStore());
+const { declineRequest, approveRequest, getAllGiftCardTransactionByUserId } =
+  useGiftCardStore();
+const { loading, approving, declining, singleGiftCardTransaction, dialog } =
+  storeToRefs(useGiftCardStore());
 
-const route = useRoute();
+const route: any = useRoute();
 
 // const dialog2 = ref(false)
 
 const note = ref("");
-const id = ref("")
+const id = ref("");
 
-const disapprove = (selected:any) => {
+const disapprove = (selected: any) => {
   dialog.value = true;
   id.value = selected;
 };
@@ -38,7 +36,7 @@ const status_color = (status: StatusType) => {
 //
 type TradeType = "sell" | "buy";
 
-const trade_color = (status: StatusType) => {
+const trade_color = (status: TradeType) => {
   return status === "buy"
     ? "green lighten-3"
     : status === "sell"
@@ -46,19 +44,54 @@ const trade_color = (status: StatusType) => {
     : "";
 };
 //
-const reproof = ref('')
-const get_reproof = (e:any) => {
-  reproof.value = e.target.files[0]
-}
+const reproof = ref("");
+const get_reproof = (e: any) => {
+  reproof.value = e.target.files[0];
+};
 
 const image = computed(() => {
-  if(singleGiftCardTransaction.value.cards.length <= 0){
-    return "https://cdn.vuetifyjs.com/images/cards/cooking.png"
+  if (singleGiftCardTransaction.value.cards.length <= 0) {
+    return "https://cdn.vuetifyjs.com/images/cards/cooking.png";
+  } else {
+    return singleGiftCardTransaction.value?.cards[0].original_url;
   }
-  else{
-    return singleGiftCardTransaction.value?.cards[0].original_url
-  }
-})
+});
+
+const transaction_header = ref([
+  {
+    title: "Category",
+  },
+  {
+    title: "Products",
+  },
+  {
+    title: "Type",
+  },
+  {
+    title: "Country",
+  },
+  {
+    title: "Value",
+  },
+  {
+    title: "Qty",
+  },
+  {
+    title: "Total",
+  },
+]);
+
+const trade_options = ref([
+  {
+    gift_card: "Gift card",
+    product: "Cake",
+    type: "Buy",
+    country: "Nigeria",
+    value: "$50,000",
+    Qty: "10",
+    total: "$500,000",
+  },
+]);
 
 onMounted(() => {
   getAllGiftCardTransactionByUserId(route.params.id);
@@ -79,6 +112,7 @@ onMounted(() => {
         GiftCard Transactions
     </v-btn>
     <v-col cols="12" sm="12" lg="12">
+    
       <v-card>
         <v-toolbar color="transparent">
           <v-toolbar-title class="font-weight-medium">
@@ -88,6 +122,47 @@ onMounted(() => {
           <v-spacer></v-spacer>
         </v-toolbar>
         <v-divider></v-divider>
+        <v-card class="pa-6" rounded="0" elevation="0">
+      <v-table class="ksb-border">
+        <thead>
+        <tr class="pa-2">
+          <th
+            :key="index"
+            v-for="(headerTitle, index) in transaction_header"
+            class="text-left"
+          >
+            {{ headerTitle.title }}
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr v-for="({gift_card, product,value, type, total, Qty, country}, index) in trade_options" :key="index">
+          <td>
+          {{gift_card}}
+          </td>
+          <td>
+          {{product}}
+          </td>
+          <td>
+          {{type}}
+          </td>
+          <td>
+          {{country}}
+          </td>
+          <td>
+          {{value}}
+          </td>
+          <td>
+          {{Qty}}
+          </td>
+          <td>
+          {{total}}
+          </td>
+        </tr>
+      </tbody>
+      </v-table>
+    </v-card>
         <v-row class="px-4">
        
             <v-col cols="12" sm="12" lg="6">
@@ -358,3 +433,9 @@ onMounted(() => {
       </v-dialog>
   </v-row>
 </template>
+
+<style scoped>
+.ksb-border {
+  border: 1px solid #cecccc;
+}
+</style>
