@@ -1,13 +1,19 @@
 import { defineStore } from 'pinia';
 
 import ksbTechApi from "../../axios";
-import { permission, roles } from "../../apiRoute";
+import { permission, roles,admin } from "../../apiRoute";
 import { useNotification } from "@kyvg/vue3-notification";
+import { useUserStore } from "@/stores/user";
 import { useAuthStore } from "./auth";
+const {
+  getAdmin,
+} = useUserStore();
 
 export const useRolesPermissionsStore = defineStore('roles-permissions', {
     state: () => ({
         loading:false,
+        isAssigning:false,
+        dialog3:false,
         dialog:false,
         roles:[],
         permissions:[],
@@ -15,6 +21,9 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
             name:"",
             description:"",
             permission_id:[]
+        },
+        assign_role_form:{
+          role_id: ""
         }
     }),
     getters: {
@@ -213,6 +222,53 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
                 );
             } catch (error: any) {
               this.loading = false
+              notify({
+                title: "An Error Occurred",
+                text: error.response.data.message,
+                type: "error",
+              });
+            }
+          },
+        async assignRole(
+            id:string,
+            assign_role_form:{
+              role_id: string
+            }
+           ) {
+            const { notify } = useNotification();
+            const store = useAuthStore();
+            this.isAssigning = true
+
+            try {
+              await ksbTechApi
+                .patch(admin + '/' + id + '/role',{...assign_role_form}, {
+                  headers: {
+                    Accept: "application/json",
+                    Authorization: `Bearer ${store.token}`,
+                  },
+                })
+                .then(
+                  (res: {
+                    data: {
+                      message: string;
+                      data: any;
+                    };    
+                  }) => {
+                    getAdmin()
+                    this.isAssigning = false
+                    this.dialog3 = false;
+                    assign_role_form = {
+                      role_id: ""
+                    }
+                    notify({
+                      title: "Success",
+                      text: res.data.message,
+                      type: "success",
+                    });
+                  }
+                );
+            } catch (error: any) {
+              this.isAssigning = false
               notify({
                 title: "An Error Occurred",
                 text: error.response.data.message,

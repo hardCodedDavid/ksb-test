@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // @ts-ignore
 import { useUserStore } from "../../stores/user";
+import { useRolesPermissionsStore } from "../../stores/roles-permissions";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
 const {
@@ -10,10 +11,14 @@ const {
   restoreAdmin,
   blockAdmin,
   getSingleAdmin,
-  updateAdminDetails
+  updateAdminDetails,
 } = useUserStore();
 // @ts-ignore
 import { useCountryStore } from "../../stores/country";
+const { getAllRoles, assignRole } = useRolesPermissionsStore();
+const { roles, assign_role_form, dialog3, isAssigning } = storeToRefs(
+  useRolesPermissionsStore()
+);
 const { admin, loading, dialog, adminDetails, id, dialog2, single_admin } =
   storeToRefs(useUserStore());
 const form = ref(null);
@@ -52,6 +57,7 @@ const header = reactive([
 ]);
 onMounted(async () => {
   await getAdmin();
+  await getAllRoles();
 });
 
 const blockedStatus = (status: string | null) => {
@@ -64,10 +70,24 @@ const statusColor = (status: string | null) => {
 const edit = ref(false);
 const btnText = ref("Create Admin");
 const editAdmin = async (item: string) => {
- adminDetails.value = Object.assign({}, item);
+  adminDetails.value = Object.assign({}, item);
   btnText.value = "Update admin details";
   dialog.value = true;
-   edit.value = true;
+  edit.value = true;
+};
+
+const user_id = ref("");
+const openAssignRole = async (item: string) => {
+  dialog3.value = true;
+  user_id.value = item;
+};
+const closeDialog3 = () => {
+  dialog3.value = false;
+  assign_role_form.value.role_id = "";
+};
+
+const updateRole = async () => {
+  await assignRole(user_id.value, assign_role_form.value);
 };
 
 const valid = ref(null);
@@ -176,6 +196,13 @@ const valid = ref(null);
                       <v-list-item-title> Update admin </v-list-item-title>
                     </v-list-item>
                     <v-list-item
+                      @click="openAssignRole(items?.id)"
+                      link
+                      color="secondary"
+                    >
+                      <v-list-item-title> Assign role </v-list-item-title>
+                    </v-list-item>
+                    <v-list-item
                       @click="deleteAdmin(items?.id)"
                       link
                       color="secondary"
@@ -205,7 +232,7 @@ const valid = ref(null);
       <v-dialog v-model="dialog" persistent max-width="550px">
         <v-card>
           <v-card-title class="py-4">
-            <h3 class="text-h5 font-weight-bold">{{btnText}}</h3>
+            <h3 class="text-h5 font-weight-bold">{{ btnText }}</h3>
           </v-card-title>
           <v-card-text>
             <v-container>
@@ -240,7 +267,6 @@ const valid = ref(null);
                       item-title="name"
                       item-value="id"
                       v-model="adminDetails.country_name"
-                     
                     ></v-autocomplete>
                   </v-col>
                 </v-row>
@@ -259,12 +285,16 @@ const valid = ref(null);
             </v-btn>
             <v-btn
               :loading="loading"
-              @click="edit == false ? CreateAdmin() : updateAdminDetails(adminDetails?.id)"
+              @click="
+                edit == false
+                  ? CreateAdmin()
+                  : updateAdminDetails(adminDetails?.id)
+              "
               color="secondary"
               class="px-12"
               variant="flat"
             >
-            Submit
+              Submit
             </v-btn>
           </v-card-actions>
         </v-card>
@@ -281,7 +311,6 @@ const valid = ref(null);
               <div class="d-flex align-center justify-center w-100 my-5">
                 <div
                   class="d-flex align-center justify-center flex-column w-100"
-                 
                 >
                   <v-badge
                     content="2"
@@ -308,7 +337,9 @@ const valid = ref(null);
                     </v-avatar>
                   </v-badge>
 
-                  <h3>{{ single_admin.firstname }} {{ single_admin.lastname }}</h3>
+                  <h3>
+                    {{ single_admin.firstname }} {{ single_admin.lastname }}
+                  </h3>
 
                   <div class="text-center">
                     <p>{{ single_admin.email }}</p>
@@ -360,6 +391,50 @@ const valid = ref(null);
               @click="dialog2 = false"
             >
               Close
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-row>
+
+    <v-row justify="center">
+      <v-dialog v-model="dialog3" persistent max-width="500px">
+        <v-card>
+          <v-card-title class="py-4">
+            <h3 class="text-h5 font-weight-bold">Assign Role</h3>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <div class="d-flex align-center justify-center w-100 my-5">
+                <v-autocomplete
+                  :items="roles"
+                  label="Roles"
+                  required
+                  item-title="name"
+                  item-value="id"
+                  v-model="assign_role_form.role_id"
+                ></v-autocomplete>
+              </div>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="secondary"
+              class="px-7"
+              variant="outlined"
+              @click="closeDialog3"
+            >
+              Close
+            </v-btn>
+            <v-btn
+              :loading="isAssigning"
+              color="secondary"
+              class="px-12"
+              variant="flat"
+              @click="updateRole"
+            >
+              Submit
             </v-btn>
           </v-card-actions>
         </v-card>
