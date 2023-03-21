@@ -80,7 +80,6 @@ const user_id = ref("");
 const openAssignRole = async (item: string) => {
   dialog3.value = true;
   user_id.value = item;
-  console.log(user_id.value);
 };
 const closeDialog3 = () => {
   dialog3.value = false;
@@ -89,7 +88,6 @@ const closeDialog3 = () => {
 
 const updateRole = async () => {
   await assignRole(user_id.value, assign_role_form.value);
-  console.log(assign_role_form.value);
 };
 
 const valid = ref(null);

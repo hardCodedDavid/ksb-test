@@ -42,7 +42,6 @@ interface State {
   loading: boolean;
   dialog: boolean;
   dialog2: boolean;
-  dialog3: boolean;
   single_admin: any;
 }
 
@@ -54,7 +53,6 @@ export const useUserStore = defineStore("user", {
     loading: false,
     dialog: false,
     dialog2: false,
-    dialog3: false,
     fund: {
       type: "",
       amount: "",
