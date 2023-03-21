@@ -81,11 +81,7 @@ export const useAssetStore = defineStore("asset", {
               };
             }) => {
               this.loading = false;
-              notify({
-                title: "Successful",
-                text: res.data.message,
-                type: "success",
-              });
+              
               this.all_transactions = res.data.data.asset_transactions;
             }
           );

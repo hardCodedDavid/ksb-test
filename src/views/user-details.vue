@@ -20,22 +20,21 @@
         <div
           style="margin-top: -60px"
           class="d-flex align-center justify-center flex-column w-100"
-          v-for="(detail, index) in userDetails"
-          :key="index"
         >
           <v-avatar color="secondary" :size="80" class="my-4 position-relative">
             <v-img
               cover
-              v-if="detail.avatar !== null"
-              :src="detail.avatar"
+              v-if="single_user.avatar !== null"
+              :src="single_user.avatar"
             ></v-img>
             <span v-else class="text-h5 text-uppercase">{{
-              detail.email.slice(0, 2)
+              single_user.email.slice(0, 2)
             }}</span>
           </v-avatar>
 
-          <h3>{{ detail.firstname }} {{ detail.lastname }}</h3>
-          <!-- <p>{{ detail.email }}</p>
+          <h3>{{ single_user.firstname }} {{ single_user.lastname }}</h3>
+          <p>{{ single_user.email }}</p>
+          <!-- 
           <p class="font-weight-bold mt-2">
             Phone:
             <span class="font-weight-light">{{ detail.phone_number }}</span>
@@ -69,7 +68,12 @@
               </div> -->
         </div>
       </div>
-      <div class="d-flex justify-end">
+      <div class="d-flex align-center justify-space-between">
+        <div class="my-4 ml-4">
+          <strong>Wallet balance:</strong> ₦<span>{{
+            single_user.wallet_balance
+          }}</span>
+        </div>
         <v-tabs v-model="tab">
           <v-tab value="one" class="font-weight-bold">User Information</v-tab>
           <v-tab value="two" class="font-weight-bold">Asset Transactions</v-tab>
@@ -81,7 +85,8 @@
         <v-row>
           <v-col cols="12" sm="12" lg="6">
             <v-card>
-              <v-card-title class="ml-4">User Information</v-card-title>
+              <v-card-title class="ml-4 my-4">User Information</v-card-title>
+              <v-divider></v-divider>
               <v-card-text>
                 <!-- <p class="mb-4">
                   Hello, I am Mathew Anderson. I love making websites and
@@ -90,29 +95,108 @@
                 </p> -->
 
                 <div class="mb-4">
-                  <v-chip label :color="status_color(detail?.blocked_at)">
-                    {{ detail?.blocked_at == null ? "Active" : "Blocked" }}
+                  <v-chip label :color="status_color(single_user?.blocked_at)">
+                    {{ single_user?.blocked_at == null ? "Active" : "Blocked" }}
                   </v-chip>
                 </div>
 
                 <div class="mb-5">
-                  <strong>Username:</strong>
+                  <strong>Username: </strong
+                  ><span class="ml-2">{{ single_user.username }}</span>
                 </div>
 
                 <div class="mb-5">
-                  <strong>Email:</strong>
+                  <strong>Email:</strong
+                  ><span class="ml-2">{{ single_user.email }}</span>
                 </div>
 
                 <div class="mb-5">
-                  <strong>Phone number:</strong>
+                  <strong>Phone number:</strong
+                  ><span class="ml-2">{{ single_user.phone_number }}</span>
                 </div>
 
                 <div class="mb-5">
                   <strong>Wallet balance:</strong>
+                  <span>{{ single_user.wallet_balance }}</span>
+                </div>
+
+                <div>
+                  <strong>Created:</strong>
+                  <span class="ml-2">{{
+                    useDateFormat(single_user?.created_at, "DD, MMMM-YYYY")
+                      .value
+                  }}</span>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-col>
+          <v-col cols="12" sm="12" lg="6">
+            <v-card>
+              <v-card-title class="ml-4 my-4">Other Information</v-card-title>
+              <v-divider></v-divider>
+              <v-card-text>
+                <div class="mb-4">
+                  <strong>Email verified at:</strong>
+                  <span class="ml-3">{{
+                    useDateFormat(
+                      single_user.email_verified_at,
+                      "DD, MMMM-YYYY"
+                    ).value
+                  }}</span>
                 </div>
 
                 <div class="mb-5">
-                  <strong>Created:</strong>
+                  <strong>2FA activated at: </strong
+                  ><span
+                    v-if="single_user.two_fa_activated_at !== null"
+                    class="ml-2"
+                    >{{
+                      useDateFormat(
+                        single_user.two_fa_activated_at,
+                        "DD, MMMM-YYYY"
+                      ).value
+                    }}</span
+                  >
+                  <span v-else class="ml-3">No data</span>
+                </div>
+                <div class="mb-5">
+                  <strong>Transaction pin set: </strong
+                  ><v-chip
+                    :color="pin_status(single_user.transaction_pin_set)"
+                    class="ml-2"
+                    >{{
+                      single_user.transaction_pin_set
+                        ? "Activated"
+                        : "Not activated"
+                    }}</v-chip
+                  >
+                </div>
+                <div class="mb-5">
+                  <strong>Transaction pin activated at: </strong
+                  ><span
+                    v-if="single_user.transaction_pin_activated_at !== null"
+                    class="ml-2"
+                    >{{
+                      useDateFormat(
+                        single_user.transaction_pin_activated_at,
+                        "DD, MMMM-YYYY"
+                      ).value
+                    }}</span
+                  >
+                  <span v-else class="ml-3">No data</span>
+                </div>
+                <div class="mb-5">
+                  <strong>Deleted at: </strong
+                  ><span v-if="single_user.deleted_at !== null" class="ml-2">{{
+                    useDateFormat(single_user.deleted_at, "DD, MMMM-YYYY").value
+                  }}</span>
+                  <span v-else class="ml-3">No data</span>
+                </div>
+                <div>
+                  <strong>Reason for deletion: </strong
+                  ><span class="ml-2">{{
+                    single_user.deleted_reason ?? "No data"
+                  }}</span>
                 </div>
               </v-card-text>
             </v-card>
@@ -120,6 +204,54 @@
         </v-row>
       </v-window-item>
       <v-window-item value="two">
+        <v-card flat rounded="0" elevation="0" class="my-5 pa-4">
+          <h4>Filter Options:</h4>
+
+          <v-row class="mt-3">
+            <v-col cols="12" sm="6" md="3">
+              <v-text-field
+                label="Filter by reference"
+                density="compact"
+                @blur="search_by_reference"
+                v-model="search"
+                variant="outlined"
+              ></v-text-field>
+            </v-col>
+            <v-col cols="12" sm="6" md="3">
+              <v-select
+                label="Filter by status"
+                density="compact"
+                :persistent-placeholder="true"
+                :placeholder="'Select'"
+                @update:modelValue="getAllAssetTransactionsStatus"
+                v-model="status"
+                :items="['Approved', 'Declined', 'Transferred', 'Pending']"
+                variant="outlined"
+              ></v-select>
+            </v-col>
+            <v-col cols="12" sm="6" md="3">
+              <v-select
+                label="Filter by trade type"
+                density="compact"
+                placeholder="Select"
+                @update:modelValue="getAllAssetTransactionByTradeType"
+                v-model="type"
+                :items="['Buy', 'Sell']"
+                variant="outlined"
+              ></v-select>
+            </v-col>
+            <v-col cols="12" sm="6" md="3">
+              <v-text-field
+                label="Filter by date created"
+                density="compact"
+                @update:modelValue="getAllAssetTransactionByDate"
+                v-model="date"
+                type="date"
+                variant="outlined"
+              ></v-text-field>
+            </v-col>
+          </v-row>
+        </v-card>
         <v-card class="my-4">
           <v-table class="mt-5">
             <thead>
@@ -204,6 +336,20 @@
               </tr>
             </tbody>
           </v-table>
+
+          <p
+            class="font-weight-bold text-center my-3"
+            v-if="allTransactions?.data?.length <= 0 && loading == false"
+          >
+            No data found
+          </p>
+
+          <v-layout
+            v-if="loading == true"
+            class="align-center justify-center w-100 my-5"
+          >
+            <v-progress-circular indeterminate></v-progress-circular>
+          </v-layout>
         </v-card>
 
         <v-pagination
@@ -219,19 +365,6 @@
           color="bg-secondary"
           rounded="circle"
         ></v-pagination>
-        <p
-          class="font-weight-bold text-center my-3"
-          v-if="allTransactions?.data?.length <= 0 && loading == false"
-        >
-          No data found
-        </p>
-
-        <v-layout
-          v-if="loading == true"
-          class="align-center justify-center w-100 my-5"
-        >
-          <v-progress-circular indeterminate></v-progress-circular>
-        </v-layout>
       </v-window-item>
     </v-window>
 
@@ -280,10 +413,7 @@
                   <h4>Payable amount</h4>
                   <p>
                     ₦‎
-                    {{
-                      single_transactions.payable_amount.toLocaleString() ??
-                      "No data"
-                    }}
+                    {{ single_transactions?.payable_amount ?? "No data" }}
                   </p>
                 </div>
               </div>
@@ -293,20 +423,14 @@
                   <p>
                     {{ single_transactions.asset?.code ?? "No data" }}
 
-                    {{
-                      single_transactions.asset_amount.toLocaleString() ??
-                      "No data"
-                    }}
+                    {{ single_transactions.asset_amount ?? "No data" }}
                   </p>
                 </div>
                 <div class="mr-4">
                   <h4>Service charge</h4>
                   <p>
                     ₦‎
-                    {{
-                      single_transactions.service_charge.toLocaleString() ??
-                      "No data"
-                    }}
+                    {{ single_transactions.service_charge ?? "No data" }}
                   </p>
                 </div>
               </div>
@@ -388,15 +512,19 @@ import { useUserStore } from "../stores/user";
 import { useAssetStore } from "../stores/asset";
 import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
-import { useDateFormat } from "@vueuse/core";
-const { getUsers, restoreUsers, blockUsers } = useUserStore();
-const { user, filterUserById } = storeToRefs(useUserStore());
+import { useDateFormat, watchDebounced } from "@vueuse/core";
+const { getUsers, restoreUsers, blockUsers, getUser } = useUserStore();
+const { user, filterUserById, single_user } = storeToRefs(useUserStore());
 const { allTransactions, loading, dialog } = storeToRefs(useAssetStore());
 const {
   getAllAssetTransactionsByUserId,
   declineAssetTransactions,
   approveAssetTransactions,
   getSingleAssetTransactions,
+  getAllAssetTransactionByDate,
+  getAllAssetTransactionByReference,
+  getAllAssetTransactionsStatus,
+  getAllAssetTransactionByTradeType,
   single_transactions,
 } = useAssetStore();
 const tab = ref(null);
@@ -411,9 +539,25 @@ const date1 = ref("");
 const date2 = ref("");
 const page = ref(1);
 
+const status = ref("");
+const search = ref("");
+const type = ref("");
+const date = ref("");
+
+const search_by_reference = () => {
+  watchDebounced(
+    search,
+    async () => {
+      await getAllAssetTransactionByReference(search.value);
+    },
+    { debounce: 1000, maxWait: 5000 }
+  );
+};
+
 onMounted(async () => {
   await getAllAssetTransactionsByUserId(route.params.id);
   await getUsers(1, name.value, email.value, date1.value, date2.value);
+  await getUser(route.params.id);
   userDetails.value = { ...filterUserById.value(route.params.id) };
   console.log(userDetails.value);
 });
@@ -466,8 +610,19 @@ const header = ref([
   },
 ]);
 
-const status_color = (status: string | null) => {
-  return status == null ? "green-darken-3" : "red-darken-3";
+type StatusType = "pending" | "approved" | "declined";
+
+const status_color = (status: StatusType) => {
+  return status == "pending"
+    ? "yellow-darken-3"
+    : status == "approved"
+    ? "green lighten-3"
+    : status == "declined"
+    ? "red lighten-3"
+    : "";
+};
+const pin_status = (status: boolean) => {
+  return status == true ? "green-darken-3" : "red-darken-3";
 };
 </script>
 

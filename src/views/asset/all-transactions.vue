@@ -16,7 +16,7 @@ const {
   getAllAssetTransactionByDate,
 } = useAssetStore();
 
-const { getAllUsers } = useUserStore();
+// const { getAllUsers } = useUserStore();
 
 const { allTransactions, loading, dialog, single_transactions } = storeToRefs(
   useAssetStore()

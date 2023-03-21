@@ -43,6 +43,7 @@ interface State {
   dialog: boolean;
   dialog2: boolean;
   single_admin: any;
+  single_user:any
 }
 
 export const useUserStore = defineStore("user", {
@@ -65,6 +66,7 @@ export const useUserStore = defineStore("user", {
     },
     id: "",
     single_admin: "",
+    single_user:""
   }),
   getters: {
     filterUserById: (state) => (id: string) =>
@@ -128,13 +130,13 @@ export const useUserStore = defineStore("user", {
         this.loading = false;
       }
     },
-    async getAllUsers() {
+    async getUser(id:string) {
       const store = useAuthStore();
 
       this.loading = true;
       try {
         await ksbTechApi
-          .get(`/user/users`, {
+          .get(`/admin/users/${id}`, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -149,7 +151,7 @@ export const useUserStore = defineStore("user", {
             }) => {
               this.loading = false;
 
-              // this.users = res.data.data.users.data;
+              this.single_user = res.data.data.user;
             }
           );
       } catch (error) {
