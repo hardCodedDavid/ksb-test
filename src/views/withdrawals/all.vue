@@ -104,6 +104,7 @@ const viewWithDrawalRequest = async (id: string) => {
 const page = ref(1);
 
 const date = ref("");
+const tab = ref(null);
 </script>
 
 <template>
@@ -117,7 +118,7 @@ const date = ref("");
       :breadcrumbs="breadcrumbs"
     ></BaseBreadcrumb>
     <div class="mt-4">
-      <v-card flat rounded="1" class="my-5 pa-4">
+      <!-- <v-card flat rounded="1" class="my-5 pa-4">
         <h4>Filter Options:</h4>
 
         <v-row class="mt-3">
@@ -141,20 +142,24 @@ const date = ref("");
               variant="outlined"
             ></v-select>
           </v-col>
-          <!-- <v-col cols="12" sm="6" md="6">
-            <v-text-field
-              @update:modelValue="searching"
-              v-model="search"
-              label="Search"
-              density="compact"
-              variant="outlined"
-            ></v-text-field>
-          </v-col> -->
+  
         </v-row>
-      </v-card>
+      </v-card> -->
 
       <v-card class="pa-5">
-        <v-table>
+    <v-tabs
+      v-model="tab"
+      bg-color="none"
+      class="mb-5"
+    >
+      <v-tab @click="getAllWithDrawals('')">All</v-tab>
+      <v-tab @click="getAllWithDrawals('pending')">Pending</v-tab>
+      <v-tab @click="getAllWithDrawals('completed')">Approved</v-tab>
+      <v-tab @click="getAllWithDrawals('declined')">Declined</v-tab>
+    </v-tabs>
+    <v-window v-model="tab">
+
+    <v-table>
           <thead>
             <tr>
               <th
@@ -263,6 +268,9 @@ const date = ref("");
             </tr>
           </tbody>
         </v-table>
+
+    </v-window>
+        
 
         <v-layout
           v-if="loading == true"

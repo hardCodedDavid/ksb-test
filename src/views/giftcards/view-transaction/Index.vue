@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, reactive } from "vue";
+import VueEasyLightbox from "vue-easy-lightbox";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useGiftCardStore } from "@/stores/giftcard";
+import 'vue-easy-lightbox/dist/external-css/vue-easy-lightbox.css'
 import { useDateFormat } from "@vueuse/core";
-const { declineRequest, approveRequest, getAllGiftCardTransactionByUserId } =
-  useGiftCardStore();
+
+const {
+  declineRequest,
+  approveRequest,
+  getAllGiftCardTransactionByUserId,
+  partialApproveRequest,
+} = useGiftCardStore();
+
 const { loading, approving, declining, singleGiftCardTransaction, dialog } =
   storeToRefs(useGiftCardStore());
 
@@ -16,13 +24,30 @@ const route: any = useRoute();
 const note = ref("");
 const id = ref("");
 
+const img = ref<string[]>([]);
+
+const partial_approve = reactive({
+  review_rate: "",
+  review_note: "",
+  review_proof: null,
+});
+// const partial_reproof = ref('')
+const partial = (e: any) => {
+  partial_approve.review_proof = e.target.files[0];
+};
+
+const dialog2 = ref(false);
+
 const disapprove = (selected: any) => {
   dialog.value = true;
   id.value = selected;
 };
 
+const view_img = (url: string) => {
+  window.open(url);
+};
 // CHANGE STATUS COLOR
-type StatusType = "pending" | "approved" | "declined";
+type StatusType = "pending" | "approved" | "declined" | "partially_approved";
 
 const status_color = (status: StatusType) => {
   return status == "pending"
@@ -31,6 +56,8 @@ const status_color = (status: StatusType) => {
     ? "green lighten-3"
     : status == "declined"
     ? "red lighten-3"
+    : status == "partially_approved"
+    ? "purple lighten-3"
     : "";
 };
 //
@@ -50,19 +77,25 @@ const get_reproof = (e: any) => {
 };
 
 const image = computed(() => {
-  if (singleGiftCardTransaction.value.cards.length <= 0) {
+  if (singleGiftCardTransaction.value.cards?.length <= 0) {
     return "https://cdn.vuetifyjs.com/images/cards/cooking.png";
   } else {
-    return singleGiftCardTransaction.value?.cards[0].original_url;
+    img.value = singleGiftCardTransaction.value?.cards.map((images:any) => {
+        return images['original_url']
+    });
+    return img.value
   }
 });
 
 const transaction_header = ref([
   {
+    title: "No.",
+  },
+  {
     title: "Category",
   },
   {
-    title: "Products",
+    title: "Product",
   },
   {
     title: "Type",
@@ -80,18 +113,12 @@ const transaction_header = ref([
     title: "Total",
   },
 ]);
-
-const trade_options = ref([
-  {
-    gift_card: "Gift card",
-    product: "Cake",
-    type: "Buy",
-    country: "Nigeria",
-    value: "$50,000",
-    Qty: "10",
-    total: "$500,000",
-  },
-]);
+const visibleRef = ref(false);
+const onShow = () => {
+  visibleRef.value = true;
+};
+const indexRef = ref(0);
+const onHide = () => (visibleRef.value = false);
 
 onMounted(() => {
   getAllGiftCardTransactionByUserId(route.params.id);
@@ -137,28 +164,14 @@ onMounted(() => {
       </thead>
 
       <tbody>
-        <tr v-for="({gift_card, product,value, type, total, Qty, country}, index) in trade_options" :key="index">
-          <td>
-          {{gift_card}}
-          </td>
-          <td>
-          {{product}}
-          </td>
-          <td>
-          {{type}}
-          </td>
-          <td>
-          {{country}}
-          </td>
-          <td>
-          {{value}}
-          </td>
-          <td>
-          {{Qty}}
-          </td>
-          <td>
-          {{total}}
-          </td>
+        <tr >
+        <td>1</td>
+        <td>{{singleGiftCardTransaction?.giftcard_product?.giftcard_category?.name}}</td>
+        <td>{{singleGiftCardTransaction?.giftcard_product?.name}}</td>
+        <td>{{singleGiftCardTransaction?.trade_type}}</td>
+        <td>{{singleGiftCardTransaction?.giftcard_product?.country?.name}}</td>
+        <td>{{singleGiftCardTransaction?.giftcard_product?.sell_rate}}</td>
+        <td>1</td>
         </tr>
       </tbody>
       </v-table>
@@ -176,12 +189,7 @@ onMounted(() => {
                 ></v-progress-linear>
               </template>
 
-              <v-img
-                v-if="singleGiftCardTransaction?.cards"
-                cover
-                height="250"
-                :src="image"
-              ></v-img>
+             
 
               <v-card-item class="pa-0 mb-5">
                 <v-card-title class="pa-4">GiftCard Information</v-card-title>
@@ -219,18 +227,16 @@ onMounted(() => {
                   {{ singleGiftCardTransaction?.card_type }}
                 </div>
 
-                <div class="mb-4">
-                  {{ singleGiftCardTransaction?.comment }}
-                </div>
+                
 
                 <div class="font-weight-normal mb-4">
                   <strong>Payable Amount:</strong>
-                  &#x20A6{{ singleGiftCardTransaction.payable_amount?.toLocaleString() }}
+                  &#x20A6{{ singleGiftCardTransaction.payable_amount }}
                 </div>
 
                 <div class="font-weight-normal mb-4">
                   <strong>Card Amount:</strong>
-                  &#x20A6{{ singleGiftCardTransaction.amount?.toLocaleString() }}
+                  &#x20A6{{ singleGiftCardTransaction.amount }}
                 </div>
 
                 <div class="font-weight-normal mb-4">
@@ -247,7 +253,7 @@ onMounted(() => {
                   <strong>Date Created:</strong>
                     {{ useDateFormat(
                         singleGiftCardTransaction?.created_at,
-                        "DD, MMMM-YYYY"
+                        "DD, MMM YYYY - hh:mm a"
                       ).value }}
                 </div>
 
@@ -255,10 +261,12 @@ onMounted(() => {
                   <strong>Last Updated:</strong>
                   {{ useDateFormat(
                         singleGiftCardTransaction?.updated_at,
-                        "DD, MMMM-YYYY"
+                        "DD, MMM YYYY - hh:mm a"
                       ).value }}
                 </div>
-                
+                <div class="mb-4">
+                 <strong>Comments:</strong> {{ singleGiftCardTransaction?.comment }}
+                </div>
               </v-card-text>
 
               <v-divider v-if="singleGiftCardTransaction.status == 'pending'" class="mx-4 mb-1"></v-divider>
@@ -281,6 +289,13 @@ onMounted(() => {
                 >
                   Decline
                 </v-btn>
+                <v-btn
+                  color="purple lighten-3"
+                  variant="tonal"
+                  @click="dialog2 = true"
+                >
+                  Partial approval
+                </v-btn>
               </v-card-actions>
             </v-card>
 
@@ -290,11 +305,15 @@ onMounted(() => {
               <v-card-text>
                 <div class="font-weight-normal mb-4">
                   <strong>Review Note:</strong>
-                  {{ singleGiftCardTransaction?.review_note}}
+                  {{ singleGiftCardTransaction?.review_note ?? 'No data'}}
                 </div>
                 <div class="font-weight-normal mb-4">
                   <strong>Review By:</strong>
-                  {{ singleGiftCardTransaction?.reviewed_by}}
+                  {{ singleGiftCardTransaction?.reviewed_by ?? 'No data'}}
+                </div>
+                <div class="font-weight-normal mb-4">
+                  <strong>Review Rate:</strong>
+                  {{ singleGiftCardTransaction.review_rate ?? 'No data'}}
                 </div>
                 <div class="font-weight-normal mb-4">
                   <strong>Review At:</strong>
@@ -304,12 +323,12 @@ onMounted(() => {
                         "DD, MMMM-YYYY"
                       ).value }}
                   </span>
+                  <span v-else> No Data</span>
                 </div>
-                <div class="font-weight-normal mb-4">
+                <div v-if="singleGiftCardTransaction.reviewed_at" class="font-weight-normal mb-4">
                   <strong>Review Proof:</strong>
-                  <span v-if="singleGiftCardTransaction.reviewed_at">
-                    {{ singleGiftCardTransaction.review_proof }}
-                  </span>
+                   <v-btn  @click="view_img(singleGiftCardTransaction.review_proof)" color="secondary" class="ml-4 my-4">View Proof image</v-btn>
+                 
                 </div>
               </v-card-text>
             </v-card>
@@ -380,14 +399,38 @@ onMounted(() => {
               <v-card-title>Card Information</v-card-title>
                  <v-divider></v-divider>
               <v-card-text>
+                <div  v-if="singleGiftCardTransaction?.cards" class="font-weight-normal mb-4">
+                  <strong class="mb-5">Card Image(s):</strong>
+                  <v-img 
+                    width="100"
+                    height="100" 
+                    v-if="img?.length <= 0"  :src="image" 
+                    alt=""></v-img>
+                  <v-row v-else>
+                    <v-col 
+                    v-for="(images, index) in img"
+                    :key="index" cols="12" sm="6" md="4" lg="3">
+                    <v-img
+                      cover
+                      width="180"
+                      height="100"
+                      @click="onShow"
+                      :src="images"
+                      class="cursor-pointer mt-4"
+                      ></v-img>
+                    </v-col>
+                  </v-row>
+
+                    
+                </div>
                 <div class="font-weight-normal mb-4">
                   <strong>Code:</strong>
-                  {{ singleGiftCardTransaction.code ? singleGiftCardTransaction.code : ""}}
+                  {{ singleGiftCardTransaction.code ? singleGiftCardTransaction.code : "No Code"}}
                 </div>
 
                 <div class="font-weight-normal mb-4">
                   <strong>Pin:</strong>
-                  {{ singleGiftCardTransaction.code ? singleGiftCardTransaction.pin : ""}}
+                  {{ singleGiftCardTransaction.code ? singleGiftCardTransaction.pin : "No Pin"}}
                 </div>
               </v-card-text>
             </v-card>
@@ -431,11 +474,68 @@ onMounted(() => {
           </v-container>
         </v-card>
       </v-dialog>
+
+       <v-dialog v-model="dialog2" max-width="429px" min-height="476px">
+      <v-card class="view-dialog pa-4">
+        <div class="mb-3 d-flex justify-space-between">
+          <h3 class="text-justify mt-7">Partial approval</h3>
+          <v-btn
+            @click="dialog2 = false"
+            icon="mdi-close"
+            color="secondary"
+            variant="text"
+          >
+            <v-icon icon="mdi-close"></v-icon>
+          </v-btn>
+        </div>
+        <v-form class="my-10">
+          <v-text-field
+            prefix="₦‎"
+            v-model="partial_approve.review_rate"
+            type="number"
+            variant="outlined"
+            label="New Rate"
+          ></v-text-field>
+          <v-textarea
+            v-model="partial_approve.review_note"
+            variant="outlined"
+            label="Note"
+          ></v-textarea>
+          <v-file-input
+            prepend-icon=""
+            variant="outlined"
+            @change="partial"
+            label="Proof"
+          ></v-file-input>
+          <v-btn
+            :loading="approving"
+            @click="partialApproveRequest($route.params.id, partial_approve)"
+            block
+            color="secondary"
+            >submit</v-btn
+          >
+        </v-form>
+      </v-card>
+    </v-dialog>
+
+                    <vue-easy-lightbox
+                      :visible="visibleRef"
+                      :imgs="img"
+                      :index="indexRef"
+                      @hide="onHide"
+                    ></vue-easy-lightbox>
   </v-row>
 </template>
 
-<style scoped>
+<style lang='scss'>
 .ksb-border {
   border: 1px solid #cecccc;
+}
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.vel-modal {
+  z-index: 9999999999999999 !important;
 }
 </style>

@@ -72,7 +72,7 @@ onMounted(async () => {
 });
 
 // CHANGE STATUS COLOR
-type StatusType = "pending" | "approved" | "declined";
+type StatusType = "pending" | "approved" | "declined" ;
 
 const status_color = (status: StatusType) => {
   return status == "pending"

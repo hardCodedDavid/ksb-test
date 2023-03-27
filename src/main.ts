@@ -15,7 +15,7 @@ import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import VOtpInput from "vue3-otp-input";
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
-
+// import VueEasyLightbox from 'vue-easy-lightbox'
 
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
@@ -36,5 +36,5 @@ app.use(VueApexCharts);
 app.use(router);
 app.use(Notifications)
 app.use(vuetify).mount("#app");
-
+// app.use(VueEasyLightbox)
 app.component('v-otp-input', VOtpInput)

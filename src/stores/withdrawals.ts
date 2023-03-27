@@ -163,7 +163,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
                 text: res.data.message,
                 type: "success",
               });
-              this.getAllWithDrawals('', 1)
+              this.getAllWithDrawals('pending', 1)
               this.dialog = false 
             }
           );
@@ -206,7 +206,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
                 text: res.data.message,
                 type: "success",
               });
-              this.getAllWithDrawals('', 1)
+              this.getAllWithDrawals('pending', 1)
               
             }
           );

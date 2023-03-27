@@ -4,6 +4,7 @@ import { giftCardCategory, giftCardProducts, giftCard } from "../../apiRoute";
 import { useNotification } from "@kyvg/vue3-notification";
 import { useAuthStore } from "./auth";
 import { useCountryStore } from "./country";
+import { useRoute } from "vue-router";
 
 interface GiftCard {
   giftCard: {
@@ -11,18 +12,19 @@ interface GiftCard {
     icon: File | null;
     sale_term: string;
     countries: any;
-
     data: string;
   };
   loading: boolean;
   declining:boolean;
-
   approving:boolean;
   gift_categories: [];
   gift_transactions: [];
   dialog: boolean;
+  dialog2: boolean;
   singleGiftCard: any;
-  singleGiftCardTransaction:{}
+  singleGiftCardTransaction: {
+    cards: string[]
+  }
 }
 
 interface GiftCategoryPayload {
@@ -40,7 +42,6 @@ export const useGiftCardStore = defineStore("giftcard", {
       icon: null,
       sale_term: "",
       countries: [],
-
       data: ""
     },
     loading: false,
@@ -48,9 +49,12 @@ export const useGiftCardStore = defineStore("giftcard", {
     approving: false,
     gift_categories: [],
     dialog: false,
+    dialog2: false,
     singleGiftCard: {},
     gift_transactions: [],
-    singleGiftCardTransaction:{}
+    singleGiftCardTransaction:{
+      cards:[]
+    }
   }),
   getters: {
     // country_id(state) {
@@ -96,13 +100,13 @@ export const useGiftCardStore = defineStore("giftcard", {
         });
       }
     },
-    async getAllGiftCardTransaction(status:string, trade_type:string, page:number, date1:string, date2:string) {
+    async getAllGiftCardTransaction(status:string, trade_type:string = '', page:number = 1, date1:string = '', date2:string = '') {
       const { notify } = useNotification();
       const store = useAuthStore();
       this.loading = true
       try {
         await ksbTechApi 
-          .get(giftCard + '?per_page=100' + '&include=user' + `&filter[status]=${status}` + `&filter[trade_type]=${trade_type}` + `&page=${page}` +  `&filter[creation_date]=${date1}${ date2 !== '' ?  ',' + date2 : ''}`, {
+          .get(giftCard + '?per_page=100' + '&include=user,giftcardProduct' + `&filter[status]=${status}` + `&filter[trade_type]=${trade_type}` + `&page=${page}` +  `&filter[creation_date]=${date1}${ date2 !== '' ?  ',' + date2 : ''}`, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -134,7 +138,7 @@ export const useGiftCardStore = defineStore("giftcard", {
       this.loading = true
       try {
         await ksbTechApi
-          .get(`${giftCard}/${id}?include=user,bank` , {
+          .get(`${giftCard}/${id}?include=user,bank,giftcardProduct` , {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -168,7 +172,7 @@ export const useGiftCardStore = defineStore("giftcard", {
       
 
       var formdata = new FormData();
-      formdata.append("complete_approval",  '0');
+      formdata.append("complete_approval",  '1');
       formdata.append("review_note", "bypassing the card won't do anything, we need to back up the digital HTTP array!");
       // formdata.append("review_proof", fileInput.files[0], "payment-receipt.png");
       formdata.append("_method", "PATCH");
@@ -196,6 +200,56 @@ export const useGiftCardStore = defineStore("giftcard", {
                 type: "success",
               });
               this.getAllGiftCardTransaction('', '', 1, '', '')
+              
+            }
+          );
+      } catch (error: any) {
+        this.approving = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
+      }
+    },
+    async partialApproveRequest(id: string, data:any) {
+      const store = useAuthStore();
+      const route:any = useRoute()
+      const { notify } = useNotification();
+      this.approving = true;
+      
+
+      var formdata = new FormData();
+      formdata.append("complete_approval",  '0');
+      formdata.append("review_rate", data.review_rate);
+      formdata.append("review_note", data.review_note);
+      formdata.append("review_proof", data.review_proof);
+      formdata.append("_method", "PATCH");
+
+      try {
+        await ksbTechApi
+          .post(giftCard + '/' + id + '/approve',formdata, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { withdrawal_requests: object };
+              };
+            }) => {
+              this.approving = false;
+              this.dialog2 = false;
+              this.getAllGiftCardTransactionByUserId(route.params.id)
+              notify({
+                title: "Approved Successfully",
+                text: res.data.message,
+                type: "success",
+              });
+             
               
             }
           );
@@ -450,8 +504,6 @@ export const useGiftCardStore = defineStore("giftcard", {
       for (let i = 0; i < ids.length; i++) {
         formData.append('countries[]', ids[i]);
       }
-
-      // formData.append("countries",JSON.stringify(this.giftCard.country));
 
       this.loading = true;
       try {

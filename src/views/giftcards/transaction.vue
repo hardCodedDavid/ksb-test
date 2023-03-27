@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, reactive } from "vue";
 import { useGiftCardStore } from "../../stores/giftcard";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
@@ -8,6 +8,7 @@ const {
   declineRequest,
   approveRequest,
   getAllGiftCardTransactionByUserId,
+  partialApproveRequest,
 } = useGiftCardStore();
 const {
   gift_transactions,
@@ -29,12 +30,19 @@ const disapprove = () => {
   dialog2.value = true;
 };
 
-
-const reproof = ref('')
-const get_reproof = (e:any) => {
-  reproof.value = e.target.files[0]
-}
-
+const reproof = ref("");
+const get_reproof = (e: any) => {
+  reproof.value = e.target.files[0];
+};
+const partial_approve = reactive({
+  review_rate: "",
+  review_note: "",
+  review_proof: null,
+});
+// const partial_reproof = ref('')
+const partial = (e: any) => {
+  partial_approve.review_proof = e.target.files[0];
+};
 
 const header = ref([
   {
@@ -42,6 +50,9 @@ const header = ref([
   },
   {
     title: "User name",
+  },
+  {
+    title: "Category",
   },
   {
     title: "Reference No.",
@@ -79,7 +90,7 @@ const breadcrumbs = ref([
 ]);
 
 // CHANGE STATUS COLOR
-type StatusType = "pending" | "approved" | "declined";
+type StatusType = "pending" | "approved" | "declined" | "partially_approved";
 
 const status_color = (status: StatusType) => {
   return status == "pending"
@@ -88,11 +99,13 @@ const status_color = (status: StatusType) => {
     ? "green lighten-3"
     : status == "declined"
     ? "red lighten-3"
+    : status == "partially_approved"
+    ? "purple lighten-3"
     : "";
 };
 //
 
-const status_options = ref(["Pending", "Completed", "Declined"]);
+const status_options = ref(["Pending", "Approved", "Declined", "Partially_approved"]);
 const status = ref("");
 const trade = ref("");
 const trade_type = ref(["Buy", "Sell"]);
@@ -110,17 +123,20 @@ onMounted(async () => {
     date_to.value
   );
 });
+const tab = ref(null);
+
+const formate_text = (text:string) => {
+  if(text ===  'partially_approved') return 'Partial'
+  return text
+}
 </script>
 <template>
-  <BaseBreadcrumb
-    :title="page.title"
-    :breadcrumbs="breadcrumbs"
-  ></BaseBreadcrumb>
+  <BaseBreadcrumb :title="page.title" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
   <v-card flat elevation="0" rounded="0" class="my-5 pa-4">
     <h4>Filter Options:</h4>
 
     <v-row class="mt-3">
-      <v-col cols="12" sm="6" md="3">
+      <!-- <v-col cols="12" sm="6" md="3">
         <v-select
           label="Filter by Status"
           v-model="status"
@@ -128,18 +144,12 @@ onMounted(async () => {
           density="compact"
           @update:modelValue="
             (...args) =>
-              getAllGiftCardTransaction(
-                ...args,
-                trade,
-                page_no,
-                date_from,
-                date_to
-              )
+              getAllGiftCardTransaction(...args, trade, page_no, date_from, date_to)
           "
           variant="outlined"
         ></v-select>
-      </v-col>
-      <v-col cols="12" sm="6" md="3">
+      </v-col> -->
+      <v-col cols="12" sm="6" md="4">
         <v-select
           v-model="trade"
           label="Filter by trade type"
@@ -147,28 +157,16 @@ onMounted(async () => {
           :items="trade_type"
           @update:modelValue="
             (...args) =>
-              getAllGiftCardTransaction(
-                status,
-                ...args,
-                page_no,
-                date_from,
-                date_to
-              )
+              getAllGiftCardTransaction(status, ...args, page_no, date_from, date_to)
           "
           variant="outlined"
         ></v-select>
       </v-col>
-      <v-col cols="12" sm="6" md="3">
+      <v-col cols="12" sm="6" md="4">
         <v-text-field
           @update:modelValue="
             (...args) =>
-              getAllGiftCardTransaction(
-                status,
-                trade,
-                page_no,
-                ...args,
-                date_to
-              )
+              getAllGiftCardTransaction(status, trade, page_no, ...args, date_to)
           "
           v-model="date_from"
           label="Filter date from"
@@ -177,17 +175,11 @@ onMounted(async () => {
           variant="outlined"
         ></v-text-field>
       </v-col>
-      <v-col cols="12" sm="6" md="3">
+      <v-col cols="12" sm="6" md="4">
         <v-text-field
           @update:modelValue="
             (...args) =>
-              getAllGiftCardTransaction(
-                status,
-                trade,
-                page_no,
-                date_from,
-                ...args
-              )
+              getAllGiftCardTransaction(status, trade, page_no, date_from, ...args)
           "
           v-model="date_to"
           type="date"
@@ -201,14 +193,21 @@ onMounted(async () => {
   <v-row>
     <v-col cols="12" sm="12" class="mt-4">
       <v-card class="pa-5">
+    <v-tabs
+      v-model="tab"
+      bg-color="none"
+      class="mb-5 border-bottom"
+    >
+      <v-tab @click="getAllGiftCardTransaction('')">All</v-tab>
+      <v-tab @click="getAllGiftCardTransaction('pending')">Pending</v-tab>
+      <v-tab @click="getAllGiftCardTransaction('approved')">Approved</v-tab>
+      <v-tab @click="getAllGiftCardTransaction('declined')">Declined</v-tab>
+      <v-tab @click="getAllGiftCardTransaction('partially_approved')">Partial</v-tab>
+    </v-tabs>
         <v-table>
           <thead>
             <tr>
-              <th
-                v-for="(headings, index) in header"
-                :key="index"
-                class="text-left"
-              >
+              <th v-for="(headings, index) in header" :key="index" class="text-left">
                 {{ headings.title }}
               </th>
             </tr>
@@ -227,13 +226,13 @@ onMounted(async () => {
               >
                 {{ item.user.firstname }} {{ item.user.lastname }}
               </td>
-              <!-- <td>{{ item.account_number }}</td> -->
+              <td>{{item?.giftcard_product?.giftcard_category?.name}}</td>
               <td>{{ item.reference }}</td>
               <td>{{ item.trade_type }}</td>
-              <td>{{ item.payable_amount.toLocaleString() }}</td>
+              <td>₦‎ {{ item.payable_amount.toLocaleString() }}</td>
 
               <td>
-                {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}
+                {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY hh:mm a").value }}
               </td>
               <!-- <td>{{ item.trade_type }}</td> -->
               <td>
@@ -241,7 +240,7 @@ onMounted(async () => {
                   label
                   class="text-capitalize font-weight-bold pa-3"
                   :color="status_color(item?.status)"
-                  >{{ item?.status }}</v-chip
+                  >{{ formate_text(item?.status) }}</v-chip
                 >
               </td>
               <td>
@@ -274,9 +273,18 @@ onMounted(async () => {
                         link
                         color="secondary"
                       >
-                        <v-list-item-title>
-                          Approve giftcard
-                        </v-list-item-title>
+                        <v-list-item-title> Approve giftcard </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        v-if="item?.status == 'pending'"
+                        @click="
+                          dialog = true;
+                          id = item.id;
+                        "
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> Partial approval </v-list-item-title>
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'pending'"
@@ -287,9 +295,7 @@ onMounted(async () => {
                         link
                         color="secondary"
                       >
-                        <v-list-item-title>
-                          Decline giftcard
-                        </v-list-item-title>
+                        <v-list-item-title> Decline giftcard </v-list-item-title>
                       </v-list-item>
                     </v-list>
                   </v-menu>
@@ -299,10 +305,7 @@ onMounted(async () => {
           </tbody>
         </v-table>
 
-        <v-layout
-          v-if="loading == true"
-          class="align-center justify-center w-100 my-5"
-        >
+        <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
         <p
@@ -315,12 +318,8 @@ onMounted(async () => {
       <v-pagination
         v-model="page_no"
         :length="gift_transactions?.last_page"
-        @next="
-          getAllGiftCardTransaction(status, trade, page_no, date_from, date_to)
-        "
-        @prev="
-          getAllGiftCardTransaction(status, trade, page_no, date_from, date_to)
-        "
+        @next="getAllGiftCardTransaction(status, trade, page_no, date_from, date_to)"
+        @prev="getAllGiftCardTransaction(status, trade, page_no, date_from, date_to)"
         @update:modelValue="
           getAllGiftCardTransaction(status, trade, page_no, date_from, date_to)
         "
@@ -336,7 +335,7 @@ onMounted(async () => {
     <v-dialog v-model="dialog" max-width="429px" min-height="476px">
       <v-card class="view-dialog pa-4">
         <div class="mb-3 d-flex justify-space-between">
-          <h3 class="text-justify mt-7">Transactions details</h3>
+          <h3 class="text-justify mt-7">Partial approval</h3>
           <v-btn
             @click="dialog = false"
             icon="mdi-close"
@@ -346,203 +345,55 @@ onMounted(async () => {
             <v-icon icon="mdi-close"></v-icon>
           </v-btn>
         </div>
-        <div class="my-3">
-          <!-- <v-icon></v-icon> -->
-          <div>
-            <v-chip
-              label
-              size="small"
-              density="comfortable"
-              class="text-capitalize font-weight-bold pa-3"
-              :color="status_color(singleGiftCardTransaction?.status)"
-              >{{ singleGiftCardTransaction?.status }}</v-chip
-            >
-          </div>
-        </div>
-        <div
-          v-if="loading == false"
-          class="w-100 d-flex align-center justify-space-between"
-        >
-          <v-row
-            align="center"
-            justify="center"
-            no-gutters
-            class="w-100 align-center justify-space-between"
-          >
-            <v-col class="pa-0">
-              <div class="mb-4">
-                <!-- <v-icon></v-icon> -->
-                <div>
-                  <h5>Payable amount</h5>
-                  <p class="font-weight-bold">
-                    ₦‎{{
-                      singleGiftCardTransaction.payable_amount.toLocaleString()
-                    }}
-                  </p>
-                </div>
-              </div>
-              <div class="mb-4">
-                <!-- <v-icon></v-icon> -->
-                <div>
-                  <h5 class="">User name</h5>
-                  <p class="">
-                    {{ singleGiftCardTransaction?.user?.firstname }}
-                    {{ singleGiftCardTransaction?.user?.lastname }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="mb-4">
-                <!-- <v-icon></v-icon> -->
-                <div>
-                  <h5 class="">Email address</h5>
-                  <p class="">
-                    {{ singleGiftCardTransaction?.user?.email }}
-                  </p>
-                </div>
-              </div>
-
-              <div class="mb-4">
-                <!-- <v-icon></v-icon> -->
-                <div>
-                  <h5 class="">Date & time</h5>
-                  <p class="">
-                    {{
-                      useDateFormat(
-                        singleGiftCardTransaction?.created_at,
-                        "DD, MMMM-YYYY"
-                      ).value
-                    }}
-                  </p>
-                </div>
-              </div>
-              <div class="mb-4">
-                <!-- <v-icon></v-icon> -->
-                <div>
-                  <h5 class="">Reference</h5>
-                  <p class="">
-                    {{ singleGiftCardTransaction.reference }}
-                  </p>
-                </div>
-              </div>
-            </v-col>
-          </v-row>
-          <v-row
-            align="center"
-            justify="center"
-            no-gutters
-            class="w-100 align-center justify-space-between ml-5"
-          >
-            <v-col class="pa-0">
-              <div class="mb-4">
-                <!-- <v-icon></v-icon> -->
-                <div>
-                  <h5>Amount</h5>
-                  <p class="font-weight-bold">
-                    ₦‎{{ singleGiftCardTransaction?.amount?.toLocaleString() }}
-                  </p>
-                </div>
-              </div>
-              <!-- <div class="mb-4">
-                
-                <div>
-                  <h5 class="">Bank name</h5>
-                  <p class="">
-                    {{ singleWithdrawal?.bank?.name ?? "No data" }}
-                  </p>
-                </div>
-              </div> -->
-
-              <div class="mb-4">
-                <!-- <v-icon></v-icon> -->
-                <div>
-                  <h5 class="">Account name</h5>
-                  <p class="">
-                    {{ singleGiftCardTransaction?.account_name ?? "No data" }}
-                  </p>
-                </div>
-              </div>
-              <div class="mb-4">
-                <!-- <v-icon></v-icon> -->
-                <div>
-                  <h5 class="">Account number</h5>
-                  <p class="">
-                    {{ singleGiftCardTransaction?.account_number ?? "No data" }}
-                  </p>
-                </div>
-              </div>
-              <div class="mb-4">
-                <!-- <v-icon></v-icon> -->
-                <div>
-                  <h5 class="">Trade type</h5>
-                  <p class="">
-                    {{ singleGiftCardTransaction?.trade_type ?? "No data" }}
-                  </p>
-                </div>
-              </div>
-            </v-col>
-          </v-row>
-        </div>
-        <v-layout
-          v-if="loading == true"
-          class="align-center justify-center w-100 my-10"
-        >
-          <v-progress-circular indeterminate></v-progress-circular>
-        </v-layout>
-
-        <!-- <v-btn color="secondary" class="my-2" block @click="dialog = false"
-          >Close Dialog</v-btn
-        > -->
-
-        <div
-          v-if="
-            singleGiftCardTransaction.status == 'pending' && loading == false
-          "
-        >
-          <v-btn
-            @click="declineRequest(singleGiftCardTransaction?.id)"
-            class="wallet-btn"
+        <v-form class="my-10">
+          <v-text-field
+            prefix="₦‎"
+            v-model="partial_approve.review_rate"
+            type="number"
             variant="outlined"
-            color="error"
-            :loading="declining"
-          >
-            Disapprove giftcard
-          </v-btn>
+            label="Review Rate"
+          ></v-text-field>
+          <v-textarea
+            v-model="partial_approve.review_note"
+            variant="outlined"
+            label="Review Note"
+          ></v-textarea>
+          <v-file-input
+            prepend-icon=""
+            variant="outlined"
+            @change="partial"
+            label="Review Proof"
+          ></v-file-input>
           <v-btn
-            @click="approveRequest(singleGiftCardTransaction?.id)"
-            class="wallet-btn ml-4"
-            color="secondary"
             :loading="approving"
+            @click="partialApproveRequest(id, partial_approve)"
+            block
+            color="secondary"
+            >submit</v-btn
           >
-            Approve giftcard
-          </v-btn>
-        </div>
+        </v-form>
       </v-card>
     </v-dialog>
 
     <v-expand-transition>
-       <v-dialog
-        v-if="dialog2"
-        v-model="dialog2"
-        max-width="500px"
-        width="100%"
-      >
+      <v-dialog v-if="dialog2" v-model="dialog2" max-width="500px" width="100%">
         <v-card max-width="500px">
           <v-card-text>
             <h3>Decline Request</h3>
-            <p>Enter Reasons for Declining 
-             this withdrawal request</p>
+            <p>Enter Reasons for Declining this withdrawal request</p>
           </v-card-text>
 
           <v-container class="mt-7">
-            <v-textarea
-              label="Comments"
-              v-model="note"
-              variant="outlined"
-            ></v-textarea>
+            <v-textarea label="Comments" v-model="note" variant="outlined"></v-textarea>
 
-<v-file-input @change="get_reproof" hint="Optional" persistent-hint label="Review proof" append-inner-icon="mdi-paperclip"
-                    prepend-icon=""></v-file-input>
+            <v-file-input
+              @change="get_reproof"
+              hint="Optional"
+              persistent-hint
+              label="Review proof"
+              append-inner-icon="mdi-paperclip"
+              prepend-icon=""
+            ></v-file-input>
 
             <v-btn
               color="secondary"
