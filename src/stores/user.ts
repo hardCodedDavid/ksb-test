@@ -92,7 +92,7 @@ export const useUserStore = defineStore("user", {
     },
 
     async getUsers(
-      page: number = 1,
+      page:number,
       name: string,
       email: string = "",
       date1: string = "",
@@ -106,7 +106,7 @@ export const useUserStore = defineStore("user", {
           .get(
             `${user}?filter[name]=${name}&filter[email]=${email}&filter[registration_date]=${date1}${
               date2 !== "" ? `,${date2}` : ""
-            }&page=${page}`,
+            }&page=${page}&per_page=${'500'}`,
             {
               headers: {
                 Accept: "application/json",
@@ -315,6 +315,7 @@ export const useUserStore = defineStore("user", {
               };
             }) => {
               this.loading = false;
+              this.dialog2 = false;
               notify({
                 title: "Success",
                 text: res.data.message,

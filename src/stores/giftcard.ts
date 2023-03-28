@@ -100,13 +100,13 @@ export const useGiftCardStore = defineStore("giftcard", {
         });
       }
     },
-    async getAllGiftCardTransaction(status:string, trade_type:string = '', page:number = 1, date1:string = '', date2:string = '') {
+    async getAllGiftCardTransaction(status:string, trade_type:string = '', page:number = 1, date1:string = '', date2:string = '', reference:string = ' ') {
       const { notify } = useNotification();
       const store = useAuthStore();
       this.loading = true
       try {
         await ksbTechApi 
-          .get(giftCard + '?per_page=100' + '&include=user,giftcardProduct' + `&filter[status]=${status}` + `&filter[trade_type]=${trade_type}` + `&page=${page}` +  `&filter[creation_date]=${date1}${ date2 !== '' ?  ',' + date2 : ''}`, {
+          .get(giftCard + '?per_page=100' + '&include=user,giftcardProduct' + `&filter[status]=${status}` +`&filter[reference]=${reference}` + `&filter[trade_type]=${trade_type.toLowerCase()}` + `&page=${page}` +  `&filter[creation_date]=${date1}${ date2 !== '' ?  ',' + date2 : ''}`, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,

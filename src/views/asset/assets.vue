@@ -121,7 +121,7 @@ const get_selected_file = (e: any) => {
               <td>₦‎{{ item.buy_rate }}</td>
               <td>₦‎{{ item.sell_rate }}</td>
               <td>
-                {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}
+                {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY hh:mm a").value }}
               </td>
 
               <td>
@@ -206,7 +206,7 @@ const get_selected_file = (e: any) => {
                     <v-text-field
                       v-model="asset.code"
                       variant="outlined"
-                      label="Asset Code*"
+                      label="Asset Short Code*"
                       required
                     ></v-text-field>
                   </v-col>

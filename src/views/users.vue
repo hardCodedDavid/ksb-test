@@ -24,6 +24,9 @@ const header = ref([
     title: "Wallet Balance",
   },
   {
+    title: "Transaction Count",
+  },
+  {
     title: "Status",
   },
 
@@ -92,7 +95,7 @@ const search_by_email = () => {
     async () => {
       await getUsers(page.value,name.value, email.value, date1.value, date2.value);
     },
-    { debounce: 1000, maxWait: 5000 }
+    { debounce: 7000, maxWait: 7000 }
   );
 };
 </script>
@@ -111,9 +114,11 @@ const search_by_email = () => {
             v-model="name"
             clearable
             @click:clear="clear_name"
-            @update:modelValue="search_by_name"
+            @update:modelValue="search_by_name()"
             density="compact"
+            
           ></v-text-field>
+          
         </v-col>
         <v-col cols="12" sm="6" lg="3">
           <v-text-field
@@ -133,7 +138,7 @@ const search_by_email = () => {
             density="compact"
             type="date"
             @update:modelValue="
-              (...args) => getUsers(name, email, ...args, date2)
+              (...args) => getUsers(page,name, email, ...args, date2)
             "
             v-model="date1"
           ></v-text-field>
@@ -145,7 +150,7 @@ const search_by_email = () => {
             type="date"
             v-model="date2"
             @update:modelValue="
-              (...args) => getUsers(name, email, date1, ...args)
+              (...args) => getUsers(page,name, email, date1, ...args)
             "
             density="compact"
           ></v-text-field>
@@ -197,22 +202,22 @@ const search_by_email = () => {
             <td>(+234) {{ item?.phone_number }}</td>
             <td>
               {{
-                useDateFormat(item?.created_at, "DD, MMMM-YYYY hh:mm a").value
+                useDateFormat(item?.created_at, "DD, MMMM-YYYY").value
               }}
+              <div>
+                {{
+                useDateFormat(item?.created_at, "hh:mm a").value
+              }}
+              </div>
             </td>
             <td>₦ {{ item.wallet_balance.toLocaleString() }}</td>
+             <td></td>
             <td>
               <v-chip label :color="status_color(item?.blocked_at)">
                 {{ item?.blocked_at == null ? "Active" : "Blocked" }}
               </v-chip>
             </td>
-            <!-- 
-            <td>
-              <v-switch
-                @input="blockUsers(item?.id)"
-                color="success"
-              ></v-switch>
-            </td> -->
+           
             <td>
               <v-row justify="center">
                 <v-menu transition="scroll-y-transition">

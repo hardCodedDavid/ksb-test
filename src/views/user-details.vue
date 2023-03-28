@@ -73,6 +73,8 @@
           <strong>Wallet balance:</strong> ₦<span>{{
             single_user.wallet_balance
           }}</span>
+                  <v-btn class="ml-4" @click="dialog2 = true;id = single_user?.id;
+                      ">Finance user</v-btn>
         </div>
         <v-tabs v-model="tab">
           <v-tab value="one" class="font-weight-bold">User Information</v-tab>
@@ -95,7 +97,7 @@
                 </p> -->
 
                 <div class="mb-4">
-                  <v-chip label :color="status_color(single_user?.blocked_at)">
+                  <v-chip label :color="active_status(single_user?.blocked_at)">
                     {{ single_user?.blocked_at == null ? "Active" : "Blocked" }}
                   </v-chip>
                 </div>
@@ -123,7 +125,7 @@
                 <div>
                   <strong>Created:</strong>
                   <span class="ml-2">{{
-                    useDateFormat(single_user?.created_at, "DD, MMMM-YYYY")
+                    useDateFormat(single_user?.created_at, "DD MMM YYYY-hh:mm a")
                       .value
                   }}</span>
                 </div>
@@ -137,12 +139,13 @@
               <v-card-text>
                 <div class="mb-4">
                   <strong>Email verified at:</strong>
-                  <span class="ml-3">{{
+                  <span v-if="single_user.email_verified_at" class="ml-3">{{
                     useDateFormat(
                       single_user.email_verified_at,
-                      "DD, MMMM-YYYY"
+                      "DD MMM YYYY-hh:mm a"
                     ).value
                   }}</span>
+                  <span v-else class="ml-3">No data</span>
                 </div>
 
                 <div class="mb-5">
@@ -153,7 +156,7 @@
                     >{{
                       useDateFormat(
                         single_user.two_fa_activated_at,
-                        "DD, MMMM-YYYY"
+                        "DD MMM YYYY-hh:mm a"
                       ).value
                     }}</span
                   >
@@ -489,7 +492,7 @@
                   <p>{{ single_transactions.asset?.buy_rate ?? "No data" }}</p>
                 </div>
                 <div>
-                  <h4>Asset code</h4>
+                  <h4>Asset Short Code</h4>
                   <p>{{ single_transactions.asset?.code ?? "No data" }}</p>
                 </div>
               </div>
@@ -503,6 +506,32 @@
         </v-card-actions> -->
       </v-card>
     </v-dialog>
+
+     <v-dialog v-model="dialog2" max-width="500px">
+      <v-card class="pa-4">
+        <h3>Finance User</h3>
+        <v-form class="mt-8 py-8">
+          <v-select
+            v-model="finance.type"
+            label="Transaction Type"
+            variant="outlined"
+            :items="['Debit', 'Credit']"
+          ></v-select>
+          <v-text-field
+            v-model="finance.amount"
+            label="Amount"
+            variant="outlined"
+          ></v-text-field>
+          <v-btn
+            :loading="loading"
+            color="primary"
+            block
+            @click="financeUsers(id, finance)"
+            >Submit</v-btn
+          >
+        </v-form>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -513,9 +542,9 @@ import { useAssetStore } from "../stores/asset";
 import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
 import { useDateFormat, watchDebounced } from "@vueuse/core";
-const { getUsers, restoreUsers, blockUsers, getUser } = useUserStore();
-const { user, filterUserById, single_user } = storeToRefs(useUserStore());
-const { allTransactions, loading, dialog } = storeToRefs(useAssetStore());
+const { getUsers, restoreUsers, blockUsers, getUser ,financeUsers} = useUserStore();
+const { user, filterUserById, single_user, dialog2 } = storeToRefs(useUserStore());
+const { allTransactions, loading, dialog, } = storeToRefs(useAssetStore());
 const {
   getAllAssetTransactionsByUserId,
   declineAssetTransactions,
@@ -531,6 +560,10 @@ const tab = ref(null);
 const tab_one = ref(null);
 const route: any = useRoute();
 
+const finance = reactive({
+  type: "Select",
+  amount: "",
+});
 const userDetails = ref<any>([]);
 
 const name = ref("");
@@ -553,13 +586,13 @@ const search_by_reference = () => {
     { debounce: 1000, maxWait: 5000 }
   );
 };
-
+const id = ref('')
 onMounted(async () => {
   await getAllAssetTransactionsByUserId(route.params.id);
   await getUsers(1, name.value, email.value, date1.value, date2.value);
   await getUser(route.params.id);
   userDetails.value = { ...filterUserById.value(route.params.id) };
-  console.log(userDetails.value);
+  // console.log(userDetails.value);
 });
 const giftCardCategoryHeader = reactive([
   {
@@ -623,6 +656,9 @@ const status_color = (status: StatusType) => {
 };
 const pin_status = (status: boolean) => {
   return status == true ? "green-darken-3" : "red-darken-3";
+};
+const active_status = (status: boolean) => {
+  return status ? "red-darken-3" : "green-darken-3";
 };
 </script>
 

@@ -29,7 +29,9 @@ const disapprove = () => {
   }
   dialog2.value = true;
 };
-
+function clearMessage() {
+  reference.value = "";
+}
 const reproof = ref("");
 const get_reproof = (e: any) => {
   reproof.value = e.target.files[0];
@@ -112,6 +114,7 @@ const trade_type = ref(["Buy", "Sell"]);
 const page_no = ref(1);
 const date_from = ref("");
 const date_to = ref("");
+const reference = ref("");
 // const dialog = ref(false);
 
 onMounted(async () => {
@@ -136,20 +139,20 @@ const formate_text = (text:string) => {
     <h4>Filter Options:</h4>
 
     <v-row class="mt-3">
-      <!-- <v-col cols="12" sm="6" md="3">
-        <v-select
-          label="Filter by Status"
-          v-model="status"
-          :items="status_options"
+      <v-col cols="12" sm="6" md="3">
+        <v-text-field
+          label="Filter by Reference"
+          v-model="reference"
           density="compact"
-          @update:modelValue="
-            (...args) =>
-              getAllGiftCardTransaction(...args, trade, page_no, date_from, date_to)
+          @blur="
+              getAllGiftCardTransaction(status, trade, page_no, date_from, date_to,reference)
           "
           variant="outlined"
-        ></v-select>
-      </v-col> -->
-      <v-col cols="12" sm="6" md="4">
+          @click:clear="clearMessage"
+          clearable
+        ></v-text-field>
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
         <v-select
           v-model="trade"
           label="Filter by trade type"
@@ -157,16 +160,16 @@ const formate_text = (text:string) => {
           :items="trade_type"
           @update:modelValue="
             (...args) =>
-              getAllGiftCardTransaction(status, ...args, page_no, date_from, date_to)
+              getAllGiftCardTransaction(status, ...args, page_no, date_from, date_to,reference)
           "
           variant="outlined"
         ></v-select>
       </v-col>
-      <v-col cols="12" sm="6" md="4">
+      <v-col cols="12" sm="6" md="3">
         <v-text-field
           @update:modelValue="
             (...args) =>
-              getAllGiftCardTransaction(status, trade, page_no, ...args, date_to)
+              getAllGiftCardTransaction(status, trade, page_no, ...args, date_to, reference)
           "
           v-model="date_from"
           label="Filter date from"
@@ -175,11 +178,11 @@ const formate_text = (text:string) => {
           variant="outlined"
         ></v-text-field>
       </v-col>
-      <v-col cols="12" sm="6" md="4">
+      <v-col cols="12" sm="6" md="3">
         <v-text-field
           @update:modelValue="
             (...args) =>
-              getAllGiftCardTransaction(status, trade, page_no, date_from, ...args)
+              getAllGiftCardTransaction(status, trade, page_no, date_from, ...args, reference)
           "
           v-model="date_to"
           type="date"
