@@ -7,8 +7,9 @@ import { useCountryStore } from "../../stores/country";
 import { useGiftCardStore } from "../../stores/giftcard";
 
 const { countries } = storeToRefs(useCountryStore());
-const { giftCard, loading, dialog, gift_categories, singleGiftCard } =
-  storeToRefs(useGiftCardStore());
+const { giftCard, loading, dialog, gift_categories, singleGiftCard } = storeToRefs(
+  useGiftCardStore()
+);
 const {
   createGiftCardCategory,
   getAllGifCardCategories,
@@ -40,6 +41,14 @@ const breadcrumbs = ref([
 // const dialog = ref(false);
 const valid = ref(false);
 const name = ref([(v: string) => !!v || "Giftcard name is required"]);
+const giftcard_name = ref("");
+const sale = ref("");
+const purchase = ref("");
+
+function clearMessage() {
+  giftcard_name.value = "";
+}
+
 const giftCardCategoryHeader = reactive([
   {
     title: "No.",
@@ -57,9 +66,9 @@ const giftCardCategoryHeader = reactive([
     title: "Sale activation status",
   },
 
-  // {
-  //   title: "Toggle  Activation",
-  // },
+  {
+    title: "Purchase activation status",
+  },
   {
     title: "Actions",
   },
@@ -70,10 +79,11 @@ const getGiftIcon = (e: any) => {
 };
 // end
 onMounted(async () => {
-  await getAllGifCardCategories();
+  await getAllGifCardCategories(page_no.value);
 });
 
 const id = ref("");
+const page_no = ref(1);
 const dialog2 = ref(false);
 const showDetails = async (id: string) => {
   dialog2.value = true;
@@ -130,13 +140,12 @@ const blockedStatus = (status: string | null) => {
 const statusColor = (status: string | null) => {
   return status !== null ? "green lighten-3" : "red lighten-3";
 };
+
+// const name = ref('')
 </script>
 
 <template>
-  <BaseBreadcrumb
-    :title="page.title"
-    :breadcrumbs="breadcrumbs"
-  ></BaseBreadcrumb>
+  <BaseBreadcrumb :title="page.title" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
   <div class="w-full d-flex justify-end my-3">
     <v-btn
       prepend-icon="mdi-plus"
@@ -147,6 +156,54 @@ const statusColor = (status: string | null) => {
       Add giftcard category
     </v-btn>
   </div>
+  <v-card flat elevation="0" rounded="0" class="my-5 pa-4">
+    <v-row class="mt-3">
+      <v-col cols="12" sm="6" md="3">
+        <v-text-field
+          label="Filter by gitfcard name"
+          density="compact"
+          v-model="giftcard_name"
+          variant="outlined"
+          @click:clear="clearMessage"
+          clearable
+        ></v-text-field>
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
+        <v-select
+          v-model="sale"
+          label="Filter by sales activation"
+          density="compact"
+          :items="['Active', 'Not active']"
+          variant="outlined"
+        ></v-select>
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
+        <v-select
+          v-model="purchase"
+          label="Filter by Purchase activation"
+          density="compact"
+          :items="['Active', 'Not active']"
+          variant="outlined"
+        ></v-select>
+      </v-col>
+      <v-col cols="12" sm="6" md="3">
+        <v-btn
+          @click="
+            getAllGifCardCategories(
+              page_no,
+              giftcard_name,
+              sale == 'Active' ? 1 : 0,
+              purchase == 'Active' ? 1 : 0
+            )
+          "
+          block
+          :loading="loading"
+          color="secondary"
+          >Filter data</v-btn
+        >
+      </v-col>
+    </v-row>
+  </v-card>
   <v-card class="my-4">
     <v-table>
       <thead>
@@ -161,11 +218,7 @@ const statusColor = (status: string | null) => {
         </tr>
       </thead>
       <tbody v-if="loading == false && gift_categories?.data?.length > 0">
-        <tr
-          class="pa-2"
-          v-for="(item, index) in gift_categories.data"
-          :key="item.id"
-        >
+        <tr class="pa-2" v-for="(item, index) in gift_categories.data" :key="item.id">
           <td>{{ index + 1 }}</td>
           <td>
             <v-avatar size="50px">
@@ -181,12 +234,13 @@ const statusColor = (status: string | null) => {
           <!-- <td>{{ item?.sale_term }}</td> -->
           <td>{{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}</td>
           <td>
-            <v-chip
-              label
-              class="pa-2"
-              :color="statusColor(item?.sale_activated_at)"
-            >
+            <v-chip label class="pa-2" :color="statusColor(item?.sale_activated_at)">
               {{ blockedStatus(item?.sale_activated_at) }}
+            </v-chip>
+          </td>
+          <td>
+            <v-chip label class="pa-2" :color="statusColor(item?.purchase_activated_at)">
+              {{ blockedStatus(item?.purchase_activated_at) }}
             </v-chip>
           </td>
           <!-- <td>
@@ -231,10 +285,7 @@ const statusColor = (status: string | null) => {
       </tbody>
     </v-table>
 
-    <v-layout
-      v-if="loading == true"
-      class="align-center justify-center w-100 my-5"
-    >
+    <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
       <v-progress-circular indeterminate></v-progress-circular>
     </v-layout>
 
@@ -246,6 +297,19 @@ const statusColor = (status: string | null) => {
     </p>
   </v-card>
 
+  <v-pagination
+    v-model="page_no"
+    :length="gift_categories?.last_page"
+    @next="getAllGiftCardTransaction(page_no, giftcard_name, sale, purchase)"
+    @prev="getAllGiftCardTransaction(page_no, giftcard_name, sale, purchase)"
+    @update:modelValue="getAllGiftCardTransaction(page_no, giftcard_name, sale, purchase)"
+    active-color="red"
+    :start="1"
+    variant="flat"
+    class="mt-5"
+    color="bg-secondary"
+    rounded="circle"
+  ></v-pagination>
   <v-row justify="center">
     <v-dialog v-model="dialog" persistent max-width="520px">
       <v-card>
@@ -304,12 +368,7 @@ const statusColor = (status: string | null) => {
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn
-            color="secondary"
-            class="px-7"
-            variant="outlined"
-            @click="close()"
-          >
+          <v-btn color="secondary" class="px-7" variant="outlined" @click="close()">
             Close
           </v-btn>
           <v-btn
@@ -339,11 +398,7 @@ const statusColor = (status: string | null) => {
           <v-col cols="12" sm="12" lg="12">
             <div class="d-flex align-center">
               <v-avatar size="70px">
-                <v-img
-                  cover
-                  class="rounded-circle img-fluid"
-                  :src="singleGiftCard?.icon"
-                >
+                <v-img cover class="rounded-circle img-fluid" :src="singleGiftCard?.icon">
                 </v-img>
               </v-avatar>
               <div class="ml-4">
@@ -381,9 +436,7 @@ const statusColor = (status: string | null) => {
           <v-col cols="12" sm="6" lg="12">
             <h4 class="py-1">Date created:</h4>
             <p class="mb-0 grey-lighten-1">
-              {{
-                useDateFormat(singleGiftCard?.created_at, "DD, MMMM-YYYY").value
-              }}
+              {{ useDateFormat(singleGiftCard?.created_at, "DD, MMMM-YYYY").value }}
             </p>
           </v-col>
           <v-col cols="12" sm="6" lg="12">
@@ -406,9 +459,7 @@ const statusColor = (status: string | null) => {
               v-model="sale_activation"
               focused
               label="Toggle Sale Activation"
-              :color="
-                singleGiftCard?.sale_activated_at == null ? '' : 'secondary'
-              "
+              :color="singleGiftCard?.sale_activated_at == null ? '' : 'secondary'"
               @input="activationGifCardCategories(singleGiftCard?.id)"
             ></v-switch>
             <v-switch
@@ -418,11 +469,7 @@ const statusColor = (status: string | null) => {
               focused
               :value="singleGiftCard.purchase_activated_at"
               label="Toggle Purchase Activation"
-              :color="
-                singleGiftCard?.purchase_activated_at !== null
-                  ? ''
-                  : 'secondary'
-              "
+              :color="singleGiftCard?.purchase_activated_at !== null ? '' : 'secondary'"
               @input="purchaseActivationGifCardCategories(singleGiftCard?.id)"
             ></v-switch>
           </v-col>

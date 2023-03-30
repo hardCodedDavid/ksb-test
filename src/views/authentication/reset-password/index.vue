@@ -35,9 +35,9 @@ const verifyCodeAndResetPassword = async () => {
     password: password.value,
     password_confirmation: confirm_password.value,
   };
-  await ksbTechVerifyCode(code.value).then(() => {
+  await ksbTechVerifyCode(code.value).then(async() => {
     // console.log('hello')
-    ksbTechResetPassword(data);
+   await ksbTechResetPassword(data);
   });
 };
 </script>

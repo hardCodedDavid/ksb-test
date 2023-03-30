@@ -143,7 +143,7 @@ export const useAuthStore = defineStore("auth", {
 
               this.loginLoading = false;
               // @ts-ignore
-              this.$router.push("/authentication/reset-password");
+              this.router.push("/authentication/reset-password");
             }
           );
       } catch (error: any) {
@@ -180,7 +180,7 @@ export const useAuthStore = defineStore("auth", {
             }) => {
               this.loginLoading = false;
               // @ts-ignore
-              this.$router.push("/authentication/reset-password");
+              this.router.push("/authentication/reset-password");
             }
           );
       } catch (error: any) {
@@ -233,7 +233,7 @@ export const useAuthStore = defineStore("auth", {
               this.loginLoading = false;
 
               // @ts-ignore
-              this.$router.push("/auth/login");
+              this.router.push("/auth/login");
             }
           );
       } catch (error: any) {

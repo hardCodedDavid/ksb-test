@@ -5,12 +5,8 @@ import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 import { useCountryStore } from "../../stores/country";
 import { useGiftProductStore } from "../../stores/products";
 import { useDateFormat } from "@vueuse/core";
-const { countries, giftCardCategories, currencies } = storeToRefs(
-  useCountryStore()
-);
-const { giftCard, loading, dialog, gift_products } = storeToRefs(
-  useGiftProductStore()
-);
+const { countries, giftCardCategories, currencies } = storeToRefs(useCountryStore());
+const { giftCard, loading, dialog, gift_products } = storeToRefs(useGiftProductStore());
 const {
   createGiftCardProduct,
   getAllGifCardProduct,
@@ -18,7 +14,7 @@ const {
   activationGifCardProduct,
   editGiftCardProduct,
 } = useGiftProductStore();
-const page = ref({ title: "Gift Cards" });
+const page = ref({ title: "Gift Card Product" });
 const breadcrumbs = ref([
   {
     text: "Cards",
@@ -51,9 +47,9 @@ const giftCardCategoryHeader = reactive([
   {
     title: "Sell max amount",
   },
-  {
-    title: "Created at",
-  },
+  // {
+  //   title: "Created at",
+  // },
   {
     title: "Status",
   },
@@ -65,10 +61,10 @@ const giftCardCategoryHeader = reactive([
   },
 ]);
 // select file
-
+const page_no = ref(1);
 // end
 onMounted(async () => {
-  await getAllGifCardProduct();
+  await getAllGifCardProduct(page_no.value, product_name.value, activation_status.value);
 });
 
 const blockedStatus = (status: string | null) => {
@@ -86,13 +82,34 @@ const editItem = (item: never) => {
   dialog.value = true;
   edit.value = true;
 };
+
+const close = () => {
+  dialog.value = false;
+  giftCard.value = Object.assign(
+    {},
+    {
+      name: "",
+      country_id: "",
+      currency_id: "",
+      sell_rate: "",
+      sell_min_amount: "",
+      sell_max_amount: "",
+      giftcard_category_id: "",
+      id: "",
+      data: "",
+      giftcard_id: "",
+    }
+  );
+  btnText.value = "Create Item";
+  edit.value = false;
+};
+
+const product_name = ref("");
+const activation_status = ref("");
 </script>
 
 <template>
-  <BaseBreadcrumb
-    :title="page.title"
-    :breadcrumbs="breadcrumbs"
-  ></BaseBreadcrumb>
+  <BaseBreadcrumb :title="page.title" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
   <div class="w-full d-flex justify-end my-3">
     <v-btn
       prepend-icon="mdi-plus"
@@ -103,6 +120,44 @@ const editItem = (item: never) => {
       Create new giftcard product
     </v-btn>
   </div>
+  <v-card flat elevation="0" rounded="0" class="my-5 pa-4">
+    <v-row class="mt-3">
+      <v-col cols="12" sm="6" md="4">
+        <v-text-field
+          label="Filter by product name"
+          density="compact"
+          v-model="product_name"
+          variant="outlined"
+          @click:clear="clearMessage"
+          clearable
+        ></v-text-field>
+      </v-col>
+      <v-col cols="12" sm="6" md="4">
+        <v-select
+          v-model="activation_status"
+          label="Filter by activation status"
+          density="compact"
+          :items="['Active', 'Not active']"
+          variant="outlined"
+        ></v-select>
+      </v-col>
+      <v-col cols="12" sm="6" md="4">
+        <v-btn
+          @click="
+            getAllGifCardProduct(
+              page_no,
+              product_name,
+              activation_status == 'Active' ? 1 : 0
+            )
+          "
+          block
+          :loading="loading"
+          color="secondary"
+          >Filter data</v-btn
+        >
+      </v-col>
+    </v-row>
+  </v-card>
   <v-card class="my-4">
     <v-table>
       <thead>
@@ -123,7 +178,7 @@ const editItem = (item: never) => {
           <td>{{ item.sell_rate.toLocaleString() }}</td>
           <td>₦‎ {{ item.sell_min_amount.toLocaleString() }}</td>
           <td>₦‎ {{ item.sell_max_amount.toLocaleString() }}</td>
-          <td>{{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}</td>
+          <!-- <td>{{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}</td> -->
           <td>
             <v-chip label class="pa-2" :color="statusColor(item?.activated_at)">
               {{ blockedStatus(item?.activated_at) }}
@@ -163,10 +218,7 @@ const editItem = (item: never) => {
         </tr>
       </tbody>
     </v-table>
-    <v-layout
-      v-if="loading == true"
-      class="align-center justify-center w-100 my-5"
-    >
+    <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
       <v-progress-circular indeterminate></v-progress-circular>
     </v-layout>
 
@@ -177,9 +229,22 @@ const editItem = (item: never) => {
       No data available
     </p>
   </v-card>
+  <v-pagination
+    v-model="page_no"
+    :length="gift_products?.last_page"
+    @next="getAllGifCardProduct(page_no, product_name, activation_status)"
+    @prev="getAllGifCardProduct(page_no, product_name, activation_status)"
+    @update:modelValue="getAllGifCardProduct(page_no, product_name, activation_status)"
+    active-color="red"
+    :start="1"
+    variant="flat"
+    class="mt-5"
+    color="bg-secondary"
+    rounded="circle"
+  ></v-pagination>
 
   <v-row justify="center">
-    <v-dialog v-model="dialog" max-width="500px">
+    <v-dialog v-model="dialog" max-width="500px" persistent>
       <v-card>
         <h3 class="text-h5 font-weight-bold pa-7">{{ btnText }}</h3>
         <v-card-text>
@@ -200,6 +265,7 @@ const editItem = (item: never) => {
                     v-model="giftCard.sell_rate"
                     variant="outlined"
                     label="Selling Rate*"
+                    prefix="₦‎"
                     required
                     type="number"
                   ></v-text-field>
@@ -210,6 +276,7 @@ const editItem = (item: never) => {
                     variant="outlined"
                     label="Selling amount*"
                     required
+                    prefix="₦‎"
                     type="number"
                   ></v-text-field>
                 </v-col>
@@ -219,6 +286,7 @@ const editItem = (item: never) => {
                     variant="outlined"
                     label="Selling Max Amount*"
                     required
+                    prefix="₦‎"
                     type="number"
                   ></v-text-field>
                 </v-col>
@@ -227,6 +295,7 @@ const editItem = (item: never) => {
                     :items="countries"
                     label="Countries*"
                     required
+                     variant="outlined"
                     chips
                     item-title="name"
                     item-value="id"
@@ -237,22 +306,25 @@ const editItem = (item: never) => {
                 </v-col>
                 <v-col cols="12" sm="12">
                   <v-autocomplete
+                   variant="outlined"
                     :items="giftCardCategories"
                     label="Giftcard categories*"
                     required
                     chips
                     item-title="name"
                     item-value="id"
-                    v-model="giftCard.giftcard_category.id"
+                    v-model="giftCard.giftcard_category"
                     hint="This field is required"
                     persistent-hint
                   ></v-autocomplete>
                 </v-col>
                 <v-col cols="12" sm="12">
                   <v-autocomplete
+                   variant="outlined"
                     :items="currencies"
                     label="Currency*"
                     required
+
                     v-model="giftCard.currency"
                     chips
                     item-title="code"
@@ -271,7 +343,7 @@ const editItem = (item: never) => {
             color="secondary"
             class="px-7"
             variant="outlined"
-            @click="dialog = false"
+            @click="close"
           >
             Close
           </v-btn>
