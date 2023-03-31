@@ -277,7 +277,7 @@ export const useGiftCardStore = defineStore("giftcard", {
             }) => {
               this.approving = false;
               this.dialog2 = false;
-              this.getAllGiftCardTransactionByUserId(route.params.id);
+              this.getAllGiftCardTransactionByUserId(id);
               notify({
                 title: "Approved Successfully",
                 text: res.data.message,

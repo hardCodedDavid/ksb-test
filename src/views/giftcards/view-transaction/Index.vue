@@ -14,7 +14,7 @@ const {
   partialApproveRequest,
 } = useGiftCardStore();
 
-const { loading, approving, declining, singleGiftCardTransaction, dialog } =
+const { loading, approving, declining, singleGiftCardTransaction, dialog, dialog2 } =
   storeToRefs(useGiftCardStore());
 
 const route: any = useRoute();
@@ -36,7 +36,7 @@ const partial = (e: any) => {
   partial_approve.review_proof = e.target.files[0];
 };
 
-const dialog2 = ref(false);
+// const dialog2 = ref(false);
 
 const disapprove = (selected: any) => {
   dialog.value = true;
