@@ -77,9 +77,9 @@ export const useGiftProductStore = defineStore("gift_product", {
               "&page=" +
               page +
               "&filter[name]=" +
-              name +
+              name.toLowerCase() +
               "&filter[activated]=" +
-              status,
+              status +  '&per_page=100',
             {
               headers: {
                 Accept: "application/json",

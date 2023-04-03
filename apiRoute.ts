@@ -7,7 +7,7 @@ export const two_FA = '/admin/profile/two-fa'
 export const verify_two_FA = '/admin/verify-two-fa'
 export const resend_two_fa = '/admin/resend-two-fa'
 export const permissions = '/admin/my-permissions'
-
+export const reset = '/admin/password/reset'
 
 export const user = '/admin/users'
 export const requestCode = '/admin/password/forgot'

@@ -46,6 +46,8 @@ const partial = (e: any) => {
   partial_approve.review_proof = e.target.files[0];
 };
 
+
+
 const header = ref([
   {
     title: "No.",
@@ -216,7 +218,7 @@ const formate_text = (text:string) => {
             </tr>
           </thead>
           <tbody v-if="gift_transactions?.data?.length > 0 && loading == false">
-            <tr v-for="(item, index) in gift_transactions.data" :key="item.id">
+            <tr v-for="(item, index) in gift_transactions.data"  :key="item.id">
               <td>{{ index + 1 }}</td>
               <td
                 class="font-weight-bold username"

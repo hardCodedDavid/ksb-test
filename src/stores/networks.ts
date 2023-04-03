@@ -199,13 +199,13 @@ export const useNetworksStore = defineStore("networks", {
           });
         }
       },
-    async getAllNetwork() {
+    async getAllNetwork(page:number = 1, name:string = '') {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       try {
         await ksbTechApi
-          .get(network + '?include=assetsCount', {
+          .get(network + '?include=assetsCount' + '&page=' + page + '&per_page=100' + '&filter[name]=' + name, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -224,7 +224,7 @@ export const useNetworksStore = defineStore("networks", {
                 text: res.data.message,
                 type: "success",
               });
-              this.networks = res.data.data.networks.data;
+              this.networks = res.data.data.networks;
             }
           );
       } catch (error) {

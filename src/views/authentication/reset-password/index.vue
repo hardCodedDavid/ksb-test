@@ -40,6 +40,9 @@ const verifyCodeAndResetPassword = async () => {
    await ksbTechResetPassword(data);
   });
 };
+
+
+const show2 = ref(false)
 </script>
 
 <template>
@@ -86,9 +89,12 @@ const verifyCodeAndResetPassword = async () => {
                     v-model="password"
                     :rules="newPasswordRules"
                     label="New password"
+                     :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'"
+                   @click:appendInner="show1 = !show1"
+                  :type="show1 ? 'text' : 'password'"
                     required
                     variant="outlined"
-                    type="password"
+                    
                   ></v-text-field>
                   <v-text-field
                     v-model="confirm_password"
@@ -96,7 +102,9 @@ const verifyCodeAndResetPassword = async () => {
                     label="Confirm new password"
                     required
                     variant="outlined"
-                    type="password"
+                    :append-inner-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'"
+                   @click:appendInner="show2 = !show2"
+                  :type="show2 ? 'text' : 'password'"
                   ></v-text-field>
                   <v-btn
                     :loading="loginLoading"

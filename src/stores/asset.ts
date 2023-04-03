@@ -361,13 +361,13 @@ export const useAssetStore = defineStore("asset", {
 
   
     // ASSETS
-    async getAllAsset() {
+    async getAllAsset(page:number = 1, name:string = '', code:string = '') {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       try {
         await ksbTechApi
-          .get(assets, {
+          .get(assets + '?per_page=100' + '&page=' + page + '&filter[name]=' + name + '&filter[code]=' + code, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -382,7 +382,7 @@ export const useAssetStore = defineStore("asset", {
             }) => {
               this.loading = false;
              
-              this.assets = res.data.data.assets.data;
+              this.assets = res.data.data.assets;
               
             }
           );

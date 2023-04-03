@@ -51,8 +51,12 @@ const header = ref([
     title: "Actions",
   },
 ]);
+const name = ref('')
+const code = ref('')
+const page = ref(1)
+
 onMounted(async () => {
-  await getAllAsset();
+  await getAllAsset(page.value, name.value, code.value);
   await getAllNetworks();
 });
 
@@ -73,6 +77,8 @@ const status_color = (status: StatusType) => {
 const get_selected_file = (e: any) => {
   asset.value.icon = e.target.files[0];
 };
+
+
 </script>
 
 <template>
@@ -90,6 +96,29 @@ const get_selected_file = (e: any) => {
         </v-btn>
       </div>
       <v-card class="pa-5">
+       <v-row>
+          <v-col cols="12" sm="6" md="4">
+            <v-text-field
+              density="compact"
+              variant="outlined"
+              label="Asset name*"
+              v-model="name"
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="6" md="4">
+            <v-text-field
+              density="compact"
+              variant="outlined"
+              label="Asset code*"
+              v-model="code"
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="6" md="4">
+            <v-btn @click="name !== '' || code !== '' ? getAllAsset(page, name, code): null" color="secondary" block>Search</v-btn>
+          </v-col>
+        </v-row>
         <v-table>
           <thead>
             <tr>
@@ -102,8 +131,8 @@ const get_selected_file = (e: any) => {
               </th>
             </tr>
           </thead>
-          <tbody v-if="assets?.length > 0 && loading == false">
-            <tr v-for="(item, index) in assets" :key="item.id">
+          <tbody v-if="assets?.data?.length > 0 && loading == false">
+            <tr v-for="(item, index) in assets.data" :key="item.id">
               <td>{{ index + 1 }}</td>
               <td>
                 <v-avatar size="50px">
@@ -172,7 +201,7 @@ const get_selected_file = (e: any) => {
 
         <p
           class="font-weight-bold text-center my-3"
-          v-if="assets?.length <= 0 && loading == false"
+          v-if="assets?.data?.length <= 0 && loading == false"
         >
           No data found
         </p>
@@ -184,6 +213,20 @@ const get_selected_file = (e: any) => {
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
       </v-card>
+
+       <v-pagination
+        v-model="page"
+        :length="assets.last_page"
+        @next="getAllAsset(page, name, code)"
+        @prev="getAllAsset(page, name, code)"
+        @update:modelValue="getAllAsset(page, name, code)"
+        active-color="red"
+        :start="1"
+        variant="flat"
+        class="mt-5"
+        color="bg-secondary"
+        rounded="circle"
+      ></v-pagination>
     </v-col>
 
     <v-row justify="center">

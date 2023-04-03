@@ -13,8 +13,9 @@ const {
   restoreNetworks,
   getSingleNetwork,
 } = useNetworksStore();
-const { networks, loading, dialog, network, dialog2, single_network } =
-  storeToRefs(useNetworksStore());
+const { networks, loading, dialog, network, dialog2, single_network } = storeToRefs(
+  useNetworksStore()
+);
 const header = ref([
   {
     title: "No.",
@@ -35,8 +36,10 @@ const header = ref([
     title: "Actions",
   },
 ]);
+
+const page = ref(1);
 onMounted(async () => {
-  await getAllNetwork();
+  await getAllNetwork(page.value, name.value);
 });
 
 // CHANGE STATUS COLOR
@@ -73,6 +76,9 @@ const close = (item: never) => {
   dialog.value = false;
   edit.value = false;
 };
+const name = ref("");
+
+const searching = ref(false)
 </script>
 
 <template>
@@ -90,20 +96,30 @@ const close = (item: never) => {
         </v-btn>
       </div>
       <v-card class="pa-5">
+        <v-row>
+          <v-col cols="12" sm="6" md="4">
+            <v-text-field
+              density="compact"
+              variant="outlined"
+              label="Network name*"
+              v-model="name"
+              required
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="6" md="4">
+            <v-btn @click=" name !== '' ? getAllNetwork(page, name): null" :loading="searching" color="secondary" block>Search</v-btn>
+          </v-col>
+        </v-row>
         <v-table>
           <thead>
             <tr>
-              <th
-                v-for="(headings, index) in header"
-                :key="index"
-                class="text-left"
-              >
+              <th v-for="(headings, index) in header" :key="index" class="text-left">
                 {{ headings.title }}
               </th>
             </tr>
           </thead>
-          <tbody v-if="networks?.length > 0 && loading == false">
-            <tr v-for="(item, index) in networks" :key="item.id">
+          <tbody v-if="networks?.data?.length > 0 && loading == false">
+            <tr v-for="(item, index) in networks.data" :key="item.id">
               <td>{{ index + 1 }}</td>
 
               <td :class="{ 'font-weight-bold': item.account_name == null }">
@@ -141,11 +157,7 @@ const close = (item: never) => {
                       >
                         <v-list-item-title> View Network </v-list-item-title>
                       </v-list-item>
-                      <v-list-item
-                        @click="editItem(item)"
-                        link
-                        color="secondary"
-                      >
+                      <v-list-item @click="editItem(item)" link color="secondary">
                         <v-list-item-title> Edit Network </v-list-item-title>
                       </v-list-item>
                       <v-list-item
@@ -172,18 +184,28 @@ const close = (item: never) => {
 
         <p
           class="font-weight-bold text-center my-3"
-          v-if="networks?.length <= 0 && loading == false"
+          v-if="networks?.data?.length <= 0 && loading == false"
         >
           No data found
         </p>
 
-        <v-layout
-          v-if="loading == true"
-          class="align-center justify-center w-100 my-5"
-        >
+        <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
       </v-card>
+      <v-pagination
+        v-model="page_no"
+        :length="networks.last_page"
+        @next="getAllNetwork(page, name)"
+        @prev="getAllNetwork(page, name)"
+        @update:modelValue="getAllNetwork(page, name)"
+        active-color="red"
+        :start="1"
+        variant="flat"
+        class="mt-5"
+        color="bg-secondary"
+        rounded="circle"
+      ></v-pagination>
     </v-col>
 
     <v-row justify="center">
@@ -213,21 +235,14 @@ const close = (item: never) => {
                 </v-row>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn
-                    color="secondary"
-                    class="px-7"
-                    variant="outlined"
-                    @click="close"
-                  >
+                  <v-btn color="secondary" class="px-7" variant="outlined" @click="close">
                     Close
                   </v-btn>
                   <v-btn
                     color="secondary"
                     class="px-12"
                     @click="
-                      edit == true
-                        ? editNetworks(network)
-                        : createNetworks(network)
+                      edit == true ? editNetworks(network) : createNetworks(network)
                     "
                     :loading="loading"
                     variant="flat"
@@ -246,10 +261,7 @@ const close = (item: never) => {
       <v-dialog v-model="dialog2" max-width="500px">
         <v-card>
           <h3 class="text-center my-4">Network Details</h3>
-          <v-layout
-            v-if="loading == true"
-            class="align-center justify-center w-100 my-5"
-          >
+          <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
             <v-progress-circular indeterminate></v-progress-circular>
           </v-layout>
           <v-container v-else class="fill-height">
@@ -320,9 +332,7 @@ const close = (item: never) => {
                   </v-col>
                 </v-row>
               </div>
-              <p v-else class="text-center py-5">
-                This network has no related asset
-              </p>
+              <p v-else class="text-center py-5">This network has no related asset</p>
             </div>
           </v-container>
         </v-card>

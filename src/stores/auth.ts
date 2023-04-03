@@ -15,6 +15,7 @@ import {
   resetPassword,
   notification,
   markAsRead,
+  reset
 } from "../../apiRoute";
 import { useNotification } from "@kyvg/vue3-notification";
 
@@ -208,7 +209,7 @@ export const useAuthStore = defineStore("auth", {
       const { notify } = useNotification();
       try {
         await ksbTechApi
-          .post(requestCode, formData, {
+          .post(reset, formData, {
             headers: {
               Accept: "application/json",
             },
