@@ -3,7 +3,7 @@ import ksbTechApi from "../../axios";
 import { asset, assets, all_network } from "../../apiRoute";
 import { useNotification } from "@kyvg/vue3-notification";
 import { useAuthStore } from "./auth";
-
+import {useRoute} from 'vue-router'
 interface Data {
   id: string;
   account_name: string;
@@ -246,7 +246,53 @@ export const useAssetStore = defineStore("asset", {
         this.loading = false;
       }
     },
-   
+    async partialApproveRequest(id: string, data: any) {
+      const store = useAuthStore();
+      const route: any = useRoute();
+      const { notify } = useNotification();
+      this.loading = true;
+
+      var formdata = new FormData();
+      formdata.append("complete_approval", "0");
+      formdata.append("review_rate", data.review_rate);
+      formdata.append("review_note", data.review_note);
+      formdata.append("review_proof", data.review_proof);
+      formdata.append("_method", "PATCH");
+
+      try {
+        await ksbTechApi
+          .post(asset + "/" + id + "/approve", formdata, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { withdrawal_requests: object };
+              };
+            }) => {
+              this.loading = false;
+              this.dialog2 = false;
+              this.getSingleAssetTransactions(id);
+              notify({
+                title: "Approved Successfully",
+                text: res.data.message,
+                type: "success",
+              });
+            }
+          );
+      } catch (error: any) {
+        this.loading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
+      }
+    },
     async getSingleAssetTransactions(id: string, page:number = 1) {
       const store = useAuthStore();
       const { notify } = useNotification();

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, reactive } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 // import { useGiftCardStore } from "@/stores/giftcard";
@@ -11,9 +11,10 @@ const {
   getSingleAssetTransactions,
     approveAssetTransactions,
   declineAssetTransactions,
+  partialApproveRequest
 } = useAssetStore();
 
-const { dialog, loading, single_transactions } = storeToRefs(useAssetStore())
+const { dialog, loading, single_transactions, dialog2 } = storeToRefs(useAssetStore())
 // const { 
 //     declineRequest,
 //     approveRequest,
@@ -69,6 +70,15 @@ const get_reproof = (e:any) => {
 const view_img = (url:string) => {
     window.open(url)
 }
+const partial_approve = reactive({
+  review_rate: "",
+  review_note: "",
+  review_proof: null,
+});
+
+const partial = (e: any) => {
+  partial_approve.review_proof = e.target.files[0];
+};
 
 onMounted(async () => {
   await getSingleAssetTransactions(route.params.id)
@@ -215,6 +225,13 @@ onMounted(async () => {
                 >
                   Decline
                 </v-btn>
+                <v-btn
+                  color="purple lighten-3"
+                  variant="tonal"
+                  @click="id = single_transactions?.id; dialog2 = true"
+                >
+                  Partial approve
+                </v-btn>
               </v-card-actions>
             </v-card>
             </v-col>
@@ -346,6 +363,49 @@ onMounted(async () => {
           </v-container>
         </v-card>
       </v-dialog>
+
+            <v-dialog v-model="dialog2" max-width="429px" min-height="476px">
+      <v-card class="view-dialog pa-4">
+        <div class="mb-3 d-flex justify-space-between">
+          <h3 class="text-justify mt-7">Partial approval</h3>
+          <v-btn
+            @click="dialog2 = false"
+            icon="mdi-close"
+            color="secondary"
+            variant="text"
+          >
+            <v-icon icon="mdi-close"></v-icon>
+          </v-btn>
+        </div>
+        <v-form class="my-10">
+          <v-text-field
+            prefix="₦‎"
+            v-model="partial_approve.review_rate"
+            type="number"
+            variant="outlined"
+            label="Review Rate"
+          ></v-text-field>
+          <v-textarea
+            v-model="partial_approve.review_note"
+            variant="outlined"
+            label="Review Note"
+          ></v-textarea>
+          <v-file-input
+            prepend-icon=""
+            variant="outlined"
+            @change="partial"
+            label="Review Proof"
+          ></v-file-input>
+          <v-btn
+            :loading="loading"
+            @click="partialApproveRequest(id, partial_approve)"
+            block
+            color="secondary"
+            >submit</v-btn
+          >
+        </v-form>
+      </v-card>
+    </v-dialog>
   </v-row>
 </template>
 

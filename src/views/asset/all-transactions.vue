@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, reactive } from "vue";
 import { useAssetStore } from "../../stores/asset";
 import { useUserStore } from "../../stores/user";
 import { storeToRefs } from "pinia";
@@ -14,11 +14,19 @@ const {
   getAllAssetTransactionsStatus,
   getAllAssetTransactionByReference,
   getAllAssetTransactionByDate,
+  partialApproveRequest
 } = useAssetStore();
 
 // const { getAllUsers } = useUserStore();
-
-const { allTransactions, loading, dialog, single_transactions } = storeToRefs(
+const partial_approve = reactive({
+  review_rate: "",
+  review_note: "",
+  review_proof: null,
+});
+const partial = (e: any) => {
+  partial_approve.review_proof = e.target.files[0];
+};
+const { allTransactions, loading, dialog,dialog2, single_transactions } = storeToRefs(
   useAssetStore()
 );
 const tab = ref(null);
@@ -72,7 +80,7 @@ onMounted(async () => {
 });
 
 // CHANGE STATUS COLOR
-type StatusType = "pending" | "approved" | "declined" ;
+type StatusType = "pending" | "approved" | "declined" | "partially_approved";
 
 const status_color = (status: StatusType) => {
   return status == "pending"
@@ -81,6 +89,8 @@ const status_color = (status: StatusType) => {
     ? "green lighten-3"
     : status == "declined"
     ? "red lighten-3"
+    : status == "partially_approved"
+    ? "purple lighten-3"
     : "";
 };
 //
@@ -220,6 +230,14 @@ const get_reproof = (e:any) => {
                       >
                         <v-list-item-title> Decline Request </v-list-item-title>
                       </v-list-item>
+                      <v-list-item
+                       v-if="item?.status == 'transferred'"
+                        @click="dialog2 = true; id = item?.id"
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> Partial Approval </v-list-item-title>
+                      </v-list-item>
                     </v-list>
                   </v-menu>
                 </v-row>
@@ -291,6 +309,48 @@ const get_reproof = (e:any) => {
           </v-container>
         </v-card>
       </v-dialog>
+      <v-dialog v-model="dialog2" max-width="429px" min-height="476px">
+      <v-card class="view-dialog pa-4">
+        <div class="mb-3 d-flex justify-space-between">
+          <h3 class="text-justify mt-7">Partial approval</h3>
+          <v-btn
+            @click="dialog2 = false"
+            icon="mdi-close"
+            color="secondary"
+            variant="text"
+          >
+            <v-icon icon="mdi-close"></v-icon>
+          </v-btn>
+        </div>
+        <v-form class="my-10">
+          <v-text-field
+            prefix="₦‎"
+            v-model="partial_approve.review_rate"
+            type="number"
+            variant="outlined"
+            label="Review Rate"
+          ></v-text-field>
+          <v-textarea
+            v-model="partial_approve.review_note"
+            variant="outlined"
+            label="Review Note"
+          ></v-textarea>
+          <v-file-input
+            prepend-icon=""
+            variant="outlined"
+            @change="partial"
+            label="Review Proof"
+          ></v-file-input>
+          <v-btn
+            :loading="loading"
+            @click="partialApproveRequest(id, partial_approve)"
+            block
+            color="secondary"
+            >submit</v-btn
+          >
+        </v-form>
+      </v-card>
+    </v-dialog>
   </v-row>
 </template>
 

@@ -48,12 +48,12 @@ export const useCountryStore = defineStore({
 
       }
     },
-    async getCountryMgt(page_no:number) {
+    async getCountryMgt(page_no:number = 1, name:string = "" , activated:string = '', registered:string = '') {
       const store = useAuthStore();
       this.loading = true
       try {
         await ksbTechApi
-          .get(countryMgt + '?per_page=' +  100 + '&page=' + page_no, {
+          .get(countryMgt + '?per_page=' +  100 + '&page=' + page_no + '&filter[name]=' + name + '&filter[registration_activated]=' + registered + '&filter[giftcard_activated]=' + activated, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -66,7 +66,7 @@ export const useCountryStore = defineStore({
                 data: any;
               };
             }) => {
-              this.countryMgt = res.data.data.countries.data;
+              this.countryMgt = res.data.data.countries;
               this.loading = false
             }
           );
