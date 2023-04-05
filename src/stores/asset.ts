@@ -299,7 +299,7 @@ export const useAssetStore = defineStore("asset", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(asset + "/" + id + '?include=asset,user,bank' + '&page=' + page, {
+          .get(asset + "/" + id + '?include=asset,user,bank,network' + '&page=' + page, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,

@@ -15,12 +15,28 @@ const {
 } = useAssetStore();
 
 const { dialog, loading, single_transactions, dialog2 } = storeToRefs(useAssetStore())
-// const { 
-//     declineRequest,
-//     approveRequest,
-//     getAllGiftCardTransactionByUserId ,
-// } = useGiftCardStore();
-// const { loading, approving, declining, singleGiftCardTransaction, dialog} = storeToRefs(useGiftCardStore());
+
+
+const transaction_header = ref([
+  {
+    title: "Asset",
+  },
+  {
+    title: "Network",
+  },
+  {
+    title: "Type",
+  },
+  {
+    title: "Rate",
+  },
+  {
+    title: "Asset value",
+  },
+  {
+    title: "Amount",
+  },
+]);
 
 const route:any = useRoute();
 const router:any = useRouter();
@@ -34,10 +50,7 @@ const view_user_details = (id:string) => {
 const note = ref("");
 const id = ref("")
 
-// const disapprove = (selected:any) => {
-//   dialog.value = true;
-//   id.value = selected;
-// };
+
 
 // CHANGE STATUS COLOR
 type StatusType = "pending" | "approved" | "declined";
@@ -98,8 +111,10 @@ onMounted(async () => {
         <v-icon start icon="mdi-arrow-left"></v-icon>
         Asset Transactions
     </v-btn>
+    
     <v-col cols="12" sm="12" lg="12">
-      <v-card>
+      <v-card rounded="0" class="pa-4">
+
         <v-toolbar color="transparent">
           <v-toolbar-title class="font-weight-medium">
             View Asset transaction
@@ -108,6 +123,30 @@ onMounted(async () => {
           <v-spacer></v-spacer>
         </v-toolbar>
         <v-divider></v-divider>
+               <v-table class="ksb-border my-10">
+        <thead>
+        <tr class="pa-2">
+          <th
+            :key="index"
+            v-for="(headerTitle, index) in transaction_header"
+            class="text-left"
+          >
+            {{ headerTitle.title }}
+          </th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+        <td>{{single_transactions?.asset?.code}}</td>
+        <td>{{single_transactions?.network?.name}}</td>
+        <td>{{single_transactions?.trade_type}}</td>
+        <td>{{single_transactions?.rate}}</td>
+        <td>{{single_transactions?.asset_amount}}</td>
+        <td>{{single_transactions?.payable_amount}}</td>
+        </tr>
+      </tbody>
+      </v-table>
         <v-row class="px-4">
        
             <v-col cols="12" sm="12" lg="6">
@@ -414,5 +453,10 @@ onMounted(async () => {
 .text-underline{
   text-decoration: underline !important;
   cursor:cursor-pointer;
+}
+
+.ksb-border {
+  border: 1px solid #cecccc;
+  border-radius: none;
 }
 </style>
