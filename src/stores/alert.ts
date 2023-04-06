@@ -25,7 +25,8 @@ export const useAlertStore = defineStore('alert', {
             target_user:"",
             dispatched_at:"",
             channels:[]
-        }
+        },
+        time:""
     }),
     getters: {
         
@@ -73,7 +74,7 @@ export const useAlertStore = defineStore('alert', {
             formData.append("title", alerts.title);
             formData.append("body", alerts.body);
             formData.append("target_user", alerts.target_user.toLowerCase());
-            formData.append("dispatch_datetime", alerts.dispatched_at + ' ' + '5:00:00');
+            formData.append("dispatch_datetime", alerts.dispatched_at + ' ' + this.time);
             // formData.append("target_user", alert.target_user);
 
             const emails = alerts.channels

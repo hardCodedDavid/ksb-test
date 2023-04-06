@@ -107,7 +107,7 @@ const transaction_header = ref([
     title: "Value",
   },
   {
-    title: "Qty",
+    title: "Rate",
   },
   {
     title: "Total",

@@ -13,6 +13,7 @@ interface GiftCard {
     sale_term: string;
     countries: any;
     data: string;
+    admin:[]
   };
   loading: boolean;
   declining: boolean;
@@ -43,6 +44,8 @@ export const useGiftCardStore = defineStore("giftcard", {
       sale_term: "",
       countries: [],
       data: "",
+
+      admin:[]
     },
     loading: false,
     declining: false,
@@ -527,9 +530,12 @@ export const useGiftCardStore = defineStore("giftcard", {
       formData.append("sale_term", payload.sale_term);
 
       const ids = this.giftCard.countries;
-
+      const admin_id = this.giftCard.admin
       for (let i = 0; i < ids.length; i++) {
         formData.append("countries[]", ids[i]);
+      }
+      for (let i = 0; i < admin_id.length; i++) {
+        formData.append("admins[]", admin_id[i]);
       }
 
       this.loading = true;

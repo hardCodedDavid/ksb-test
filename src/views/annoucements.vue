@@ -7,7 +7,7 @@ import { useDateFormat } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 const action = useAuthStore();
 const alert_action = useAlertStore();
-const { loading, alerts, dialog, alert } = storeToRefs(useAlertStore());
+const { loading, alerts, dialog, alert , time} = storeToRefs(useAlertStore());
 const date = ref();
 const header = ref([
   {
@@ -37,6 +37,7 @@ const header = ref([
     title: "Actions",
   },
 ]);
+
 
 onMounted(async () => {
   await alert_action.getAlerts();
@@ -228,16 +229,29 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                     <v-text-field
                       type="date"
                       :min="currentDate"
-                      hint="Select a date after current date"
+                      hint="Dispatch date and time must be a date after or equal to now + 5 minutes"
                       persistent-hint
+                      label="Dispatch datetime"
                       placeholder="Dispatch datetime"
                       v-model="alert.dispatched_at"
                       variant="outlined"
                     ></v-text-field>
                   </v-col>
+                  <v-col cols="12" sm="12">
+                    <v-text-field
+                      type="time"
+                      :min="currentDate"
+                      hint="Dispatch date and time must be a date after or equal to now + 5 minutes"
+                      persistent-hint
+                      label="Dispatch time"
+                      placeholder="Dispatch datetime"
+                      v-model="time"
+                      variant="outlined"
+                    ></v-text-field>
+                  </v-col>
                   <v-col v-if="edit == false" cols="12" sm="12">
                     <v-autocomplete
-                      :items="['email', 'in-app']"
+                      :items="['email', 'in_app']"
                       label="Channels*"
                       required
                       multiple
@@ -254,7 +268,7 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="secondary" class="px-7" variant="outlined" @click="close">
+            <v-btn  color="secondary" class="px-7" variant="outlined" @click="close">
               Close
             </v-btn>
             <v-btn

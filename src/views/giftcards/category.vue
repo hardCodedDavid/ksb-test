@@ -5,8 +5,10 @@ import { useDateFormat } from "@vueuse/core";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 import { useCountryStore } from "../../stores/country";
 import { useGiftCardStore } from "../../stores/giftcard";
-
+import  { useUserStore } from '../../stores/user'
 const { countries } = storeToRefs(useCountryStore());
+const { admin } = storeToRefs(useUserStore());
+const { getAdmin } = useUserStore()
 const { giftCard, loading, dialog, gift_categories, singleGiftCard } = storeToRefs(
   useGiftCardStore()
 );
@@ -80,6 +82,7 @@ const getGiftIcon = (e: any) => {
 // end
 onMounted(async () => {
   await getAllGifCardCategories(page_no.value);
+  await getAdmin();
 });
 
 const id = ref("");
@@ -358,6 +361,21 @@ const statusColor = (status: string | null) => {
                     item-title="name"
                     item-value="id"
                     v-model="giftCard.countries"
+                    hint="This field is optional"
+                    persistent-hint
+                  ></v-autocomplete>
+                </v-col>
+                <v-col cols="12" sm="12">
+                  <v-autocomplete
+                    :items="admin"
+                    label="Admin"
+                    required
+                    chips
+                    
+                    multiple
+                    item-title="email"
+                    item-value="id"
+                    v-model="giftCard.admin"
                     hint="This field is optional"
                     persistent-hint
                   ></v-autocomplete>
