@@ -251,7 +251,7 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                   </v-col>
                   <v-col v-if="edit == false" cols="12" sm="12">
                     <v-autocomplete
-                      :items="['email', 'in_app']"
+                      :items="['email', 'in_app', 'push']"
                       label="Channels*"
                       required
                       multiple
