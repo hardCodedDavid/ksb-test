@@ -194,33 +194,7 @@ const tab = ref(null);
           </v-card>
       </v-col>
      </v-row>
-      <!-- <v-card flat rounded="1" class="my-5 pa-4">
-        <h4>Filter Options:</h4>
 
-        <v-row class="mt-3">
-          <v-col cols="12" sm="6" md="6">
-            <v-select
-              label="Sort by date created"
-              v-model="date"
-              @update:modelValue="filterWithDrawalsByDateCreated"
-              :items="['created_at']"
-              density="compact"
-              variant="outlined"
-            ></v-select>
-          </v-col>
-          <v-col cols="12" sm="6" md="6">
-            <v-select
-              v-model="status"
-              label="Filter by transaction status"
-              density="compact"
-              @update:modelValue="(...args) => getAllWithDrawals(...args, page)"
-              :items="status_options"
-              variant="outlined"
-            ></v-select>
-          </v-col>
-  
-        </v-row>
-      </v-card> -->
 
       <v-card class="pa-5">
     <v-tabs
