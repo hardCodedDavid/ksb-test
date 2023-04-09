@@ -257,7 +257,7 @@ const search_by_email = () => {
         </tbody>
       </v-table>
       <p class="pa-6 text-center" v-if="user?.data?.length <= 0 && loading == false">No data</p>
-      <v-layout v-if="loading" class="align-center justify-center ma-12 w-100">
+      <v-layout v-if="loading" class="align-center justify-center my-6 w-100">
         <v-progress-circular indeterminate></v-progress-circular>
       </v-layout>
     </v-card>

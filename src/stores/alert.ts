@@ -11,7 +11,8 @@ interface Payload {
     body:string,
     target_user:string,
     dispatched_at:string,
-    channels:[]
+    channels:[],
+    users:[]
 }
 
 export const useAlertStore = defineStore('alert', {
@@ -24,7 +25,8 @@ export const useAlertStore = defineStore('alert', {
             body:"",
             target_user:"",
             dispatched_at:"",
-            channels:[]
+            channels:[],
+            users:[]
         },
         time:""
     }),
@@ -78,9 +80,13 @@ export const useAlertStore = defineStore('alert', {
             // formData.append("target_user", alert.target_user);
 
             const emails = alerts.channels
+            const users = alerts.users
 
             for (let i = 0; i < emails.length; i++) {
                 formData.append('channels[]', emails[i]);
+              }
+            for (let i = 0; i < users.length; i++) {
+                formData.append('users[]', users[i]);
               }
 
             // formData.append("name", role.name);
@@ -101,6 +107,19 @@ export const useAlertStore = defineStore('alert', {
                     };
                   }) => {
                     this.dialog = false
+
+                    this.alert = Object.assign(
+                      {},
+                      {
+                        title: "",
+                        body: "",
+                        target_user: "",
+                        dispatched_at: "",
+                        channels: [],
+                        users:[]
+                      }
+                    );
+
                     this.getAlerts()
                     this.loading = false
                   }
@@ -123,7 +142,7 @@ export const useAlertStore = defineStore('alert', {
             formData.append("title", alerts.title);
             !alerts.body ? null :  formData.append("body", alerts.body);
             formData.append("target_user", alerts.target_user);
-            formData.append("dispatch_datetime", alerts.dispatched_at);
+            formData.append("dispatch_datetime", alerts.dispatched_at + ' ' + this.time);
 
             formData.append('_method', 'PATCH');
             // for (let i = 0; i < this.role.permission_id.length; i++) {

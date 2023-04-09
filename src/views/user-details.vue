@@ -13,10 +13,7 @@
     </v-btn>
     <v-card rounded="1">
       <div class="w-100">
-        <div
-          class="w-100"
-          style="height: 150px; background-color: #34384f"
-        ></div>
+        <div class="w-100" style="height: 150px; background-color: #34384f"></div>
         <div
           style="margin-top: -60px"
           class="d-flex align-center justify-center flex-column w-100"
@@ -24,7 +21,7 @@
           <v-avatar color="secondary" :size="80" class="my-4 position-relative">
             <v-img
               cover
-              v-if="single_user.avatar !== null"
+              v-if="single_user.avatar !== null && single_user.avatar !== '' "
               :src="single_user.avatar"
             ></v-img>
             <span v-else class="text-h5 text-uppercase">{{
@@ -68,17 +65,23 @@
               </div> -->
         </div>
       </div>
-      <div class="d-flex align-center justify-space-between">
+      <div class="d-flex align-center justify-space-between mt-8">
         <div class="my-4 ml-4">
-          <strong>Wallet balance:</strong> ₦<span>{{
-            single_user.wallet_balance
-          }}</span>
-                  <v-btn class="ml-4" @click="dialog2 = true;id = single_user?.id;
-                      ">Finance user</v-btn>
+          <strong>Wallet balance:</strong> ₦<span>{{ single_user.wallet_balance }}</span>
+          <v-btn
+            class="ml-4"
+            @click="
+              dialog2 = true;
+              id = single_user?.id;
+            "
+            >Finance user</v-btn
+          >
         </div>
         <v-tabs v-model="tab">
           <v-tab value="one" class="font-weight-bold">User Information</v-tab>
           <v-tab value="two" class="font-weight-bold">Asset Transactions</v-tab>
+          <v-tab class="font-weight-bold">Giftcard Transactions</v-tab>
+          <v-tab class="font-weight-bold">Wallet Transactions</v-tab>
         </v-tabs>
       </div>
     </v-card>
@@ -108,8 +111,7 @@
                 </div>
 
                 <div class="mb-5">
-                  <strong>Email:</strong
-                  ><span class="ml-2">{{ single_user.email }}</span>
+                  <strong>Email:</strong><span class="ml-2">{{ single_user.email }}</span>
                 </div>
 
                 <div class="mb-5">
@@ -125,8 +127,7 @@
                 <div>
                   <strong>Created:</strong>
                   <span class="ml-2">{{
-                    useDateFormat(single_user?.created_at, "DD MMM YYYY-hh:mm a")
-                      .value
+                    useDateFormat(single_user?.created_at, "DD MMM YYYY-hh:mm a").value
                   }}</span>
                 </div>
               </v-card-text>
@@ -140,26 +141,18 @@
                 <div class="mb-4">
                   <strong>Email verified at:</strong>
                   <span v-if="single_user.email_verified_at" class="ml-3">{{
-                    useDateFormat(
-                      single_user.email_verified_at,
-                      "DD MMM YYYY-hh:mm a"
-                    ).value
+                    useDateFormat(single_user.email_verified_at, "DD MMM YYYY-hh:mm a")
+                      .value
                   }}</span>
                   <span v-else class="ml-3">No data</span>
                 </div>
 
                 <div class="mb-5">
                   <strong>2FA activated at: </strong
-                  ><span
-                    v-if="single_user.two_fa_activated_at !== null"
-                    class="ml-2"
-                    >{{
-                      useDateFormat(
-                        single_user.two_fa_activated_at,
-                        "DD MMM YYYY-hh:mm a"
-                      ).value
-                    }}</span
-                  >
+                  ><span v-if="single_user.two_fa_activated_at !== null" class="ml-2">{{
+                    useDateFormat(single_user.two_fa_activated_at, "DD MMM YYYY-hh:mm a")
+                      .value
+                  }}</span>
                   <span v-else class="ml-3">No data</span>
                 </div>
                 <div class="mb-5">
@@ -168,9 +161,7 @@
                     :color="pin_status(single_user.transaction_pin_set)"
                     class="ml-2"
                     >{{
-                      single_user.transaction_pin_set
-                        ? "Activated"
-                        : "Not activated"
+                      single_user.transaction_pin_set ? "Activated" : "Not activated"
                     }}</v-chip
                   >
                 </div>
@@ -197,9 +188,7 @@
                 </div>
                 <div>
                   <strong>Reason for deletion: </strong
-                  ><span class="ml-2">{{
-                    single_user.deleted_reason ?? "No data"
-                  }}</span>
+                  ><span class="ml-2">{{ single_user.deleted_reason ?? "No data" }}</span>
                 </div>
               </v-card-text>
             </v-card>
@@ -259,11 +248,7 @@
           <v-table class="mt-5">
             <thead>
               <tr>
-                <th
-                  v-for="(headings, index) in header"
-                  :key="index"
-                  class="text-left"
-                >
+                <th v-for="(headings, index) in header" :key="index" class="text-left">
                   {{ headings.title }}
                 </th>
               </tr>
@@ -318,9 +303,7 @@
                           link
                           color="secondary"
                         >
-                          <v-list-item-title>
-                            Approve Request
-                          </v-list-item-title>
+                          <v-list-item-title> Approve Request </v-list-item-title>
                         </v-list-item>
                         <v-list-item
                           v-if="item?.status == 'transferred'"
@@ -328,9 +311,7 @@
                           link
                           color="secondary"
                         >
-                          <v-list-item-title>
-                            Decline Request
-                          </v-list-item-title>
+                          <v-list-item-title> Decline Request </v-list-item-title>
                         </v-list-item>
                       </v-list>
                     </v-menu>
@@ -347,10 +328,7 @@
             No data found
           </p>
 
-          <v-layout
-            v-if="loading == true"
-            class="align-center justify-center w-100 my-5"
-          >
+          <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
             <v-progress-circular indeterminate></v-progress-circular>
           </v-layout>
         </v-card>
@@ -507,7 +485,7 @@
       </v-card>
     </v-dialog>
 
-     <v-dialog v-model="dialog2" max-width="500px">
+    <v-dialog v-model="dialog2" max-width="500px">
       <v-card class="pa-4">
         <h3>Finance User</h3>
         <v-form class="mt-8 py-8">
@@ -539,12 +517,13 @@
 import { ref, onMounted, reactive } from "vue";
 import { useUserStore } from "../stores/user";
 import { useAssetStore } from "../stores/asset";
+import { useGiftCardStore } from "../stores/giftcard";
 import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
 import { useDateFormat, watchDebounced } from "@vueuse/core";
-const { getUsers, restoreUsers, blockUsers, getUser ,financeUsers} = useUserStore();
+const { getUsers, restoreUsers, blockUsers, getUser, financeUsers } = useUserStore();
 const { user, filterUserById, single_user, dialog2 } = storeToRefs(useUserStore());
-const { allTransactions, loading, dialog, } = storeToRefs(useAssetStore());
+const { allTransactions, loading, dialog } = storeToRefs(useAssetStore());
 const {
   getAllAssetTransactionsByUserId,
   declineAssetTransactions,
@@ -556,6 +535,15 @@ const {
   getAllAssetTransactionByTradeType,
   single_transactions,
 } = useAssetStore();
+
+const {
+  getAllGiftCardTransaction,
+  declineRequest,
+  approveRequest,
+  getAllGiftCardTransactionByUserId,
+  partialApproveRequest,
+} = useGiftCardStore();
+
 const tab = ref(null);
 const tab_one = ref(null);
 const route: any = useRoute();
@@ -586,10 +574,11 @@ const search_by_reference = () => {
     { debounce: 1000, maxWait: 5000 }
   );
 };
-const id = ref('')
+const id = ref("");
 onMounted(async () => {
   await getAllAssetTransactionsByUserId(route.params.id);
-  await getUsers(1, name.value, email.value, date1.value, date2.value);
+  // await getAllGiftCardTransactionByUserId(route.params.id);
+  // await getUsers(1, name.value, email.value, date1.value, date2.value);
   await getUser(route.params.id);
   userDetails.value = { ...filterUserById.value(route.params.id) };
   // console.log(userDetails.value);

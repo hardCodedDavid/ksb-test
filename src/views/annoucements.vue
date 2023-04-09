@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useAuthStore } from "../stores/auth";
 import { useAlertStore } from "../stores/alert";
+import  { useUserStore } from '../stores/user'
 import { onMounted, computed, ref } from "vue";
 
 import { useDateFormat } from "@vueuse/core";
@@ -8,6 +9,10 @@ import { storeToRefs } from "pinia";
 const action = useAuthStore();
 const alert_action = useAlertStore();
 const { loading, alerts, dialog, alert , time} = storeToRefs(useAlertStore());
+const { getUsersByEmailAndId } = storeToRefs(useUserStore());
+const   { getUsers } = useUserStore()
+
+
 const date = ref();
 const header = ref([
   {
@@ -41,6 +46,7 @@ const header = ref([
 
 onMounted(async () => {
   await alert_action.getAlerts();
+  await getUsers(1);
 });
 
 type status_type = 'pending' | 'ongoing' | 'successful'
@@ -73,6 +79,7 @@ const close = (item: never) => {
       target_user: "",
       dispatched_at: "",
       channels: [],
+      users:[]
     }
   );
   btnText.value = "Create Network";
@@ -116,10 +123,10 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
             <td>{{ item?.target_user_count ?? "No data" }}</td>
             <!-- <td>₦‎ {{ item?.sell_max_amount }}</td> -->
             <td>
-              {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY").value }}
+              {{ useDateFormat(item?.created_at, "DD, MMM YYYY - hh:mm a").value }}
             </td>
             <td>
-              {{ useDateFormat(item?.dispatched_at, "DD, MMMM-YYYY").value }}
+              {{ useDateFormat(item?.dispatched_at, "DD, MMM YYYY - hh:mm a").value }}
             </td>
             <td>
               <v-chip
@@ -222,7 +229,7 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                       variant="outlined"
                       label="Target user*"
                       required
-                      :items="['All','Verified']"
+                      :items="['All','Verified', 'Specific']"
                     ></v-select>
                   </v-col>
                   <v-col cols="12" sm="12">
@@ -249,7 +256,7 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                       variant="outlined"
                     ></v-text-field>
                   </v-col>
-                  <v-col v-if="edit == false" cols="12" sm="12">
+                  <v-col  cols="12" sm="12">
                     <v-autocomplete
                       :items="['email', 'in_app', 'push']"
                       label="Channels*"
@@ -257,6 +264,20 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                       multiple
                       v-model="alert.channels"
                       item-title="name"
+                      item-value="id"
+                      hint="This field is required"
+                      persistent-hint
+                    ></v-autocomplete>
+                    </v-col>
+                  <v-col v-if="alert.target_user == 'Specific' " cols="12" sm="12">
+                    <v-autocomplete
+
+                      :items="getUsersByEmailAndId"
+                      label="Users*"
+                      required
+                      multiple
+                      v-model="alert.users"
+                      item-title="email"
                       item-value="id"
                       hint="This field is required"
                       persistent-hint

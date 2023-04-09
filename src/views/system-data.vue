@@ -15,7 +15,7 @@ onMounted(async () => {
 });
 
 const page_title = ref({ title: "System data" });
-
+const title = ref("");
 const header = ref([
   {
     title: "Id",
@@ -99,11 +99,7 @@ const editItem = (item: string, id: string) => {
             </tr>
           </thead>
           <tbody v-if="loading == false">
-            <tr
-              class="pa-3"
-              v-for="(data, index) in system_data"
-              :key="data?.id"
-            >
+            <tr class="pa-3" v-for="(data, index) in system_data" :key="data?.id">
               <td>{{ index + 1 }}</td>
               <td class="text-capitalize font-weight-bold">
                 {{ data?.code }}
@@ -130,7 +126,10 @@ const editItem = (item: string, id: string) => {
                     </template>
                     <v-list>
                       <v-list-item
-                        @click="editItem(data?.content, data?.id)"
+                        @click="
+                          editItem(data?.content, data?.id);
+                          title = data?.title;
+                        "
                         link
                         color="secondary"
                       >
@@ -144,10 +143,7 @@ const editItem = (item: string, id: string) => {
           </tbody>
         </v-table>
 
-        <v-layout
-          v-if="loading == true"
-          class="align-center justify-center w-100 my-5"
-        >
+        <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
       </v-card>
@@ -160,54 +156,20 @@ const editItem = (item: string, id: string) => {
       ></v-pagination> -->
     </div>
 
-    <v-dialog v-if="dialog" v-model="dialog" max-width="500px">
-      <v-card class="pa-5">
-        <h3 class="text-center">Withdrawal Request</h3>
 
-        <v-container class="fill-height w-100">
-          <v-row
-            v-if="fetching == false"
-            class="my-5 fill-height w-100 align-center justify-space-between"
-          >
-            <v-col cols="12" sm="6">
-              <h4>Wallet Balance</h4>
-              <p class="grey-lighten-2 text-subtitle-1">
-                ₦ {{ singleWithdrawal.user?.wallet_balance }}
-              </p>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <h4>Email Address</h4>
-              <p class="grey-lighten-2 text-subtitle-1">
-                {{ singleWithdrawal.user?.email }}
-              </p>
-            </v-col>
-          </v-row>
-        </v-container>
-        <v-layout
-          v-if="fetching == true"
-          class="align-center justify-center w-100 my-10"
-        >
-          <v-progress-circular indeterminate></v-progress-circular>
-        </v-layout>
-
-        <v-btn color="secondary" class="my-2" block @click="dialog = false"
-          >Close Dialog</v-btn
-        >
-      </v-card>
-    </v-dialog>
 
     <v-dialog v-model="dialog2" max-width="500px">
       <v-card class="pa-4">
-        <h3>Update System Data</h3>
+        <h3>Update {{ title }}</h3>
         <v-form class="mt-8 py-8">
           <v-text-field
             v-model="content"
             label="content"
-            type="number"
+            type="text"
             variant="outlined"
           ></v-text-field>
           <v-btn
-            @click="editSystemData({ content: content, id: Id })"
+            @click="editSystemData({ content: parseInt(content), id: Id })"
             color="primary"
             block
             :loading="loading"

@@ -112,7 +112,82 @@ const get_reproof = (e:any) => {
   <v-row>
     <v-col cols="12" sm="12" class="mt-4">
       <h2 class="my-3">Asset transactions</h2>
+    <v-row class="my-3">
+     <v-col cols="12" sm="6"  md="4">
+      <v-card elevation="0" class="pa-6 h-100">
+        <div class="">
+          <h4>Total Earnings</h4>
+        </div>
 
+        <div class="mt-11">
+          <h2 class="mb-2">₦‎4000</h2>
+          <span>All time</span>
+        </div>
+      </v-card>
+     </v-col>
+      <v-col cols="12" sm="6"  md="8">
+        <v-card elevation="0" class="py-4 px-2">
+            <div  class="ml-16 d-flex align-center justify-space-between w-100">
+              <div
+                
+                class="d-flex align-start justify-start flex-column w-100"
+              >
+                <v-avatar color="#e5fafb" size="x-large">
+                  <vue-feather
+                    type="check-circle"
+                    class="text-dark text-success"
+                  ></vue-feather>
+                </v-avatar>
+
+                <div class="pl-3 my-5">
+                  <h2 class="mb-2">0</h2>
+                  <span>Successful</span>
+                  
+                </div>
+                
+              </div>
+              <div
+                
+                class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
+              >
+                <v-avatar color="#FFF9C4" size="x-large">
+                  <vue-feather
+                    type="bar-chart"
+                    class="text-dark text-primary"
+                  ></vue-feather>
+                </v-avatar>
+
+                <div class="pl-3 my-5">
+                  <h2 class="mb-2">0</h2>
+                  <span>pending</span>
+                  
+                </div>
+                
+              </div>
+              <div
+                
+                class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
+              >
+                <v-avatar color="#FFCCBC" size="x-large">
+                  <vue-feather
+                    type="x-circle"
+                    class="text-dark text-error"
+                  ></vue-feather>
+                </v-avatar>
+
+                <div class="pl-3 my-5">
+                  <h2 class="mb-2">0</h2>
+                  <span>Failed</span>
+                  
+                </div>
+                
+              </div>
+              
+            </div>
+           
+          </v-card>
+      </v-col>
+     </v-row>
       <v-card flat rounded="0" elevation="0" class="my-5 pa-4">
         <h4>Filter Options:</h4>
 

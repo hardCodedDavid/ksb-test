@@ -73,6 +73,13 @@ export const useUserStore = defineStore("user", {
       state.user?.data.filter((selectedUser:any) => {
         return selectedUser["id"] == id;
       }),
+      getUsersByEmailAndId: (state) => 
+        state.user?.data.map((selectedUser:any) => {
+          return  {
+            email:selectedUser.email,
+            id:selectedUser.id
+          }
+        }),
     country_id() {
       const store = useCountryStore();
       return store.countries.filter((country) => {
@@ -92,8 +99,8 @@ export const useUserStore = defineStore("user", {
     },
 
     async getUsers(
-      page:number,
-      name: string,
+      page:number  = 1,
+      name: string = '',
       email: string = "",
       date1: string = "",
       date2: string = ""

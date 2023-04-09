@@ -134,7 +134,7 @@ export const useGiftCardStore = defineStore("giftcard", {
         await ksbTechApi
           .get(
             giftCard +
-              "?per_page=100" +
+              "?per_page=500" +
               "&include=user,giftcardProduct" +
               `&filter[status]=${status}` +
               `&filter[reference]=${reference}` +
