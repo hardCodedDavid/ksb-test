@@ -14,7 +14,7 @@ const {
   getAllAssetTransactionsStatus,
   getAllAssetTransactionByReference,
   getAllAssetTransactionByDate,
-  partialApproveRequest
+  partialApproveRequest,
 } = useAssetStore();
 
 // const { getAllUsers } = useUserStore();
@@ -26,7 +26,7 @@ const partial_approve = reactive({
 const partial = (e: any) => {
   partial_approve.review_proof = e.target.files[0];
 };
-const { allTransactions, loading, dialog,dialog2, single_transactions } = storeToRefs(
+const { allTransactions, loading, dialog, dialog2, single_transactions } = storeToRefs(
   useAssetStore()
 );
 const tab = ref(null);
@@ -64,6 +64,7 @@ const status = ref("");
 const search = ref("");
 const type = ref("");
 const date = ref("");
+const date2 = ref("");
 const search_by_reference = () => {
   watchDebounced(
     search,
@@ -75,7 +76,14 @@ const search_by_reference = () => {
 };
 
 onMounted(async () => {
-  await getAllAssetTransactions(status.value, 1, type.value);
+  await getAllAssetTransactions(
+    status.value,
+    page.value,
+    type.value,
+    search.value,
+    date.value,
+    date2.value
+  );
   // await getAllUsers()
 });
 
@@ -102,36 +110,50 @@ const status_color = (status: StatusType) => {
 const note = ref("");
 const id = ref("");
 
-const reproof = ref('')
-const get_reproof = (e:any) => {
-  reproof.value = e.target.files[0]
-}
+const reproof = ref("");
+const get_reproof = (e: any) => {
+  reproof.value = e.target.files[0];
+};
+
+const reset = async () => {
+  (status.value = ""),
+    (page.value = 1),
+    (type.value = ""),
+    (search.value = ""),
+    (date.value = ""),
+    (date2.value = "");
+  await getAllAssetTransactions(
+    status.value,
+    page.value,
+    type.value,
+    search.value,
+    date.value,
+    date2.value
+  );
+};
 </script>
 
 <template>
   <v-row>
     <v-col cols="12" sm="12" class="mt-4">
       <h2 class="my-3">Asset transactions</h2>
-    <v-row class="my-3">
-     <v-col cols="12" sm="6"  md="4">
-      <v-card elevation="0" class="pa-6 h-100">
-        <div class="">
-          <h4>Total Earnings</h4>
-        </div>
+      <v-row class="my-3">
+        <v-col cols="12" sm="6" md="4">
+          <v-card elevation="0" class="pa-6 h-100">
+            <div class="">
+              <h4>Total Earnings</h4>
+            </div>
 
-        <div class="mt-11">
-          <h2 class="mb-2">₦‎4000</h2>
-          <span>All time</span>
-        </div>
-      </v-card>
-     </v-col>
-      <v-col cols="12" sm="6"  md="8">
-        <v-card elevation="0" class="py-4 px-2">
-            <div  class="ml-16 d-flex align-center justify-space-between w-100">
-              <div
-                
-                class="d-flex align-start justify-start flex-column w-100"
-              >
+            <div class="mt-11">
+              <h2 class="mb-2">₦‎4000</h2>
+              <span>All time</span>
+            </div>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="6" md="8">
+          <v-card elevation="0" class="py-4 px-2">
+            <div class="ml-16 d-flex align-center justify-space-between w-100">
+              <div class="d-flex align-start justify-start flex-column w-100">
                 <v-avatar color="#e5fafb" size="x-large">
                   <vue-feather
                     type="check-circle"
@@ -142,14 +164,9 @@ const get_reproof = (e:any) => {
                 <div class="pl-3 my-5">
                   <h2 class="mb-2">0</h2>
                   <span>Successful</span>
-                  
                 </div>
-                
               </div>
-              <div
-                
-                class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
-              >
+              <div class="d-flex align-start justify-start flex-column w-100 flex-grow-1">
                 <v-avatar color="#FFF9C4" size="x-large">
                   <vue-feather
                     type="bar-chart"
@@ -160,54 +177,51 @@ const get_reproof = (e:any) => {
                 <div class="pl-3 my-5">
                   <h2 class="mb-2">0</h2>
                   <span>pending</span>
-                  
                 </div>
-                
               </div>
-              <div
-                
-                class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
-              >
+              <div class="d-flex align-start justify-start flex-column w-100 flex-grow-1">
                 <v-avatar color="#FFCCBC" size="x-large">
-                  <vue-feather
-                    type="x-circle"
-                    class="text-dark text-error"
-                  ></vue-feather>
+                  <vue-feather type="x-circle" class="text-dark text-error"></vue-feather>
                 </v-avatar>
 
                 <div class="pl-3 my-5">
                   <h2 class="mb-2">0</h2>
                   <span>Failed</span>
-                  
                 </div>
-                
               </div>
-              
             </div>
-           
           </v-card>
-      </v-col>
-     </v-row>
+        </v-col>
+      </v-row>
       <v-card flat rounded="0" elevation="0" class="my-5 pa-4">
-        <h4>Filter Options:</h4>
+        <div class="d-flex align-center justify-space-between w-100">
+          <h4>Filter Options:</h4>
+          <div>
+            <v-btn @click="reset" width="200px" class="mr-4">Reset</v-btn>
+            <v-btn
+              @click="getAllAssetTransactions(status, page, type, search, date, date2)"
+              width="200px"
+              color="secondary"
+              >Filter</v-btn
+            >
+          </div>
+        </div>
 
         <v-row class="mt-3">
           <v-col cols="12" sm="6" md="3">
             <v-text-field
               label="Filter by reference"
               density="compact"
-              @blur="search_by_reference"
               v-model="search"
               variant="outlined"
             ></v-text-field>
           </v-col>
-          <v-col cols="12" sm="6" md="3">
+          <v-col cols="12" sm="6" md="2">
             <v-select
               label="Filter by status"
               density="compact"
               :persistent-placeholder="true"
               :placeholder="'Select'"
-              @update:modelValue="getAllAssetTransactionsStatus"
               v-model="status"
               :items="['Approved', 'Declined', 'Transferred', 'Pending']"
               variant="outlined"
@@ -218,18 +232,25 @@ const get_reproof = (e:any) => {
               label="Filter by trade type"
               density="compact"
               placeholder="Select"
-              @update:modelValue="getAllAssetTransactionByTradeType"
               v-model="type"
               :items="['Buy', 'Sell']"
               variant="outlined"
             ></v-select>
           </v-col>
-          <v-col cols="12" sm="6" md="3">
+          <v-col cols="12" sm="6" md="2">
             <v-text-field
               label="Filter by date created"
               density="compact"
-              @update:modelValue="getAllAssetTransactionByDate"
               v-model="date"
+              type="date"
+              variant="outlined"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" sm="6" md="2">
+            <v-text-field
+              label="Filter by date created"
+              density="compact"
+              v-model="date2"
               type="date"
               variant="outlined"
             ></v-text-field>
@@ -299,15 +320,21 @@ const get_reproof = (e:any) => {
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'transferred'"
-                        @click="dialog = true; id = item?.id"
+                        @click="
+                          dialog = true;
+                          id = item?.id;
+                        "
                         link
                         color="secondary"
                       >
                         <v-list-item-title> Decline Request </v-list-item-title>
                       </v-list-item>
                       <v-list-item
-                       v-if="item?.status == 'transferred'"
-                        @click="dialog2 = true; id = item?.id"
+                        v-if="item?.status == 'transferred'"
+                        @click="
+                          dialog2 = true;
+                          id = item?.id;
+                        "
                         link
                         color="secondary"
                       >
@@ -347,44 +374,37 @@ const get_reproof = (e:any) => {
       ></v-pagination>
     </v-col>
 
- 
+    <v-dialog v-if="dialog" v-model="dialog" max-width="500px" width="100%">
+      <v-card max-width="500px">
+        <v-card-text>
+          <h3>Decline Transaction</h3>
+          <p>Enter Reasons for Declining this asset transaction</p>
+        </v-card-text>
 
+        <v-container class="mt-7">
+          <v-textarea label="Comments" v-model="note" variant="outlined"></v-textarea>
 
-    <v-dialog
-        v-if="dialog"
-        v-model="dialog"
-        max-width="500px"
-        width="100%"
-      >
-        <v-card max-width="500px">
-          <v-card-text>
-            <h3>Decline  Transaction</h3>
-            <p>Enter Reasons for Declining 
-             this asset transaction</p>
-          </v-card-text>
+          <v-file-input
+            @change="get_reproof"
+            hint="Optional"
+            persistent-hint
+            label="Review proof"
+            append-inner-icon="mdi-paperclip"
+            prepend-icon=""
+          ></v-file-input>
 
-          <v-container class="mt-7">
-            <v-textarea
-              label="Comments"
-              v-model="note"
-              variant="outlined"
-            ></v-textarea>
-
-              <v-file-input @change="get_reproof" hint="Optional" persistent-hint label="Review proof" append-inner-icon="mdi-paperclip"
-                    prepend-icon=""></v-file-input>
-
-            <v-btn
-              color="secondary"
-              class="my-5"
-              block
-              :loading="declining"
-              @click="declineAssetTransactions(id, note, reproof)"
-              >Submit</v-btn
-            >
-          </v-container>
-        </v-card>
-      </v-dialog>
-      <v-dialog v-model="dialog2" max-width="429px" min-height="476px">
+          <v-btn
+            color="secondary"
+            class="my-5"
+            block
+            :loading="declining"
+            @click="declineAssetTransactions(id, note, reproof)"
+            >Submit</v-btn
+          >
+        </v-container>
+      </v-card>
+    </v-dialog>
+    <v-dialog v-model="dialog2" max-width="429px" min-height="476px">
       <v-card class="view-dialog pa-4">
         <div class="mb-3 d-flex justify-space-between">
           <h3 class="text-justify mt-7">Partial approval</h3>

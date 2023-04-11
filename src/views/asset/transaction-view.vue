@@ -9,13 +9,14 @@ import { useDateFormat } from "@vueuse/core";
 
 const {
   getSingleAssetTransactions,
-    approveAssetTransactions,
+  approveAssetTransactions,
   declineAssetTransactions,
-  partialApproveRequest
+  partialApproveRequest,
 } = useAssetStore();
 
-const { dialog, loading, single_transactions, dialog2 } = storeToRefs(useAssetStore())
-
+const { dialog, loading, single_transactions, dialog2 } = storeToRefs(
+  useAssetStore()
+);
 
 const transaction_header = ref([
   {
@@ -38,19 +39,17 @@ const transaction_header = ref([
   },
 ]);
 
-const route:any = useRoute();
-const router:any = useRouter();
+const route: any = useRoute();
+const router: any = useRouter();
 
 // const dialog2 = ref(false)
 
-const view_user_details = (id:string) => {
-  router.push({name:'UserDetails', params:{id: id}})
-}
+const view_user_details = (id: string) => {
+  router.push({ name: "UserDetails", params: { id: id } });
+};
 
 const note = ref("");
-const id = ref("")
-
-
+const id = ref("");
 
 // CHANGE STATUS COLOR
 type StatusType = "pending" | "approved" | "declined";
@@ -75,14 +74,14 @@ const trade_color = (status: TradeType) => {
     : "";
 };
 //
-const reproof = ref('')
-const get_reproof = (e:any) => {
-  reproof.value = e.target.files[0]
-}
+const reproof = ref("");
+const get_reproof = (e: any) => {
+  reproof.value = e.target.files[0];
+};
 
-const view_img = (url:string) => {
-    window.open(url)
-}
+const view_img = (url: string) => {
+  window.open(url);
+};
 const partial_approve = reactive({
   review_rate: "",
   review_note: "",
@@ -94,7 +93,7 @@ const partial = (e: any) => {
 };
 
 onMounted(async () => {
-  await getSingleAssetTransactions(route.params.id)
+  await getSingleAssetTransactions(route.params.id);
 });
 </script>
 
@@ -203,6 +202,7 @@ onMounted(async () => {
                 </div>
 
                 <div class="mb-4">
+                 <strong>Comment:</strong>
                   {{ single_transactions?.comment }}
                 </div>
 
@@ -349,6 +349,13 @@ onMounted(async () => {
                   <strong>Review By:</strong>
                   {{ single_transactions?.reviewed_by ?? 'No data'}}
                 </div>
+           
+              
+                <div class="font-weight-normal mb-4">
+                  <strong>Network name:</strong>
+                  {{ single_transactions.network?.name }}
+                </div>
+              
                 <div class="font-weight-normal">
                   <strong>Review At:</strong>
                   <span v-if="single_transactions.reviewed_at">
@@ -363,6 +370,7 @@ onMounted(async () => {
               <v-btn @click="view_img(single_transactions?.proof)" color="secondary" class="ml-4 my-4">View Proof image</v-btn>
             </v-card>
             </v-col>
+            
             
         </v-row>
       </v-card>
@@ -450,9 +458,9 @@ onMounted(async () => {
 
 
 <style scoped>
-.text-underline{
+.text-underline {
   text-decoration: underline !important;
-  cursor:cursor-pointer;
+  cursor: cursor-pointer;
 }
 
 .ksb-border {

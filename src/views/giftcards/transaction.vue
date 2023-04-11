@@ -17,7 +17,6 @@ const {
   declining,
   approving,
   dialog,
-  
 } = storeToRefs(useGiftCardStore());
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 
@@ -46,8 +45,6 @@ const partial_approve = reactive({
 const partial = (e: any) => {
   partial_approve.review_proof = e.target.files[0];
 };
-
-
 
 const header = ref([
   {
@@ -131,15 +128,31 @@ onMounted(async () => {
 });
 const tab = ref(null);
 
-const formate_text = (text:string) => {
-  if(text ===  'partially_approved') return 'Partial'
-  return text
-}
+const formate_text = (text: string) => {
+  if (text === "partially_approved") return "Partial";
+  return text;
+};
+
+const reset = async () => {
+  (status.value = ""),
+    (trade.value = ""),
+    (page_no.value = 1),
+    (date_from.value = ""),
+    (date_to.value = "");
+
+  await getAllGiftCardTransaction(
+    status.value,
+    trade.value,
+    page_no.value,
+    date_from.value,
+    date_to.value
+  );
+};
 </script>
 <template>
   <BaseBreadcrumb :title="page.title" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
-   <v-row class="my-3">
-     <v-col  cols="12" sm="6"  md="4">
+  <v-row class="my-3">
+    <v-col cols="12" sm="6" md="4">
       <v-card elevation="0" class="pa-6 h-100">
         <div class="">
           <h4>Total Earnings</h4>
@@ -150,82 +163,75 @@ const formate_text = (text:string) => {
           <span>All time</span>
         </div>
       </v-card>
-     </v-col>
-      <v-col cols="12" sm="6"  md="8">
-        <v-card elevation="0" class="py-4 px-2">
-            <div  class="ml-16 d-flex align-center justify-space-between w-100">
-              <div
-                
-                class="d-flex align-start justify-start flex-column w-100"
-              >
-                <v-avatar color="#e5fafb" size="x-large">
-                  <vue-feather
-                    type="check-circle"
-                    class="text-dark text-success"
-                  ></vue-feather>
-                </v-avatar>
+    </v-col>
+    <v-col cols="12" sm="6" md="8">
+      <v-card elevation="0" class="py-4 px-2">
+        <div class="ml-16 d-flex align-center justify-space-between w-100">
+          <div class="d-flex align-start justify-start flex-column w-100">
+            <v-avatar color="#e5fafb" size="x-large">
+              <vue-feather
+                type="check-circle"
+                class="text-dark text-success"
+              ></vue-feather>
+            </v-avatar>
 
-                <div class="pl-3 my-5">
-                  <h2 class="mb-2">0</h2>
-                  <span>Successful</span>
-                  
-                </div>
-                
-              </div>
-              <div
-                
-                class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
-              >
-                <v-avatar color="#FFF9C4" size="x-large">
-                  <vue-feather
-                    type="bar-chart"
-                    class="text-dark text-primary"
-                  ></vue-feather>
-                </v-avatar>
-
-                <div class="pl-3 my-5">
-                  <h2 class="mb-2">0</h2>
-                  <span>pending</span>
-                  
-                </div>
-                
-              </div>
-              <div
-                
-                class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
-              >
-                <v-avatar color="#FFCCBC" size="x-large">
-                  <vue-feather
-                    type="x-circle"
-                    class="text-dark text-error"
-                  ></vue-feather>
-                </v-avatar>
-
-                <div class="pl-3 my-5">
-                  <h2 class="mb-2">0</h2>
-                  <span>Failed</span>
-                  
-                </div>
-                
-              </div>
-              
+            <div class="pl-3 my-5">
+              <h2 class="mb-2">0</h2>
+              <span>Successful</span>
             </div>
-           
-          </v-card>
-      </v-col>
-     </v-row>
-  <v-card flat elevation="0" rounded="0" class="my-5 pa-4">
-    <h4>Filter Options:</h4>
+          </div>
+          <div class="d-flex align-start justify-start flex-column w-100 flex-grow-1">
+            <v-avatar color="#FFF9C4" size="x-large">
+              <vue-feather type="bar-chart" class="text-dark text-primary"></vue-feather>
+            </v-avatar>
 
+            <div class="pl-3 my-5">
+              <h2 class="mb-2">0</h2>
+              <span>pending</span>
+            </div>
+          </div>
+          <div class="d-flex align-start justify-start flex-column w-100 flex-grow-1">
+            <v-avatar color="#FFCCBC" size="x-large">
+              <vue-feather type="x-circle" class="text-dark text-error"></vue-feather>
+            </v-avatar>
+
+            <div class="pl-3 my-5">
+              <h2 class="mb-2">0</h2>
+              <span>Failed</span>
+            </div>
+          </div>
+        </div>
+      </v-card>
+    </v-col>
+  </v-row>
+  <v-card flat elevation="0" rounded="0" class="my-5 pa-4">
+    <div class="d-flex align-center justify-space-between w-100">
+      <h4>Filter Options:</h4>
+      <div>
+        <v-btn @click="reset" width="200px" class="mr-4">Reset</v-btn>
+        <v-btn
+          @click="
+            getAllGiftCardTransaction(
+              status,
+              trade,
+              page_no,
+              date_from,
+              date_to,
+              reference
+            )
+          "
+          width="200px"
+          color="secondary"
+          >Filter</v-btn
+        >
+      </div>
+    </div>
     <v-row class="mt-3">
       <v-col cols="12" sm="6" md="3">
         <v-text-field
           label="Filter by Reference"
           v-model="reference"
           density="compact"
-          @blur="
-              getAllGiftCardTransaction(status, trade, page_no, date_from, date_to,reference)
-          "
           variant="outlined"
           @click:clear="clearMessage"
           clearable
@@ -237,19 +243,11 @@ const formate_text = (text:string) => {
           label="Filter by trade type"
           density="compact"
           :items="trade_type"
-          @update:modelValue="
-            (...args) =>
-              getAllGiftCardTransaction(status, ...args, page_no, date_from, date_to,reference)
-          "
           variant="outlined"
         ></v-select>
       </v-col>
       <v-col cols="12" sm="6" md="3">
         <v-text-field
-          @update:modelValue="
-            (...args) =>
-              getAllGiftCardTransaction(status, trade, page_no, ...args, date_to, reference)
-          "
           v-model="date_from"
           label="Filter date from"
           density="compact"
@@ -259,10 +257,6 @@ const formate_text = (text:string) => {
       </v-col>
       <v-col cols="12" sm="6" md="3">
         <v-text-field
-          @update:modelValue="
-            (...args) =>
-              getAllGiftCardTransaction(status, trade, page_no, date_from, ...args, reference)
-          "
           v-model="date_to"
           type="date"
           label="Filter date to"
@@ -275,17 +269,13 @@ const formate_text = (text:string) => {
   <v-row>
     <v-col cols="12" sm="12" class="mt-4">
       <v-card class="pa-5">
-    <v-tabs
-      v-model="tab"
-      bg-color="none"
-      class="mb-5 border-bottom"
-    >
-      <v-tab @click="getAllGiftCardTransaction('')">All</v-tab>
-      <v-tab @click="getAllGiftCardTransaction('pending')">Pending</v-tab>
-      <v-tab @click="getAllGiftCardTransaction('approved')">Approved</v-tab>
-      <v-tab @click="getAllGiftCardTransaction('declined')">Declined</v-tab>
-      <v-tab @click="getAllGiftCardTransaction('partially_approved')">Partial</v-tab>
-    </v-tabs>
+        <v-tabs v-model="tab" bg-color="none" class="mb-5 border-bottom">
+          <v-tab @click="getAllGiftCardTransaction('')">All</v-tab>
+          <v-tab @click="getAllGiftCardTransaction('pending')">Pending</v-tab>
+          <v-tab @click="getAllGiftCardTransaction('approved')">Approved</v-tab>
+          <v-tab @click="getAllGiftCardTransaction('declined')">Declined</v-tab>
+          <v-tab @click="getAllGiftCardTransaction('partially_approved')">Partial</v-tab>
+        </v-tabs>
         <v-table>
           <thead>
             <tr>
@@ -295,7 +285,7 @@ const formate_text = (text:string) => {
             </tr>
           </thead>
           <tbody v-if="gift_transactions?.data?.length > 0 && loading == false">
-            <tr v-for="(item, index) in gift_transactions.data"  :key="item.id">
+            <tr v-for="(item, index) in gift_transactions.data" :key="item.id">
               <td>{{ index + 1 }}</td>
               <td
                 class="font-weight-bold username"
@@ -308,7 +298,7 @@ const formate_text = (text:string) => {
               >
                 {{ item.user.firstname }} {{ item.user.lastname }}
               </td>
-              <td>{{item?.giftcard_product?.giftcard_category?.name}}</td>
+              <td>{{ item?.giftcard_product?.giftcard_category?.name }}</td>
               <td>{{ item.reference }}</td>
               <td>{{ item.trade_type }}</td>
               <td>₦‎ {{ item.payable_amount.toLocaleString() }}</td>
@@ -493,8 +483,6 @@ const formate_text = (text:string) => {
 </template>
 
 <style scoped lang="scss">
-
-
 .username {
   text-decoration: underline;
   cursor: pointer;

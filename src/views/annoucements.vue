@@ -1,17 +1,16 @@
 <script setup lang="ts">
 import { useAuthStore } from "../stores/auth";
 import { useAlertStore } from "../stores/alert";
-import  { useUserStore } from '../stores/user'
+import { useUserStore } from "../stores/user";
 import { onMounted, computed, ref } from "vue";
 
 import { useDateFormat } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 const action = useAuthStore();
 const alert_action = useAlertStore();
-const { loading, alerts, dialog, alert , time} = storeToRefs(useAlertStore());
+const { loading, alerts, dialog, alert, time } = storeToRefs(useAlertStore());
 const { getUsersByEmailAndId } = storeToRefs(useUserStore());
-const   { getUsers } = useUserStore()
-
+const { getUsers } = useUserStore();
 
 const date = ref();
 const header = ref([
@@ -43,26 +42,45 @@ const header = ref([
   },
 ]);
 
+const page_no = ref(1);
+const status = ref("");
+const dispatched_at = ref("");
+const target_user = ref("");
 
 onMounted(async () => {
-  await alert_action.getAlerts();
+  await alert_action.getAlerts(
+    page_no.value,
+    status.value,
+    target_user.value,
+    dispatched_at.value
+  );
   await getUsers(1);
 });
 
-type status_type = 'pending' | 'ongoing' | 'successful'
+const reset = async () => {
+  (page_no.value = 1),
+    (status.value = ""),
+    (target_user.value = ""),
+    (dispatched_at.value = "");
+  await alert_action.getAlerts(
+    page_no.value,
+    status.value,
+    target_user.value,
+    dispatched_at.value
+  );
+};
+
+type status_type = "pending" | "ongoing" | "successful";
 const statusColor = (status: status_type) => {
-  if (status == 'pending') {
-      return  'yellow-darken-3'
-  }
-
-  else if(status == 'ongoing') return 'light-green-darken-2'
-
-  else return "green lighten-3"
-  
+  if (status == "pending") {
+    return "yellow-darken-3";
+  } else if (status == "ongoing") return "light-green-darken-2";
+  else return "green lighten-3";
 };
 
 const edit = ref(false);
 const btnText = ref("Create Alert");
+
 const editItem = (item: never) => {
   alert.value = Object.assign({}, item);
   btnText.value = "Update Alert";
@@ -79,7 +97,7 @@ const close = (item: never) => {
       target_user: "",
       dispatched_at: "",
       channels: [],
-      users:[]
+      users: [],
     }
   );
   btnText.value = "Create Network";
@@ -91,6 +109,49 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
 
 <template>
   <div>
+    <v-card flat class="my-4 pa-4" rounded="0">
+      <div class="d-flex align-center justify-space-between w-100">
+        <h4>Filter Options:</h4>
+        <div>
+          <v-btn @click="reset" width="200px" class="mr-4">Reset</v-btn>
+          <v-btn
+            @click="alert_action.getAlerts(page_no, status, target_user, dispatched_at)"
+            width="200px"
+            color="secondary"
+            >Filter</v-btn
+          >
+        </div>
+      </div>
+      <v-row class="mt-3">
+        <v-col cols="12" sm="6" md="4">
+          <v-select
+            label="Filter by Status"
+            v-model="status"
+            density="compact"
+            :items="['Pending', 'Successful', 'Ongoing']"
+            variant="outlined"
+          ></v-select>
+        </v-col>
+        <v-col cols="12" sm="6" md="4">
+          <v-select
+            v-model="target_user"
+            label="Filter by target user"
+            density="compact"
+            :items="['All', 'Verified', 'Specific']"
+            variant="outlined"
+          ></v-select>
+        </v-col>
+        <v-col cols="12" sm="6" md="4">
+          <v-text-field
+            v-model="dispatched_at"
+            type="date"
+            label="Filter dispatched date"
+            density="compact"
+            variant="outlined"
+          ></v-text-field>
+        </v-col>
+      </v-row>
+    </v-card>
     <v-card class="pa-7">
       <div class="d-flex align-center justify-space-between">
         <h3>All Annoucement</h3>
@@ -115,8 +176,8 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
             </th>
           </tr>
         </thead>
-        <tbody v-if="loading == false && alerts?.length > 0">
-          <tr v-for="(item, index) in alerts" :key="item?.id">
+        <tbody v-if="loading == false && alerts.data?.length > 0">
+          <tr v-for="(item, index) in alerts.data" :key="item?.id">
             <td>{{ index + 1 }}</td>
             <td class="font-weight-bold">{{ item?.title }}</td>
             <td>{{ item?.target_user }}</td>
@@ -194,11 +255,27 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
       </p>
     </v-card>
 
+    <v-pagination
+      v-model="page_no"
+      :length="alerts?.last_page"
+      @next="alert_action.getAlerts(page_no, status, target_user, dispatched_at)"
+      @prev="alert_action.getAlerts(page_no, status, target_user, dispatched_at)"
+      @update:modelValue="
+        alert_action.getAlerts(page_no, status, target_user, dispatched_at)
+      "
+      active-color="red"
+      :start="1"
+      variant="flat"
+      class="mt-5"
+      color="bg-secondary"
+      rounded="circle"
+    ></v-pagination>
+
     <v-row justify="center">
       <v-dialog v-model="dialog" max-width="500px">
         <v-card>
           <div class="d-flex align-center w-100 justify-space-between pa-7">
-            <h3 class="text-h5 font-weight-bold ">{{ btnText }}</h3>
+            <h3 class="text-h5 font-weight-bold">{{ btnText }}</h3>
             <v-btn @click="close" color="secondary" variant="outlined" icon="mdi-close">
               <v-icon icon="mdi-close"></v-icon>
             </v-btn>
@@ -229,7 +306,7 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                       variant="outlined"
                       label="Target user*"
                       required
-                      :items="['All','Verified', 'Specific']"
+                      :items="['All', 'Verified', 'Specific']"
                     ></v-select>
                   </v-col>
                   <v-col cols="12" sm="12">
@@ -256,7 +333,7 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                       variant="outlined"
                     ></v-text-field>
                   </v-col>
-                  <v-col  cols="12" sm="12">
+                  <v-col cols="12" sm="12">
                     <v-autocomplete
                       :items="['email', 'in_app', 'push']"
                       label="Channels*"
@@ -268,10 +345,9 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                       hint="This field is required"
                       persistent-hint
                     ></v-autocomplete>
-                    </v-col>
-                  <v-col v-if="alert.target_user == 'Specific' " cols="12" sm="12">
+                  </v-col>
+                  <v-col v-if="alert.target_user == 'Specific'" cols="12" sm="12">
                     <v-autocomplete
-
                       :items="getUsersByEmailAndId"
                       label="Users*"
                       required
@@ -289,7 +365,7 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn  color="secondary" class="px-7" variant="outlined" @click="close">
+            <v-btn color="secondary" class="px-7" variant="outlined" @click="close">
               Close
             </v-btn>
             <v-btn
