@@ -2,6 +2,7 @@
 import { ref, onMounted, reactive } from "vue";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
+import  {useRouter} from 'vue-router'
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 import { useCountryStore } from "../../stores/country";
 import { useGiftCardStore } from "../../stores/giftcard";
@@ -9,6 +10,8 @@ import  { useUserStore } from '../../stores/user'
 const { countries } = storeToRefs(useCountryStore());
 const { admin } = storeToRefs(useUserStore());
 const { getAdmin } = useUserStore()
+const router = useRouter()
+
 const { giftCard, loading, dialog, gift_categories, singleGiftCard } = storeToRefs(
   useGiftCardStore()
 );
@@ -89,8 +92,9 @@ const id = ref("");
 const page_no = ref(1);
 const dialog2 = ref(false);
 const showDetails = async (id: string) => {
-  dialog2.value = true;
-  await getSingleGifCardCategories(id);
+  // dialog2.value = true;
+  router.push(`/giftcards/view-transactions/category/${id}`)
+  // await getSingleGifCardCategories(id);
 };
 
 const addGiftCard = async (giftCard: any) => {
@@ -303,9 +307,9 @@ const statusColor = (status: string | null) => {
   <v-pagination
     v-model="page_no"
     :length="gift_categories?.last_page"
-    @next="getAllGiftCardTransaction(page_no, giftcard_name, sale, purchase)"
-    @prev="getAllGiftCardTransaction(page_no, giftcard_name, sale, purchase)"
-    @update:modelValue="getAllGiftCardTransaction(page_no, giftcard_name, sale, purchase)"
+    @next="getAllGifCardCategories(page_no, giftcard_name, sale, purchase)"
+    @prev="getAllGifCardCategories(page_no, giftcard_name, sale, purchase)"
+    @update:modelValue="getAllGifCardCategories(page_no, giftcard_name, sale, purchase)"
     active-color="red"
     :start="1"
     variant="flat"
