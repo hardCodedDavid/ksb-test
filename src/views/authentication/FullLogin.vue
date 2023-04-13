@@ -82,7 +82,7 @@ const nextPage = () => {
                     required
                     hide-details
                   ></v-checkbox> -->
-                  <div class="ml-auto">
+                  <div class="ml-auto py-4">
                     <p
                       @click="nextPage"
                       class="text-primary text-decoration-none cursor-pointer"

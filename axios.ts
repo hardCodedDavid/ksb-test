@@ -2,7 +2,7 @@ import axios from "axios";
 import router from "@/router";
 
 const ksbTechApi: any = axios.create({
-  baseURL: "https://test.ksbtech.com.ng/api",
+  baseURL: import.meta.env.VITE_APP_BASE_URL,
 });
 
 ksbTechApi.interceptors.response.use(
