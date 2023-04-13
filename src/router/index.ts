@@ -88,6 +88,12 @@ const router = createRouter({
           component: () => import("@/views/admin/index.vue"),
           meta: { requiresAuth: true}
         },
+        {
+          name: "Bank",
+          path: "/system-bank",
+          component: () => import("@/views/system-bank/index.vue"),
+          meta: { requiresAuth: true}
+        },
 
         {
           name: "Notifications",

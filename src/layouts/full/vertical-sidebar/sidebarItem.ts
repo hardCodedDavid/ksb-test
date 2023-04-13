@@ -148,6 +148,11 @@ const sidebarItem: menu[] = [
     to: "/admin",
   },
   {
+    title: "System bank account",
+    icon: "users",
+    to: "/system-bank",
+  },
+  {
     title: "Roles & Permissions",
     icon: "user-plus",
     to: "/roles",

@@ -75,13 +75,13 @@ const nextPage = () => {
                  
                 ></v-text-field>
 
-                <div class="d-flex align-center mb-4 mb-sm-0">
-                  <v-checkbox
+                <div class="d-flex align-end justify-end mb-4 mb-sm-0">
+                  <!-- <v-checkbox
                     v-model="checkbox"
                     label="Remember me?"
                     required
                     hide-details
-                  ></v-checkbox>
+                  ></v-checkbox> -->
                   <div class="ml-auto">
                     <p
                       @click="nextPage"

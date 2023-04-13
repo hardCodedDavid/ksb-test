@@ -43,7 +43,9 @@ interface State {
   dialog: boolean;
   dialog2: boolean;
   single_admin: any;
-  single_user:any
+  single_user:any;
+  bank_info:[];
+  banks:[]
 }
 
 export const useUserStore = defineStore("user", {
@@ -66,15 +68,17 @@ export const useUserStore = defineStore("user", {
     },
     id: "",
     single_admin: "",
-    single_user:""
+    single_user:"",
+    bank_info:[],
+    banks:[]
   }),
   getters: {
     filterUserById: (state) => (id: string) =>
-      state.user?.data.filter((selectedUser:any) => {
+      state.user?.data?.filter((selectedUser:any) => {
         return selectedUser["id"] == id;
       }),
       getUsersByEmailAndId: (state) => 
-        state.user?.data.map((selectedUser:any) => {
+        state.user?.data?.map((selectedUser:any) => {
           return  {
             email:selectedUser.email,
             id:selectedUser.id
@@ -546,6 +550,166 @@ export const useUserStore = defineStore("user", {
             type: "error",
           });
         }
+      }
+    },
+
+    async getSystemBanks(page:number) {
+      const store = useAuthStore();
+
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(`/admin/system-bank-accounts`, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.loading = false;
+              console.log(res)
+              this.bank_info = res.data.data
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
+    async deleteSystemBanks(id:string) {
+      const store = useAuthStore();
+
+      if(confirm('Are you sure you want to delete this record?')){
+        this.loading = true;
+      try {
+        await ksbTechApi
+          .delete(`/admin/system-bank-accounts/${id}`, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.loading = false;
+             
+             this.getSystemBanks(1)
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+      } else return
+    },
+    async createSystemBanks(bank_details:{
+      bank_name:string,
+      account_number:number,
+      account_name:string
+    }) {
+      const store = useAuthStore();
+
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .post(`/admin/system-bank-accounts`, bank_details , {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+            
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.loading = false;
+              this.dialog2 = false
+              this.getSystemBanks(1)
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
+    async updateSystemBanks(bank_details:{
+      bank_name:string,
+      account_number:string,
+      account_name:string,
+      id:string
+    }) {
+      const store = useAuthStore();
+
+      this.loading = true;
+
+      const formData = new FormData();
+      formData.append("bank_name", bank_details.bank_name);
+      formData.append("account_number", bank_details.account_number);
+      formData.append("account_name", bank_details.account_name);
+      formData.append("_method", "PUT");
+
+      try {
+        await ksbTechApi
+          .post(`/admin/system-bank-accounts/${bank_details.id}`, formData ,{
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.loading = false;
+              this.dialog2 = false
+              this.getSystemBanks(1)
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
+    async getBanks() {
+      const store = useAuthStore();
+
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(`/banks?do_not_paginate=${1}`, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`,
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.loading = false;
+
+              this.banks = res.data.data.banks;
+            }
+          );
+      } catch (error) {
+        this.loading = false;
       }
     },
   },
