@@ -186,7 +186,6 @@ onMounted(async () => {
                     :color="status_color(single_transactions?.status)"
                     >{{ single_transactions?.status }}</v-chip
                   >
-
                   <v-chip
                     label
                     size="small"
