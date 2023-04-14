@@ -17,6 +17,8 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 // import VueEasyLightbox from 'vue-easy-lightbox'
 
+
+
 const pinia = createPinia();
 pinia.use(piniaPluginPersistedstate);
 
@@ -27,11 +29,11 @@ pinia.use(({ store }) => {
 
 const app = createApp(App)
 app.component(VueFeather.name, VueFeather);
-app.component('VueDatePicker', VueDatePicker);
-app.use(PerfectScrollbar);
-app.use(InstantSearch);
+
+
+
 app.use(pinia);
-app.use(VCalendar, {});
+
 app.use(VueApexCharts);
 app.use(router);
 app.use(Notifications)

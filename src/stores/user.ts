@@ -117,7 +117,7 @@ export const useUserStore = defineStore("user", {
           .get(
             `${user}?filter[name]=${name}&filter[email]=${email}&filter[registration_date]=${date1}${
               date2 !== "" ? `,${date2}` : ""
-            }&page=${page}&per_page=${'500'}`,
+            }&page=${page}&per_page=${'100'}`,
             {
               headers: {
                 Accept: "application/json",

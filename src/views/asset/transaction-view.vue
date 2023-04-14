@@ -161,8 +161,9 @@ onMounted(async () => {
 
               <v-img
                 cover
+                v-if="single_transactions?.proof"
                 height="250"
-                :src="single_transactions?.proof ?? 'https://cdn.vuetifyjs.com/images/cards/cooking.png'"
+                :src="single_transactions?.proof "
               ></v-img>
 
               <v-card-item class="pa-0 mb-5">

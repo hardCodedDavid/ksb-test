@@ -66,8 +66,8 @@ const status_color = (status: string | null) => {
 
 const name = ref("");
 const email = ref("");
-const date1 = ref<any>(new Date().toLocaleDateString().split('/').reverse().join('-'));
-const date2 = ref(new Date().toLocaleDateString().split('/').reverse().join('-'));
+const date1 = ref("");
+const date2 = ref("");
 
 const clear_name = () => {
   name.value = "";
