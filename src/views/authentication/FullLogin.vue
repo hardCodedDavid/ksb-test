@@ -82,7 +82,7 @@ const nextPage = () => {
                     required
                     hide-details
                   ></v-checkbox> -->
-                  <div class="ml-auto py-4">
+                  <div class="ml-auto">
                     <p
                       @click="nextPage"
                       class="text-primary text-decoration-none cursor-pointer"
@@ -96,7 +96,7 @@ const nextPage = () => {
                   type="submit"
                   :loading="loginLoading"
                   block
-                  class="mr-4"
+                  class="mr-4 mt-3"
                   >Sign In</v-btn
                 >
               </v-form>
