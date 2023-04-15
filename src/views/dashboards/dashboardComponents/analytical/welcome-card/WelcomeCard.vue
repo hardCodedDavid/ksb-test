@@ -1,4 +1,10 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useAuthStore } from "../../../../../stores/auth";
+import { storeToRefs } from "pinia";
+const { user } = storeToRefs(
+  useAuthStore()
+);
+</script>
 <template>
   <v-card>
     <img
@@ -7,7 +13,7 @@
     />
     <v-card-text>
       <h3 class="h3 title overlay-title font-weight-medium mb-1">
-        Hey John, <br />Download latest report
+        Hey {{user?.firstname}} {{user?.lastname}} , <br />Download latest report
       </h3>
       <v-btn color="secondary" size="large" class="mt-4"> Download Latest Report</v-btn>
     </v-card-text>

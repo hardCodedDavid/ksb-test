@@ -400,13 +400,9 @@ onMounted(() => {
                  <v-divider></v-divider>
               <v-card-text>
                 <div  v-if="singleGiftCardTransaction?.cards" class="font-weight-normal mb-4">
-                  <strong class="mb-5">Card Image(s):</strong>
-                  <v-img 
-                    width="100"
-                    height="100" 
-                    v-if="img?.length <= 0"  :src="image" 
-                    alt=""></v-img>
-                  <v-row v-else>
+                  <strong v-if="img?.length > 0" class="mb-5">Card Image(s):</strong>
+                  
+                  <v-row v-if="img?.length > 0">
                     <v-col 
                     v-for="(images, index) in img"
                     :key="index" cols="12" sm="6" md="4" lg="3">
@@ -421,16 +417,16 @@ onMounted(() => {
                     </v-col>
                   </v-row>
 
-                    
+                    <p v-else class="text-center font-weight-bold">No card info</p>
                 </div>
-                <div class="font-weight-normal mb-4">
+                <div v-if="singleGiftCardTransaction.code" class="font-weight-normal mb-4">
                   <strong>Code:</strong>
-                  {{ singleGiftCardTransaction.code ? singleGiftCardTransaction.code : "No Code"}}
+                  {{ singleGiftCardTransaction.code ?? "No Code"}}
                 </div>
 
-                <div class="font-weight-normal mb-4">
+                <div v-if="singleGiftCardTransaction.pin" class="font-weight-normal mb-4">
                   <strong>Pin:</strong>
-                  {{ singleGiftCardTransaction.code ? singleGiftCardTransaction.pin : "No Pin"}}
+                  {{ singleGiftCardTransaction.pin ?? "No Pin"}}
                 </div>
               </v-card-text>
             </v-card>

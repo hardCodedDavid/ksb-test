@@ -29,7 +29,7 @@ onMounted(async () => {
 
 // const search = ref("");
 
-const page_title = ref({ title: "Withdrawals" });
+const page_title = ref({ title: "Wallet Transactions" });
 const note = ref("");
 const breadcrumbs = ref([
   {

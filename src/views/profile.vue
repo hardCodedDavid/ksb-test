@@ -98,6 +98,8 @@ const ImageOrBlob = computed(() => {
                       <v-img
                         v-if="ImageOrBlob !== ''"
                         :src="ImageOrBlob"
+                        cover
+                        class="rounded-circle img-fluid"
                       ></v-img>
                       <span v-else class="text-h5 text-uppercase">{{
                         userInitials

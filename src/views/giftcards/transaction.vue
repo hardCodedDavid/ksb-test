@@ -3,6 +3,7 @@ import { ref, onMounted, reactive } from "vue";
 import { useGiftCardStore } from "../../stores/giftcard";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
+
 const {
   getAllGiftCardTransaction,
   declineRequest,
@@ -123,7 +124,8 @@ onMounted(async () => {
     trade.value,
     page_no.value,
     date_from.value,
-    date_to.value
+    date_to.value,
+    reference.value
   );
 });
 const tab = ref(null);
@@ -270,11 +272,11 @@ const reset = async () => {
     <v-col cols="12" sm="12" class="mt-4">
       <v-card class="pa-5">
         <v-tabs v-model="tab" bg-color="none" class="mb-5 border-bottom">
-          <v-tab @click="getAllGiftCardTransaction('')">All</v-tab>
-          <v-tab @click="getAllGiftCardTransaction('pending')">Pending</v-tab>
-          <v-tab @click="getAllGiftCardTransaction('approved')">Approved</v-tab>
-          <v-tab @click="getAllGiftCardTransaction('declined')">Declined</v-tab>
-          <v-tab @click="getAllGiftCardTransaction('partially_approved')">Partial</v-tab>
+          <v-tab @click="getAllGiftCardTransaction(status = '')">All</v-tab>
+          <v-tab @click="getAllGiftCardTransaction(status = 'pending')">Pending</v-tab>
+          <v-tab @click="getAllGiftCardTransaction(status = 'approved')">Approved</v-tab>
+          <v-tab @click="getAllGiftCardTransaction(status = 'declined')">Declined</v-tab>
+          <v-tab @click="getAllGiftCardTransaction( status = 'partially_approved')">Partial</v-tab>
         </v-tabs>
         <v-table>
           <thead>
