@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // @ts-ignore
 import { useUserStore } from "../../stores/user";
+
 import { useRolesPermissionsStore } from "../../stores/roles-permissions";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
@@ -23,7 +24,10 @@ const { admin, loading, dialog, adminDetails, id, dialog2, single_admin } =
   storeToRefs(useUserStore());
 const form = ref(null);
 const { countryMgt } = storeToRefs(useCountryStore());
-// @ts-ignore
+const {  getCountryMgt } = useCountryStore()
+// @ts-ignore   
+// yarn add vue-virtual-scroller@next
+
 import { reactive, onMounted, ref } from "vue";
 const header = reactive([
   {
@@ -55,9 +59,21 @@ const header = reactive([
     title: "Actions",
   },
 ]);
+
+const close = () => {
+  dialog.value = false
+  adminDetails.value = Object.assign({}, {
+    firstname: "",
+      lastname: "",
+      email: "",
+      country_name: "",
+  })
+}
+
 onMounted(async () => {
   await getAdmin();
   await getAllRoles();
+  await getCountryMgt();
 });
 
 const blockedStatus = (status: string | null) => {
@@ -261,8 +277,9 @@ const valid = ref(null);
                   </v-col>
                   <v-col cols="12" sm="12">
                     <v-autocomplete
-                      :items="[...countryMgt]"
+                      :items="[...countryMgt.data]"
                       label="Countries"
+                      no-filter
                       required
                       item-title="name"
                       item-value="id"
@@ -279,7 +296,7 @@ const valid = ref(null);
               color="secondary"
               class="px-7"
               variant="outlined"
-              @click="dialog = false"
+              @click="close"
             >
               Close
             </v-btn>
@@ -312,15 +329,7 @@ const valid = ref(null);
                 <div
                   class="d-flex align-center justify-center flex-column w-100"
                 >
-                  <v-badge
-                    content="2"
-                    color="secondary"
-                    offset-x="6"
-                    offset-y="76"
-                    icon="mdi-camera"
-                    :bordered="true"
-                    class="cursor-pointer"
-                  >
+                 
                     <v-avatar
                       color="secondary"
                       :size="80"
@@ -335,7 +344,7 @@ const valid = ref(null);
                         single_admin.email.slice(0, 2)
                       }}</span>
                     </v-avatar>
-                  </v-badge>
+              
 
                   <h3>
                     {{ single_admin.firstname }} {{ single_admin.lastname }}
@@ -411,6 +420,7 @@ const valid = ref(null);
                   label="Roles"
                   required
                   item-title="name"
+
                   item-value="id"
                   v-model="assign_role_form.role_id"
                 ></v-autocomplete>

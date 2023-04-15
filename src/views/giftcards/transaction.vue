@@ -406,7 +406,7 @@ const reset = async () => {
       ></v-pagination>
     </v-col>
 
-    <v-dialog v-model="dialog" max-width="429px" min-height="476px">
+    <v-dialog v-if="dialog" v-model="dialog" max-width="429px" min-height="476px">
       <v-card class="view-dialog pa-4">
         <div class="mb-3 d-flex justify-space-between">
           <h3 class="text-justify mt-7">Partial approval</h3>
