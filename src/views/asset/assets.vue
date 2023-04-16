@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useAssetStore } from "../../stores/asset";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
@@ -108,6 +108,52 @@ const openlink = (url: string) => {
   window.open(url);
   // console.log(url)
 };
+
+// Edit asset workflow
+const edit = ref(false)
+const btnText = ref("Create Asset")
+const dialogTitle = ref("Create new asset")
+const editItem = (item: any) => {
+  asset.value = {
+    name: item.name,
+    code: item.code,
+    icon: item.icon,
+    buy_rate: item.buy_rate,
+    sell_rate: item.sell_rate,
+    id: item.id,
+    networks: item.networks,
+    network_id: item.networks.map((item: any) => item.id)
+  }
+  btnText.value = "Update Asset"
+  dialogTitle.value = "Edit asset"
+  dialog.value = true
+  edit.value = true
+}
+
+const closeDialog = () => {
+  asset.value = {
+    name: '',
+    code: '',
+    icon: '',
+    buy_rate: '',
+    sell_rate: '',
+    id: '',
+    networks: [],
+    network_id: []
+  }
+  edit.value = false
+  btnText.value = "Create Asset"
+  dialogTitle.value = "Create new asset"
+}
+
+watch(dialog, () => {
+  if(!dialog.value) {
+    setTimeout(() => {
+      closeDialog()
+    }, 500);
+  }
+})
+
 </script>
 
 <template>
@@ -207,6 +253,13 @@ const openlink = (url: string) => {
                       </v-btn>
                     </template>
                     <v-list>
+                      <v-list-item
+                        @click="editItem(item)"
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> Update Asset </v-list-item-title>
+                      </v-list-item>
                       <v-list-item
                         @click="
                           dialog2 = true;
@@ -370,9 +423,10 @@ const openlink = (url: string) => {
                   <v-btn
                     color="secondary"
                     class="px-12"
+                    :disabled="!asset.name || !asset.code || !asset.buy_rate || !asset.sell_rate || !asset.network_id || !asset.icon"
                     :loading="loading"
                     variant="flat"
-                    type="submit"
+                    @click="edit === true ? updateAssets(asset) : createAssets(asset)"
                   >
                     Submit
                   </v-btn>

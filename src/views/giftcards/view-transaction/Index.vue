@@ -400,22 +400,22 @@ onMounted(() => {
                 <div  v-if="singleGiftCardTransaction?.cards" class="font-weight-normal mb-4">
                   <strong v-if="img?.length > 0" class="mb-5">Card Image(s):</strong>
                   
-                  <v-row v-if="img?.length > 0">
+                  <v-row v-if="singleGiftCardTransaction?.cards?.length > 0">
                     <v-col 
-                    v-for="(images, index) in img"
+                    v-for="(images, index) in singleGiftCardTransaction.cards"
                     :key="index" cols="12" sm="6" md="4" lg="3">
                     <v-img
                       cover
                       width="180"
                       height="100"
                       @click="onShow"
-                      :src="images"
+                      :src="images.original_url"
                       class="cursor-pointer mt-4"
                       ></v-img>
                     </v-col>
                   </v-row>
 
-                    <p v-else class="text-center font-weight-bold">No card info</p>
+                  <p v-else class="text-center font-weight-bold">No card info</p>
                 </div>
                 <div v-if="singleGiftCardTransaction.code" class="font-weight-normal mb-4">
                   <strong>Code:</strong>

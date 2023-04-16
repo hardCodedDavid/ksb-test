@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed, onUnmounted } from "vue";
+import { ref, onMounted, reactive, computed, watch, onUnmounted } from "vue";
+import { useQuery } from 'vue-query'
 import { useGiftCardStore } from "../../stores/giftcard";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
-import { useQuery } from "vue-query";
 
 const {
   getAllGiftCardTransaction,
@@ -21,6 +21,20 @@ const {
   approving,
   dialog,
 } = storeToRefs(useGiftCardStore());
+
+const formatCurrency = (value: any) => {
+  return new Intl.NumberFormat().format(value)
+}
+
+// Get and sum up total earnings from list of transactions
+const totalEarnings = ref<any>(0)
+watch(gift_transactions, (newValue, oldValue) => {
+  let total = 0;
+  gift_transactions.value?.data.forEach((transaction: any) => {
+    total += transaction.payable_amount;
+  });
+  totalEarnings.value = formatCurrency(total);
+})
 
 const dialog2 = ref(false);
 const note = ref("");
@@ -189,7 +203,7 @@ onUnmounted(() => {
         </div>
 
         <div class="mt-11">
-          <h2 class="mb-2">₦‎4000</h2>
+          <h2 class="mb-2">₦‎{{totalEarnings}}</h2>
           <span>All time</span>
         </div>
       </v-card>

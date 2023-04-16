@@ -1,6 +1,8 @@
 <template>
   <v-container>
+  <v-btn color="" :to="{name:'RolesandPermissions'}" class="my-3"><v-icon left class="mr-4">mdi-arrow-left</v-icon> Back</v-btn>
     <v-card class="pa-6">
+    
       <h2>Create role</h2>
       <v-row align="start">
         <v-col cols="12" sm="6">
@@ -28,7 +30,8 @@
               :loading="loading"
               color="secondary"
               block
-              @click="role.permission_id?.length <= 0 ? guard() : createRole(role)"
+              :disabled="checkedPermission"
+              @click="edit == true  ? updateRole(role) : createRole(role)"
               >Submit</v-btn
             >
           </v-form>
@@ -59,8 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useDateFormat } from "@vueuse/core";
+import { ref, onMounted, computed } from "vue";
 import { storeToRefs } from "pinia";
 import {useNotification} from '@kyvg/vue3-notification'
 import { useRolesPermissionsStore } from "../../stores/roles-permissions";
@@ -71,14 +73,16 @@ const { roles, permissions, loading, dialog, role } = storeToRefs(
   useRolesPermissionsStore()
 );
 
-
-const guard = () =>{
-  notify({
-    type:'error',
-    title:"Error",
-    text:"Roles must have at least one permissions before it can be created"
-  })
-}
+// Check if any permission in the arrays of permissions has been checked
+const checkPermission = ref(false);
+const checkedPermission = computed(() => {
+  const checked = !permissions.value.some((permission: any) => permission.id === true)
+  if(checked) {
+    return true
+  } else {
+    return false
+  }
+})
 
 onMounted(async () => {
   await getAllRoles();
