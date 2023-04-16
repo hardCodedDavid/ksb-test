@@ -28,7 +28,8 @@
               :loading="loading"
               color="secondary"
               block
-              @click="edit == true ? updateRole(role) : createRole(role)"
+              :disabled="checkedPermission"
+              @click="edit == true  ? updateRole(role) : createRole(role)"
               >Submit</v-btn
             >
           </v-form>
@@ -59,8 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useDateFormat } from "@vueuse/core";
+import { ref, onMounted, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useRolesPermissionsStore } from "../../stores/roles-permissions";
 const { getAllRoles, getAllPermissions, createRole, updateRole, deleteRole } =
@@ -69,6 +69,17 @@ const { getAllRoles, getAllPermissions, createRole, updateRole, deleteRole } =
 const { roles, permissions, loading, dialog, role } = storeToRefs(
   useRolesPermissionsStore()
 );
+
+// Check if any permission in the arrays of permissions has been checked
+const checkPermission = ref(false);
+const checkedPermission = computed(() => {
+  const checked = !permissions.value.some((permission: any) => permission.id === true)
+  if(checked) {
+    return true
+  } else {
+    return false
+  }
+})
 
 onMounted(async () => {
   await getAllRoles();
