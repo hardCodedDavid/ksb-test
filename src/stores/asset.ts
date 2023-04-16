@@ -20,7 +20,7 @@ interface Asset {
   buy_rate: string;
   sell_rate: string;
   id: string;
-  network_id: [];
+  networks: [];
 }
 
 interface State {
@@ -49,7 +49,7 @@ export const useAssetStore = defineStore("asset", {
       buy_rate: "",
       sell_rate: "",
       id: "",
-      network_id: [],
+      networks: [],
     },
     assets: [],
     all_networks: [],
@@ -57,6 +57,9 @@ export const useAssetStore = defineStore("asset", {
   }),
   getters: {
     allTransactions: (state) => state.all_transactions,
+    getIds: (state) => state.asset.networks.map((items) => {
+      return items
+    })
   },
   actions: {
     // ASSETS TRANSACTION
@@ -460,7 +463,7 @@ export const useAssetStore = defineStore("asset", {
               "&filter[name]=" +
               name +
               "&filter[code]=" +
-              code,
+              code + '&include=networks',
             {
               headers: {
                 Accept: "application/json",
@@ -524,7 +527,7 @@ export const useAssetStore = defineStore("asset", {
       formData.append("buy_rate", asset_t.buy_rate);
       formData.append("sell_rate", asset_t.sell_rate);
 
-      const ids = this.asset.network_id;
+      const ids = this.asset.networks;
 
       for (let i = 0; i < ids.length; i++) {
         formData.append("networks[]", ids[i]);
@@ -577,6 +580,14 @@ export const useAssetStore = defineStore("asset", {
       formData.append("icon", asset_t.icon);
       formData.append("buy_rate", asset_t.buy_rate);
       formData.append("sell_rate", asset_t.sell_rate);
+
+
+      const ids = asset_t.networks;
+
+      for (let i = 0; i < ids.length; i++) {
+        formData.append("networks[]", ids[i]);
+      }
+
       formData.append("_method", "PATCH");
 
       const { notify } = useNotification();

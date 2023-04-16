@@ -15,7 +15,7 @@ import {
   resetPassword,
   notification,
   markAsRead,
-  reset
+  reset,
 } from "../../apiRoute";
 import { useNotification } from "@kyvg/vue3-notification";
 
@@ -247,12 +247,10 @@ export const useAuthStore = defineStore("auth", {
       }
     },
     async ksbTechLogout() {
-    
       // @ts-ignore
-      this.router.push('/auth/login');
+      this.router.push("/auth/login");
       this.isLoggedIn = false;
-      
-     
+
       this.LoggingOut = false;
       const { notify } = useNotification();
       try {
@@ -273,7 +271,7 @@ export const useAuthStore = defineStore("auth", {
             this.token = "";
             this.isLoggedIn = false;
             // @ts-ignore
-           
+
             this.LoggingOut = false;
             console.log(res, "grgrg");
           })
@@ -463,6 +461,17 @@ export const useAuthStore = defineStore("auth", {
       } catch (error: any) {
         console.log(error);
       }
+    },
+    async getQueryNotifications() {
+    
+      const res =  await ksbTechApi.get(notification + "?filter[read]=" + 0, {
+        headers: {
+          Accept: "application/json",
+          Authorization: `Bearer ${this.token}`,
+        },
+      });
+
+      return res.data
     },
     async getNotifications() {
       const { notify } = useNotification();

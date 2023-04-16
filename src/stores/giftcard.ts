@@ -119,6 +119,37 @@ export const useGiftCardStore = defineStore("giftcard", {
         });
       }
     },
+    async giftCardTransactionQueries(
+      status: string,
+      trade_type: string = "",
+      page: number = 1,
+      date1: string = "",
+      date2: string = "",
+      reference: string = " "
+    ) {
+     
+      const store = useAuthStore();   
+      const data =  await ksbTechApi
+          .get(
+            giftCard +
+              "?per_page=100" +
+              "&include=user,giftcardProduct" +
+              `&filter[status]=${status}` +
+              `&filter[reference]=${reference}` +
+              `&filter[trade_type]=${trade_type.toLowerCase()}` +
+              `&page=${page}` +
+              `&filter[creation_date]=${date1}${
+                date2 !== "" ? "," + date2 : ""
+              }`,
+            {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${store.token}`,
+              },
+            }
+          )
+          return data
+    },
     async getAllGiftCardTransaction(
       status: string,
       trade_type: string = "",

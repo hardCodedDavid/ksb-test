@@ -3,7 +3,6 @@ import { ref, onMounted } from "vue";
 import { useAssetStore } from "../../stores/asset";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
-
 const {
   getAllAsset,
   deleteAsset,
@@ -51,9 +50,36 @@ const header = ref([
     title: "Actions",
   },
 ]);
-const name = ref('')
-const code = ref('')
-const page = ref(1)
+const name = ref("");
+const code = ref("");
+const page = ref(1);
+const edit = ref(false);
+const btnText = ref("Create new asset");
+
+const editItem = (item: never) => {
+  edit.value = true;
+  btnText.value = "Update asset";
+  dialog.value = true;
+  asset.value = Object.assign({}, item);
+};
+
+const close = () => {
+  dialog.value = false;
+  asset.value = Object.assign(
+    {},
+    {
+      name: "",
+      code: "",
+      icon: "",
+      buy_rate: "",
+      sell_rate: "",
+      id: "",
+      networks: [],
+    }
+  );
+  btnText.value = "Create Item";
+  edit.value = false;
+};
 
 onMounted(async () => {
   await getAllAsset(page.value, name.value, code.value);
@@ -78,7 +104,10 @@ const get_selected_file = (e: any) => {
   asset.value.icon = e.target.files[0];
 };
 
-
+const openlink = (url: string) => {
+  window.open(url);
+  // console.log(url)
+};
 </script>
 
 <template>
@@ -96,7 +125,7 @@ const get_selected_file = (e: any) => {
         </v-btn>
       </div>
       <v-card class="pa-5">
-       <v-row>
+        <v-row>
           <v-col cols="12" sm="6" md="4">
             <v-text-field
               density="compact"
@@ -116,7 +145,16 @@ const get_selected_file = (e: any) => {
             ></v-text-field>
           </v-col>
           <v-col cols="12" sm="6" md="4">
-            <v-btn @click="name !== '' || code !== '' ? getAllAsset(page, name, code): null" color="secondary" block>Search</v-btn>
+            <v-btn
+              @click="
+                name !== '' || code !== ''
+                  ? getAllAsset(page, name, code)
+                  : null
+              "
+              color="secondary"
+              block
+              >Search</v-btn
+            >
           </v-col>
         </v-row>
         <v-table>
@@ -150,7 +188,9 @@ const get_selected_file = (e: any) => {
               <td>₦‎{{ item.buy_rate }}</td>
               <td>₦‎{{ item.sell_rate }}</td>
               <td>
-                {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY hh:mm a").value }}
+                {{
+                  useDateFormat(item?.created_at, "DD, MMMM-YYYY hh:mm a").value
+                }}
               </td>
 
               <td>
@@ -176,6 +216,13 @@ const get_selected_file = (e: any) => {
                         color="secondary"
                       >
                         <v-list-item-title> View Asset </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        @click="editItem(item)"
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> Edit Asset </v-list-item-title>
                       </v-list-item>
                       <v-list-item
                         @click="restoreAsset(item?.id)"
@@ -214,7 +261,7 @@ const get_selected_file = (e: any) => {
         </v-layout>
       </v-card>
 
-       <v-pagination
+      <v-pagination
         v-model="page"
         :length="assets.last_page"
         @next="getAllAsset(page, name, code)"
@@ -230,12 +277,16 @@ const get_selected_file = (e: any) => {
     </v-col>
 
     <v-row justify="center">
-      <v-dialog v-model="dialog" max-width="500px">
+      <v-dialog persistent v-model="dialog" max-width="500px">
         <v-card :loading="loading">
-          <h3 class="text-h5 font-weight-bold pa-7">Create new asset</h3>
+          <h3 class="text-h5 font-weight-bold pa-7">{{ btnText }}</h3>
           <v-card-text>
             <v-container>
-              <v-form @submit.prevent="createAssets(asset)">
+              <v-form
+                @submit.prevent="
+                  edit ? updateAssets(asset) : createAssets(asset)
+                "
+              >
                 <v-row>
                   <v-col cols="12" sm="6" md="12">
                     <v-text-field
@@ -262,6 +313,16 @@ const get_selected_file = (e: any) => {
                       prepend-icon=""
                       append-inner-icon="mdi-paperclip"
                     ></v-file-input>
+                    <v-btn
+                      size="small"
+                      link
+                      @click="openlink(asset.icon)"
+                      class="cursor-pointer"
+                      label
+                      color="secondary"
+                      v-if="edit == true"
+                      >View current icon</v-btn
+                    >
                   </v-col>
                   <v-col cols="12" sm="12">
                     <v-text-field
@@ -288,7 +349,8 @@ const get_selected_file = (e: any) => {
                       item-value="id"
                       :items="all_networks"
                       multiple
-                      v-model="asset.network_id"
+                      chips
+                      v-model="asset.networks"
                       label="Select Networks"
                       required
                     >
@@ -301,7 +363,7 @@ const get_selected_file = (e: any) => {
                     color="secondary"
                     class="px-7"
                     variant="outlined"
-                    @click="dialog = false"
+                    @click="close"
                   >
                     Close
                   </v-btn>
@@ -312,7 +374,7 @@ const get_selected_file = (e: any) => {
                     variant="flat"
                     type="submit"
                   >
-                    Create Asset
+                    Submit
                   </v-btn>
                 </v-card-actions>
               </v-form>

@@ -77,14 +77,12 @@ const get_reproof = (e: any) => {
 };
 
 const image = computed(() => {
-  if (singleGiftCardTransaction.value.cards?.length <= 0) {
-    return "https://cdn.vuetifyjs.com/images/cards/cooking.png";
-  } else {
+
     img.value = singleGiftCardTransaction.value?.cards.map((images:any) => {
         return images['original_url']
     });
     return img.value
-  }
+
 });
 
 const transaction_header = ref([

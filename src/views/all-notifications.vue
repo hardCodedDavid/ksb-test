@@ -2,6 +2,7 @@
 import { useAuthStore } from "../stores/auth";
 import { onMounted, computed } from "vue";
 import { storeToRefs } from "pinia";
+import { useQuery } from "vue-query";
 const action = useAuthStore();
 const { notificationData, updating } = storeToRefs(useAuthStore());
 
@@ -11,9 +12,22 @@ const notification_id = computed(() => {
   });
 });
 
-onMounted(async () => {
-  await action.getNotifications();
-});
+const { data, isLoading } = useQuery(
+  "notifications",
+  async () => await action.getQueryNotifications(),
+  {
+    retry: 1,
+    refetchOnWindowFocus: false,
+    staleTime:100000
+  }
+);
+
+const notification_query = computed(() => {
+  return data.value?.data?.notifications?.data 
+})
+
+
+
 </script>
 
 <template>
@@ -21,13 +35,13 @@ onMounted(async () => {
     <v-card class="pa-7">
       <div class="d-flex align-center justify-space-between">
         <h3>All Notifications</h3>
-        
+
         <v-btn
           color="secondary"
           prepend-icon="mdi-bell-ring-outline"
           :loading="updating"
           @click="
-            action.notificationData?.length > 0
+            notification_query?.length > 0
               ? action.markAsRead(notification_id)
               : null
           "
@@ -35,12 +49,16 @@ onMounted(async () => {
         >
       </div>
       <v-row>
-        <v-col cols="12">
-          <v-list v-if="action.notificationData?.length > 0">
+
+      <v-col v-if="isLoading" cols="12">
+        
+      </v-col>
+        <v-col v-if="notification_query?.length > 0" cols="12">
+          <v-list >
             <v-list-item
               :active-color="item?.read_at !== null ?? 'primary'"
               class="pa-3 mt-2"
-              v-for="(item, i) in action.notificationData"
+              v-for="(item, i) in notification_query"
               :key="i"
               :value="item?.id"
               rounded="lg"
@@ -52,7 +70,10 @@ onMounted(async () => {
             </v-list-item>
           </v-list>
 
-          <p v-else class="font-weight-bold text-center my-4">No data found</p>
+          
+        </v-col>
+        <v-col v-else cols="12">
+          <p  class="font-weight-bold text-center my-4">No data found</p>
         </v-col>
       </v-row>
     </v-card>

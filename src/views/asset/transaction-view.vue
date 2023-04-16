@@ -367,7 +367,7 @@ onMounted(async () => {
                 </div>
               </v-card-text>
 
-              <v-btn @click="view_img(single_transactions?.proof)" color="secondary" class="ml-4 my-4">View Proof image</v-btn>
+              <v-btn v-if="single_transactions?.proof" @click="view_img(single_transactions?.proof)" color="secondary" class="ml-4 my-4">View Proof image</v-btn>
             </v-card>
             </v-col>
             

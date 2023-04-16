@@ -16,11 +16,11 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
         dialog3:false,
         dialog:false,
         roles:[],
-        permissions:[],
+        all_permissions:[],
         role:{
             name:"",
             description:"",
-            permission_id:[]
+            permissions:[]
         },
         assign_role_form:{
           role_id: ""
@@ -36,7 +36,7 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
             this.loading = true
             try {
               await ksbTechApi
-                .get(roles, {
+                .get(`${roles}?include=permissions`, {
                   headers: {
                     Accept: "application/json",
                     Authorization: `Bearer ${store.token}`,
@@ -81,7 +81,7 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
                       data: any;
                     };
                   }) => {
-                    this.permissions = res.data.data.permissions;
+                    this.all_permissions = res.data.data.permissions;
                     this.loading = false
                   }
                 );
@@ -97,7 +97,7 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
         async createRole(role:{
             name:string,
             description:string,
-            permission_id:string
+            permissions:string
         }) {
             const { notify } = useNotification();
             const store = useAuthStore();
@@ -107,11 +107,13 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
             formData.append("name", role.name);
             formData.append("description", role.description);
 
+            if(role.permissions.length > 0){
 
-            for (let i = 0; i < this.role.permission_id.length; i++) {
-                formData.append('permissions[]', this.role.permission_id[i]);
+            for (let i = 0; i < role.permissions.length; i++) {
+                formData.append('permissions[]', role.permissions[i]);
               }
 
+            }
             // formData.append("name", role.name);
 
             try {
@@ -160,11 +162,16 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
             formData.append("description", role.description);
 
 
-            for (let i = 0; i < this.role.permission_id.length; i++) {
-                formData.append('permissions[]', this.role.permission_id[i]);
-              }
+            if(role.permission_id?.length > 0){
 
-            // formData.append("name", role.name);
+            for (let i = 0; i < role.permission_id?.length; i++) {
+                formData.append('permissions[]', role.permission_id[i]);
+              }
+              
+            }
+              formData.append("_method", "PATCH");
+
+            
 
             try {
               await ksbTechApi
@@ -183,7 +190,9 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
                   }) => {
                     this.getAllRoles()
                     this.loading = false
+                    this.dialog = false
                   }
+
                 );
             } catch (error: any) {
               this.loading = false
@@ -192,6 +201,7 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
                 text: error.response.data.message,
                 type: "error",
               });
+
             }
           },
         async deleteRole(

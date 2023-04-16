@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted, reactive, computed, onUnmounted } from "vue";
 import { useGiftCardStore } from "../../stores/giftcard";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
+import { useQuery } from "vue-query";
 
 const {
   getAllGiftCardTransaction,
@@ -10,6 +11,7 @@ const {
   approveRequest,
   getAllGiftCardTransactionByUserId,
   partialApproveRequest,
+  giftCardTransactionQueries,
 } = useGiftCardStore();
 const {
   gift_transactions,
@@ -19,7 +21,6 @@ const {
   approving,
   dialog,
 } = storeToRefs(useGiftCardStore());
-import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 
 const dialog2 = ref(false);
 const note = ref("");
@@ -108,7 +109,12 @@ const status_color = (status: StatusType) => {
 };
 //
 
-const status_options = ref(["Pending", "Approved", "Declined", "Partially_approved"]);
+const status_options = ref([
+  "Pending",
+  "Approved",
+  "Declined",
+  "Partially_approved",
+]);
 const status = ref("");
 const trade = ref("");
 const trade_type = ref(["Buy", "Sell"]);
@@ -118,16 +124,35 @@ const date_to = ref("");
 const reference = ref("");
 // const dialog = ref(false);
 
-onMounted(async () => {
-  await getAllGiftCardTransaction(
-    status.value,
-    trade.value,
-    page_no.value,
-    date_from.value,
-    date_to.value,
-    reference.value
-  );
+const { data, isLoading, isFetching, refetch } = useQuery(
+  ["giftCard-transaction", page_no, status, trade, date_from, date_to, reference],
+  () =>
+    giftCardTransactionQueries(
+      status.value,
+      trade.value,
+      page_no.value,
+      date_from.value,
+      date_to.value,
+      reference.value
+    ),
+  {
+    refetchOnWindowFocus: false,
+    retry: 4,
+    staleTime: 200000,
+  }
+);
+
+const transaction_query = computed(() => {
+  return data.value?.data?.data?.giftcards;
 });
+
+const nextPage = (val: any) => {
+  page_no.value = val;
+};
+const status_t = (val: any) => {
+  status.value = val;
+};
+
 const tab = ref(null);
 
 const formate_text = (text: string) => {
@@ -135,24 +160,27 @@ const formate_text = (text: string) => {
   return text;
 };
 
-const reset = async () => {
+const reset = () => {
   (status.value = ""),
     (trade.value = ""),
     (page_no.value = 1),
     (date_from.value = ""),
     (date_to.value = "");
 
-  await getAllGiftCardTransaction(
-    status.value,
-    trade.value,
-    page_no.value,
-    date_from.value,
-    date_to.value
-  );
+  
 };
+
+onUnmounted(() => {
+  status.value = "";
+  (status.value = ""),
+    (trade.value = ""),
+    (page_no.value = 1),
+    (date_from.value = ""),
+    (date_to.value = "");
+});
 </script>
 <template>
-  <BaseBreadcrumb :title="page.title" :breadcrumbs="breadcrumbs"></BaseBreadcrumb>
+  <h3>Giftcard Transactions</h3>
   <v-row class="my-3">
     <v-col cols="12" sm="6" md="4">
       <v-card elevation="0" class="pa-6 h-100">
@@ -182,9 +210,14 @@ const reset = async () => {
               <span>Successful</span>
             </div>
           </div>
-          <div class="d-flex align-start justify-start flex-column w-100 flex-grow-1">
+          <div
+            class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
+          >
             <v-avatar color="#FFF9C4" size="x-large">
-              <vue-feather type="bar-chart" class="text-dark text-primary"></vue-feather>
+              <vue-feather
+                type="bar-chart"
+                class="text-dark text-primary"
+              ></vue-feather>
             </v-avatar>
 
             <div class="pl-3 my-5">
@@ -192,9 +225,14 @@ const reset = async () => {
               <span>pending</span>
             </div>
           </div>
-          <div class="d-flex align-start justify-start flex-column w-100 flex-grow-1">
+          <div
+            class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
+          >
             <v-avatar color="#FFCCBC" size="x-large">
-              <vue-feather type="x-circle" class="text-dark text-error"></vue-feather>
+              <vue-feather
+                type="x-circle"
+                class="text-dark text-error"
+              ></vue-feather>
             </v-avatar>
 
             <div class="pl-3 my-5">
@@ -211,21 +249,7 @@ const reset = async () => {
       <h4>Filter Options:</h4>
       <div>
         <v-btn @click="reset" width="200px" class="mr-4">Reset</v-btn>
-        <v-btn
-          @click="
-            getAllGiftCardTransaction(
-              status,
-              trade,
-              page_no,
-              date_from,
-              date_to,
-              reference
-            )
-          "
-          width="200px"
-          color="secondary"
-          >Filter</v-btn
-        >
+        <v-btn @click="refetch" width="200px" color="secondary">Filter</v-btn>
       </div>
     </div>
     <v-row class="mt-3">
@@ -272,22 +296,28 @@ const reset = async () => {
     <v-col cols="12" sm="12" class="mt-4">
       <v-card class="pa-5">
         <v-tabs v-model="tab" bg-color="none" class="mb-5 border-bottom">
-          <v-tab @click="getAllGiftCardTransaction(status = '')">All</v-tab>
-          <v-tab @click="getAllGiftCardTransaction(status = 'pending')">Pending</v-tab>
-          <v-tab @click="getAllGiftCardTransaction(status = 'approved')">Approved</v-tab>
-          <v-tab @click="getAllGiftCardTransaction(status = 'declined')">Declined</v-tab>
-          <v-tab @click="getAllGiftCardTransaction( status = 'partially_approved')">Partial</v-tab>
+          <v-tab @click="status_t('')">All</v-tab>
+          <v-tab @click="status_t('pending')">Pending</v-tab>
+          <v-tab @click="status_t('approved')">Approved</v-tab>
+          <v-tab @click="status_t('declined')">Declined</v-tab>
+          <v-tab @click="status_t('partial')">Partial</v-tab>
         </v-tabs>
         <v-table>
           <thead>
             <tr>
-              <th v-for="(headings, index) in header" :key="index" class="text-left">
+              <th
+                v-for="(headings, index) in header"
+                :key="index"
+                class="text-left"
+              >
                 {{ headings.title }}
               </th>
             </tr>
           </thead>
-          <tbody v-if="gift_transactions?.data?.length > 0 && loading == false">
-            <tr v-for="(item, index) in gift_transactions.data" :key="item.id">
+          <tbody
+            v-if="transaction_query?.data?.length > 0 && isFetching == false"
+          >
+            <tr v-for="(item, index) in transaction_query?.data" :key="item.id">
               <td>{{ index + 1 }}</td>
               <td
                 class="font-weight-bold username"
@@ -306,7 +336,9 @@ const reset = async () => {
               <td>₦‎ {{ item.payable_amount.toLocaleString() }}</td>
 
               <td>
-                {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY hh:mm a").value }}
+                {{
+                  useDateFormat(item?.created_at, "DD, MMMM-YYYY hh:mm a").value
+                }}
               </td>
               <!-- <td>{{ item.trade_type }}</td> -->
               <td>
@@ -347,7 +379,9 @@ const reset = async () => {
                         link
                         color="secondary"
                       >
-                        <v-list-item-title> Approve giftcard </v-list-item-title>
+                        <v-list-item-title>
+                          Approve giftcard
+                        </v-list-item-title>
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'pending'"
@@ -358,7 +392,9 @@ const reset = async () => {
                         link
                         color="secondary"
                       >
-                        <v-list-item-title> Partial approval </v-list-item-title>
+                        <v-list-item-title>
+                          Partial approval
+                        </v-list-item-title>
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'pending'"
@@ -369,7 +405,9 @@ const reset = async () => {
                         link
                         color="secondary"
                       >
-                        <v-list-item-title> Decline giftcard </v-list-item-title>
+                        <v-list-item-title>
+                          Decline giftcard
+                        </v-list-item-title>
                       </v-list-item>
                     </v-list>
                   </v-menu>
@@ -379,24 +417,25 @@ const reset = async () => {
           </tbody>
         </v-table>
 
-        <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
+        <v-layout
+          v-if="isLoading == true || isFetching == true"
+          class="align-center justify-center w-100 my-5"
+        >
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
         <p
           class="font-weight-bold text-center my-3"
-          v-if="gift_transactions?.data?.length <= 0 && loading == false"
+          v-if="transaction_query?.data?.length <= 0 && isLoading == false"
         >
           No data found
         </p>
       </v-card>
       <v-pagination
         v-model="page_no"
-        :length="gift_transactions?.last_page"
-        @next="getAllGiftCardTransaction(status, trade, page_no, date_from, date_to)"
-        @prev="getAllGiftCardTransaction(status, trade, page_no, date_from, date_to)"
-        @update:modelValue="
-          getAllGiftCardTransaction(status, trade, page_no, date_from, date_to)
-        "
+        :length="transaction_query?.last_page"
+        @next="nextPage"
+        @prev="nextPage"
+        @update:modelValue="nextPage"
         active-color="red"
         :start="1"
         variant="flat"
@@ -406,7 +445,12 @@ const reset = async () => {
       ></v-pagination>
     </v-col>
 
-    <v-dialog v-if="dialog" v-model="dialog" max-width="429px" min-height="476px">
+    <v-dialog
+      v-if="dialog"
+      v-model="dialog"
+      max-width="429px"
+      min-height="476px"
+    >
       <v-card class="view-dialog pa-4">
         <div class="mb-3 d-flex justify-space-between">
           <h3 class="text-justify mt-7">Partial approval</h3>
@@ -458,7 +502,11 @@ const reset = async () => {
           </v-card-text>
 
           <v-container class="mt-7">
-            <v-textarea label="Comments" v-model="note" variant="outlined"></v-textarea>
+            <v-textarea
+              label="Comments"
+              v-model="note"
+              variant="outlined"
+            ></v-textarea>
 
             <v-file-input
               @change="get_reproof"
@@ -484,7 +532,7 @@ const reset = async () => {
   </v-row>
 </template>
 
-<style scoped lang="scss">
+<style  lang="scss">
 .username {
   text-decoration: underline;
   cursor: pointer;

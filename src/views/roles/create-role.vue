@@ -28,7 +28,7 @@
               :loading="loading"
               color="secondary"
               block
-              @click="edit == true ? updateRole(role) : createRole(role)"
+              @click="role.permission_id?.length <= 0 ? guard() : createRole(role)"
               >Submit</v-btn
             >
           </v-form>
@@ -62,13 +62,23 @@
 import { ref, onMounted } from "vue";
 import { useDateFormat } from "@vueuse/core";
 import { storeToRefs } from "pinia";
+import {useNotification} from '@kyvg/vue3-notification'
 import { useRolesPermissionsStore } from "../../stores/roles-permissions";
 const { getAllRoles, getAllPermissions, createRole, updateRole, deleteRole } =
   useRolesPermissionsStore();
-
+const { notify } = useNotification();
 const { roles, permissions, loading, dialog, role } = storeToRefs(
   useRolesPermissionsStore()
 );
+
+
+const guard = () =>{
+  notify({
+    type:'error',
+    title:"Error",
+    text:"Roles must have at least one permissions before it can be created"
+  })
+}
 
 onMounted(async () => {
   await getAllRoles();

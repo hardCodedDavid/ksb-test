@@ -6,7 +6,7 @@ import { useRolesPermissionsStore } from "../../stores/roles-permissions";
 const { getAllRoles, getAllPermissions, createRole, updateRole,deleteRole } =
   useRolesPermissionsStore();
 
-const { roles, permissions, loading, dialog, role } = storeToRefs(
+const { roles, all_permissions, loading, dialog, role } = storeToRefs(
   useRolesPermissionsStore()
 );
 const tab = ref(null);
@@ -60,8 +60,8 @@ onMounted(async () => {
 const edit = ref(false);
 
 const btnText = ref("Create Role");
-const editItem = (item: any) => {
-  role.value = item;
+const editItem = (item: never) => {
+  role.value = Object.assign({}, item)
   btnText.value = "Update Role";
   dialog.value = true;
   edit.value = true;
@@ -71,7 +71,7 @@ const close = () => {
     role.value = Object.assign({}, {
             name:"",
             description:"",
-            permission_id:[]
+            permissions:[]
     })
 
     dialog.value = true
@@ -237,13 +237,14 @@ const close = () => {
             variant="outlined"
           ></v-textarea>
           <v-autocomplete
-            v-model="role.permission_id"
+            v-model="role.permissions"
             variant="outlined"
             label="Permissions"
             item-title="name"
             multiple
+            chips
             item-value="id"
-            :items="permissions"
+            :items="all_permissions"
           ></v-autocomplete>
           <v-btn
             :loading="loading"

@@ -250,21 +250,7 @@ const statusColor = (status: string | null) => {
               {{ blockedStatus(item?.purchase_activated_at) }}
             </v-chip>
           </td>
-          <!-- <td>
-          <v-switch @input="restoreGifCardCategories(item?.id)"></v-switch>
-        </td> -->
-          <!-- <td>
-            <v-switch
-              
-              density="compact"
-              :flat="true"
-              :value="item?.activated_at"
-              v-model="item.activated_at"
-              focused
-              :color="item?.activated_at !== null ? 'secondary' : null"
-              @input="activationGifCardCategories(item?.id)"
-            ></v-switch>
-          </td> -->
+       
           <td>
             <v-icon
               small
