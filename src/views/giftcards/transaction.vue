@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed } from "vue";
+import { ref, onMounted, reactive, computed, watch } from "vue";
 import { useGiftCardStore } from "../../stores/giftcard";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
@@ -26,13 +26,14 @@ const formatCurrency = (value: any) => {
 }
 
 // Get and sum up total earnings from list of transactions
-const totalEarnings = computed(() => {
+const totalEarnings = ref<any>(0)
+watch(gift_transactions, (newValue, oldValue) => {
   let total = 0;
-  gift_transactions.value.data.forEach((transaction: any) => {
+  gift_transactions.value?.data.forEach((transaction: any) => {
     total += transaction.payable_amount;
   });
-  return formatCurrency(total);
-});
+  totalEarnings.value = formatCurrency(total);
+})
 
 const dialog2 = ref(false);
 const note = ref("");
