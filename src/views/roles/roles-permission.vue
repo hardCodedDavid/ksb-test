@@ -224,13 +224,14 @@ const close = () => {
             variant="outlined"
           ></v-textarea>
           <v-autocomplete
-            v-model="role.permission_id"
+            v-model="role.permissions"
             variant="outlined"
             label="Permissions"
             item-title="name"
             multiple
+            chips
             item-value="id"
-            :items="permissions"
+            :items="all_permissions"
           ></v-autocomplete>
           <v-btn
             :loading="loading"

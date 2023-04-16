@@ -1,6 +1,8 @@
 <template>
   <v-container>
+  <v-btn color="" :to="{name:'RolesandPermissions'}" class="my-3"><v-icon left class="mr-4">mdi-arrow-left</v-icon> Back</v-btn>
     <v-card class="pa-6">
+    
       <h2>Create role</h2>
       <v-row align="start">
         <v-col cols="12" sm="6">
@@ -62,10 +64,11 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { storeToRefs } from "pinia";
+import {useNotification} from '@kyvg/vue3-notification'
 import { useRolesPermissionsStore } from "../../stores/roles-permissions";
 const { getAllRoles, getAllPermissions, createRole, updateRole, deleteRole } =
   useRolesPermissionsStore();
-
+const { notify } = useNotification();
 const { roles, permissions, loading, dialog, role } = storeToRefs(
   useRolesPermissionsStore()
 );
