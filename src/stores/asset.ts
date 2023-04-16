@@ -1,9 +1,9 @@
-import { defineStore } from "pinia";
-import ksbTechApi from "../../axios";
-import { asset, assets, all_network } from "../../apiRoute";
-import { useNotification } from "@kyvg/vue3-notification";
-import { useAuthStore } from "./auth";
-import { useRoute } from "vue-router";
+import { defineStore } from 'pinia';
+import ksbTechApi from '../../axios';
+import { asset, assets, all_network } from '../../apiRoute';
+import { useNotification } from '@kyvg/vue3-notification';
+import { useAuthStore } from './auth';
+import { useRoute } from 'vue-router';
 interface Data {
   id: string;
   account_name: string;
@@ -21,6 +21,8 @@ interface Asset {
   sell_rate: string;
   id: string;
   network_id: [];
+  networks?: [];
+  _method?: string;
 }
 
 interface State {
@@ -35,7 +37,7 @@ interface State {
   asset_details: {};
 }
 
-export const useAssetStore = defineStore("asset", {
+export const useAssetStore = defineStore('asset', {
   state: (): State => ({
     loading: false,
     dialog: false,
@@ -43,30 +45,30 @@ export const useAssetStore = defineStore("asset", {
     all_transactions: [],
     single_transactions: [],
     asset: {
-      name: "",
-      code: "",
-      icon: "",
-      buy_rate: "",
-      sell_rate: "",
-      id: "",
-      network_id: [],
+      name: '',
+      code: '',
+      icon: '',
+      buy_rate: '',
+      sell_rate: '',
+      id: '',
+      network_id: []
     },
     assets: [],
     all_networks: [],
-    asset_details: {},
+    asset_details: {}
   }),
   getters: {
-    allTransactions: (state) => state.all_transactions,
+    allTransactions: (state) => state.all_transactions
   },
   actions: {
     // ASSETS TRANSACTION
     async getAllAssetTransactions(
-      status: string = "",
+      status: string = '',
       page: number = 1,
-      type: string = "",
-      reference: string = "",
-      date_form: string = "",
-      date_to: string = ""
+      type: string = '',
+      reference: string = '',
+      date_form: string = '',
+      date_to: string = ''
     ) {
       console.log(status, page, type);
       const store = useAuthStore();
@@ -76,24 +78,24 @@ export const useAssetStore = defineStore("asset", {
         await ksbTechApi
           .get(
             asset +
-              "?filter[status]=" +
+              '?filter[status]=' +
               status.toLowerCase() +
-              "&filter[reference]=" +
+              '&filter[reference]=' +
               reference +
-              "&page=" +
+              '&page=' +
               page +
-              "&filter[trade_type]=" +
+              '&filter[trade_type]=' +
               type.toLowerCase() +
-              "&include=user" +
-              "&per_page=100" +
+              '&include=user' +
+              '&per_page=100' +
               `&filter[creation_date]=${date_form}${
-                date_form !== "" ? "," + date_to : ""
+                date_form !== '' ? ',' + date_to : ''
               }`,
             {
               headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${store.token}`,
-              },
+                Accept: 'application/json',
+                Authorization: `Bearer ${store.token}`
+              }
             }
           )
           .then(
@@ -120,12 +122,12 @@ export const useAssetStore = defineStore("asset", {
       try {
         await ksbTechApi
           .get(
-            asset + "?filter[status]=" + status.toLowerCase() + "&page=" + page,
+            asset + '?filter[status]=' + status.toLowerCase() + '&page=' + page,
             {
               headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${store.token}`,
-              },
+                Accept: 'application/json',
+                Authorization: `Bearer ${store.token}`
+              }
             }
           )
           .then(
@@ -137,9 +139,9 @@ export const useAssetStore = defineStore("asset", {
             }) => {
               this.loading = false;
               notify({
-                title: "Successful",
+                title: 'Successful',
                 text: res.data.message,
-                type: "success",
+                type: 'success'
               });
               this.all_transactions = res.data.data.asset_transactions;
             }
@@ -156,14 +158,14 @@ export const useAssetStore = defineStore("asset", {
         await ksbTechApi
           .get(
             asset +
-              "?filter[trade_type]=" +
+              '?filter[trade_type]=' +
               type.toLowerCase() +
-              "&include=asset",
+              '&include=asset',
             {
               headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${store.token}`,
-              },
+                Accept: 'application/json',
+                Authorization: `Bearer ${store.token}`
+              }
             }
           )
           .then(
@@ -175,9 +177,9 @@ export const useAssetStore = defineStore("asset", {
             }) => {
               this.loading = false;
               notify({
-                title: "Successful",
+                title: 'Successful',
                 text: res.data.message,
-                type: "success",
+                type: 'success'
               });
               this.all_transactions = res.data.data.asset_transactions;
             }
@@ -192,11 +194,11 @@ export const useAssetStore = defineStore("asset", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(asset + "?filter[reference]=" + reference + "&include=asset", {
+          .get(asset + '?filter[reference]=' + reference + '&include=asset', {
             headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Accept: 'application/json',
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -207,9 +209,9 @@ export const useAssetStore = defineStore("asset", {
             }) => {
               this.loading = false;
               notify({
-                title: "Successful",
+                title: 'Successful',
                 text: res.data.message,
-                type: "success",
+                type: 'success'
               });
               this.all_transactions = res.data.data.asset_transactions;
             }
@@ -224,11 +226,11 @@ export const useAssetStore = defineStore("asset", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(asset + "?filter[creation_date]=" + date + "&include=asset", {
+          .get(asset + '?filter[creation_date]=' + date + '&include=asset', {
             headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Accept: 'application/json',
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -239,9 +241,9 @@ export const useAssetStore = defineStore("asset", {
             }) => {
               this.loading = false;
               notify({
-                title: "Successful",
+                title: 'Successful',
                 text: res.data.message,
-                type: "success",
+                type: 'success'
               });
               this.all_transactions = res.data.data.asset_transactions;
             }
@@ -256,11 +258,11 @@ export const useAssetStore = defineStore("asset", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(asset + "?filter[user_id]=" + id + "&include=user", {
+          .get(asset + '?filter[user_id]=' + id + '&include=user', {
             headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Accept: 'application/json',
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -285,19 +287,19 @@ export const useAssetStore = defineStore("asset", {
       this.loading = true;
 
       var formdata = new FormData();
-      formdata.append("complete_approval", "0");
-      formdata.append("review_rate", data.review_rate);
-      formdata.append("review_note", data.review_note);
-      formdata.append("review_proof", data.review_proof);
-      formdata.append("_method", "PATCH");
+      formdata.append('complete_approval', '0');
+      formdata.append('review_rate', data.review_rate);
+      formdata.append('review_note', data.review_note);
+      formdata.append('review_proof', data.review_proof);
+      formdata.append('_method', 'PATCH');
 
       try {
         await ksbTechApi
-          .post(asset + "/" + id + "/approve", formdata, {
+          .post(asset + '/' + id + '/approve', formdata, {
             headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Accept: 'application/json',
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -310,18 +312,18 @@ export const useAssetStore = defineStore("asset", {
               this.dialog2 = false;
               this.getSingleAssetTransactions(id);
               notify({
-                title: "Approved Successfully",
+                title: 'Approved Successfully',
                 text: res.data.message,
-                type: "success",
+                type: 'success'
               });
             }
           );
       } catch (error: any) {
         this.loading = false;
         notify({
-          title: "An Error Occurred",
+          title: 'An Error Occurred',
           text: error.response.data.message,
-          type: "error",
+          type: 'error'
         });
       }
     },
@@ -333,16 +335,16 @@ export const useAssetStore = defineStore("asset", {
         await ksbTechApi
           .get(
             asset +
-              "/" +
+              '/' +
               id +
-              "?include=asset,user,bank,network" +
-              "&page=" +
+              '?include=asset,user,bank,network' +
+              '&page=' +
               page,
             {
               headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${store.token}`,
-              },
+                Accept: 'application/json',
+                Authorization: `Bearer ${store.token}`
+              }
             }
           )
           .then(
@@ -361,21 +363,20 @@ export const useAssetStore = defineStore("asset", {
         this.loading = false;
       }
     },
-
     async approveAssetTransactions(id: string) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       var formData = new FormData();
-      formData.append("_method", "PATCH");
-      formData.append("complete_approval", "1");
+      formData.append('_method', 'PATCH');
+      formData.append('complete_approval', '1');
       try {
         await ksbTechApi
-          .post(asset + "/" + id + "/approve", formData, {
+          .post(asset + '/' + id + '/approve', formData, {
             headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Accept: 'application/json',
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -386,37 +387,36 @@ export const useAssetStore = defineStore("asset", {
               this.loading = false;
               this.dialog = false;
               notify({
-                title: "Approval Successful",
+                title: 'Approval Successful',
                 text: res.data.message,
-                type: "success",
+                type: 'success'
               });
-              this.getAllAssetTransactions("", 1, "");
+              this.getAllAssetTransactions('', 1, '');
             }
           );
       } catch (error: any) {
         this.loading = false;
         notify({
-          title: "An Error Occurred",
+          title: 'An Error Occurred',
           text: error.response.data.message,
-          type: "error",
+          type: 'error'
         });
       }
     },
-
     async declineAssetTransactions(id: string) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       var formData = new FormData();
-      formData.append("_method", "PATCH");
-      if (confirm("Are you sure you want to decline this asset item ?")) {
+      formData.append('_method', 'PATCH');
+      if (confirm('Are you sure you want to decline this asset item ?')) {
         try {
           await ksbTechApi
-            .post(asset + "/" + id + "/decline", formData, {
+            .post(asset + '/' + id + '/decline', formData, {
               headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${store.token}`,
-              },
+                Accept: 'application/json',
+                Authorization: `Bearer ${store.token}`
+              }
             })
             .then(
               (res: {
@@ -427,26 +427,25 @@ export const useAssetStore = defineStore("asset", {
                 this.loading = false;
                 this.dialog = false;
                 notify({
-                  title: "Decline Successful",
+                  title: 'Decline Successful',
                   text: res.data.message,
-                  type: "success",
+                  type: 'success'
                 });
-                this.getAllAssetTransactions("", 1, "");
+                this.getAllAssetTransactions('', 1, '');
               }
             );
         } catch (error: any) {
           this.loading = false;
           notify({
-            title: "An Error Occurred",
+            title: 'An Error Occurred',
             text: error.response.data.message,
-            type: "error",
+            type: 'error'
           });
         }
       }
     },
-
     // ASSETS
-    async getAllAsset(page: number = 1, name: string = "", code: string = "") {
+    async getAllAsset(page: number = 1, name: string = '', code: string = '') {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
@@ -454,18 +453,19 @@ export const useAssetStore = defineStore("asset", {
         await ksbTechApi
           .get(
             assets +
-              "?per_page=100" +
-              "&page=" +
+              '?include=networks,networksCount' +
+              '&per_page=100' +
+              '&page=' +
               page +
-              "&filter[name]=" +
+              '&filter[name]=' +
               name +
-              "&filter[code]=" +
+              '&filter[code]=' +
               code,
             {
               headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${store.token}`,
-              },
+                Accept: 'application/json',
+                Authorization: `Bearer ${store.token}`
+              }
             }
           )
           .then(
@@ -490,11 +490,11 @@ export const useAssetStore = defineStore("asset", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(assets + "/" + id + "?include=networks", {
+          .get(assets + '/' + id + '?include=networks', {
             headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Accept: 'application/json',
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -518,16 +518,16 @@ export const useAssetStore = defineStore("asset", {
 
       this.loading = true;
 
-      formData.append("name", asset_t.name);
-      formData.append("code", asset_t.code);
-      formData.append("icon", asset_t.icon);
-      formData.append("buy_rate", asset_t.buy_rate);
-      formData.append("sell_rate", asset_t.sell_rate);
+      formData.append('name', asset_t.name);
+      formData.append('code', asset_t.code);
+      formData.append('icon', asset_t.icon);
+      formData.append('buy_rate', asset_t.buy_rate);
+      formData.append('sell_rate', asset_t.sell_rate);
 
       const ids = this.asset.network_id;
 
       for (let i = 0; i < ids.length; i++) {
-        formData.append("networks[]", ids[i]);
+        formData.append('networks[]', ids[i]);
       }
 
       const { notify } = useNotification();
@@ -535,9 +535,9 @@ export const useAssetStore = defineStore("asset", {
         await ksbTechApi
           .post(assets, formData, {
             headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Accept: 'application/json',
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -547,9 +547,9 @@ export const useAssetStore = defineStore("asset", {
             }) => {
               this.loading = false;
               notify({
-                title: "Successful",
+                title: 'Successful',
                 text: res.data.message,
-                type: "success",
+                type: 'success'
               });
               this.getAllAsset();
               this.dialog = false;
@@ -560,9 +560,9 @@ export const useAssetStore = defineStore("asset", {
 
         const { notify } = useNotification();
         notify({
-          title: "An Error Occurred",
+          title: 'An Error Occurred',
           text: error.response.data.message,
-          type: "error",
+          type: 'error'
         });
       }
     },
@@ -572,21 +572,21 @@ export const useAssetStore = defineStore("asset", {
 
       this.loading = true;
 
-      formData.append("name", asset_t.name);
-      formData.append("code", asset_t.code);
-      formData.append("icon", asset_t.icon);
-      formData.append("buy_rate", asset_t.buy_rate);
-      formData.append("sell_rate", asset_t.sell_rate);
-      formData.append("_method", "PATCH");
+      formData.append('name', asset_t.name);
+      formData.append('code', asset_t.code);
+      formData.append('icon', asset_t.icon);
+      formData.append('buy_rate', asset_t.buy_rate);
+      formData.append('sell_rate', asset_t.sell_rate);
+      formData.append('_method', 'PATCH');
 
       const { notify } = useNotification();
       try {
         await ksbTechApi
-          .post(assets + "/" + asset_t.id, formData, {
+          .post(assets + '/' + asset_t.id, formData, {
             headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Accept: 'application/json',
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -596,9 +596,9 @@ export const useAssetStore = defineStore("asset", {
             }) => {
               this.loading = false;
               notify({
-                title: "Successful",
+                title: 'Successful',
                 text: res.data.message,
-                type: "success",
+                type: 'success'
               });
               this.getAllAsset();
               this.dialog = false;
@@ -609,9 +609,9 @@ export const useAssetStore = defineStore("asset", {
 
         const { notify } = useNotification();
         notify({
-          title: "An Error Occurred",
+          title: 'An Error Occurred',
           text: error.response.data.message,
-          type: "error",
+          type: 'error'
         });
       }
     },
@@ -623,11 +623,11 @@ export const useAssetStore = defineStore("asset", {
 
       try {
         await ksbTechApi
-          .patch(assets + "/" + id + "/restore", "", {
+          .patch(assets + '/' + id + '/restore', '', {
             headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Accept: 'application/json',
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -637,9 +637,9 @@ export const useAssetStore = defineStore("asset", {
             }) => {
               this.loading = false;
               notify({
-                title: "Successful",
+                title: 'Successful',
                 text: res.data.message,
-                type: "success",
+                type: 'success'
               });
               this.getAllAsset();
             }
@@ -647,9 +647,9 @@ export const useAssetStore = defineStore("asset", {
       } catch (error: any) {
         this.loading = false;
         notify({
-          title: "An Error Occurred",
+          title: 'An Error Occurred',
           text: error.response.data.message,
-          type: "error",
+          type: 'error'
         });
       }
     },
@@ -660,11 +660,11 @@ export const useAssetStore = defineStore("asset", {
 
       try {
         await ksbTechApi
-          .delete(assets + "/" + id, {
+          .delete(assets + '/' + id, {
             headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Accept: 'application/json',
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -674,9 +674,9 @@ export const useAssetStore = defineStore("asset", {
             }) => {
               this.loading = false;
               notify({
-                title: "Successful",
+                title: 'Successful',
                 text: res.data.message,
-                type: "success",
+                type: 'success'
               });
               this.getAllAsset();
             }
@@ -684,9 +684,9 @@ export const useAssetStore = defineStore("asset", {
       } catch (error: any) {
         this.loading = false;
         notify({
-          title: "An Error Occurred",
+          title: 'An Error Occurred',
           text: error.response.data.message,
-          type: "error",
+          type: 'error'
         });
       }
     },
@@ -699,9 +699,9 @@ export const useAssetStore = defineStore("asset", {
         await ksbTechApi
           .get(all_network, {
             headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Accept: 'application/json',
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -718,6 +718,6 @@ export const useAssetStore = defineStore("asset", {
       } catch (error) {
         this.loading = false;
       }
-    },
-  },
+    }
+  }
 });
