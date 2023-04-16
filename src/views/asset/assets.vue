@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { useAssetStore } from "../../stores/asset";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
@@ -78,6 +78,51 @@ const get_selected_file = (e: any) => {
   asset.value.icon = e.target.files[0];
 };
 
+
+// Edit asset workflow
+const edit = ref(false)
+const btnText = ref("Create Asset")
+const dialogTitle = ref("Create new asset")
+const editItem = (item: any) => {
+  asset.value = {
+    name: item.name,
+    code: item.code,
+    icon: item.icon,
+    buy_rate: item.buy_rate,
+    sell_rate: item.sell_rate,
+    id: item.id,
+    networks: item.networks,
+    network_id: item.networks.map((item: any) => item.id)
+  }
+  btnText.value = "Update Asset"
+  dialogTitle.value = "Edit asset"
+  dialog.value = true
+  edit.value = true
+}
+
+const closeDialog = () => {
+  asset.value = {
+    name: '',
+    code: '',
+    icon: '',
+    buy_rate: '',
+    sell_rate: '',
+    id: '',
+    networks: [],
+    network_id: []
+  }
+  edit.value = false
+  btnText.value = "Create Asset"
+  dialogTitle.value = "Create new asset"
+}
+
+watch(dialog, () => {
+  if(!dialog.value) {
+    setTimeout(() => {
+      closeDialog()
+    }, 500);
+  }
+})
 
 </script>
 
@@ -168,6 +213,13 @@ const get_selected_file = (e: any) => {
                     </template>
                     <v-list>
                       <v-list-item
+                        @click="editItem(item)"
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> Update Asset </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
                         @click="
                           dialog2 = true;
                           getSingleAsset(item?.id);
@@ -232,10 +284,10 @@ const get_selected_file = (e: any) => {
     <v-row justify="center">
       <v-dialog v-model="dialog" max-width="500px">
         <v-card :loading="loading">
-          <h3 class="text-h5 font-weight-bold pa-7">Create new asset</h3>
+          <h3 class="text-h5 font-weight-bold pa-7">{{ dialogTitle }}</h3>
           <v-card-text>
             <v-container>
-              <v-form @submit.prevent="createAssets(asset)">
+              <v-form @submit.prevent>
                 <v-row>
                   <v-col cols="12" sm="6" md="12">
                     <v-text-field
@@ -301,18 +353,19 @@ const get_selected_file = (e: any) => {
                     color="secondary"
                     class="px-7"
                     variant="outlined"
-                    @click="dialog = false"
+                    @click="closeDialog"
                   >
                     Close
                   </v-btn>
                   <v-btn
                     color="secondary"
                     class="px-12"
+                    :disabled="!asset.name || !asset.code || !asset.buy_rate || !asset.sell_rate || !asset.network_id || !asset.icon"
                     :loading="loading"
                     variant="flat"
-                    type="submit"
+                    @click="edit === true ? updateAssets(asset) : createAssets(asset)"
                   >
-                    Create Asset
+                    {{ btnText }}
                   </v-btn>
                 </v-card-actions>
               </v-form>
