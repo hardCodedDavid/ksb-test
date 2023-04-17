@@ -148,22 +148,60 @@ watch(dialog, () => {
     }, 500);
   }
 })
+const filter_type = [
+  {
+    text: "All Assets",
+    value: "with",
+  },
+  {
+    text: "Deleted Assets",
+    value: "only",
+  }
+]
+const filter = ref("with")
 
+const filterByDeleted = (filter: string) => {
+  if(filter == "with") {
+    getAllAsset(page.value, name.value, code.value)
+  } else {
+    getAllAsset(page.value, name.value, code.value, "only")
+  }
+}
+watch(filter, (newValue) => {
+  filterByDeleted(newValue)
+})
+const restoreItem = async (id: string) => {
+  await restoreAsset(id)
+  filter.value = 'with'
+}
 </script>
 
 <template>
   <v-row>
     <v-col cols="12" sm="12" class="mt-4">
-      <div class="w-full d-flex justify-space-between my-3">
-        <h2>All Assets</h2>
-        <v-btn
-          prepend-icon="mdi-plus"
-          @click="dialog = true"
-          variant="flat"
-          color="secondary"
-        >
-          Create New Asset
-        </v-btn>
+      <div class="w-full d-md-flex justify-space-between my-3">
+        <h2>Assets</h2>
+        <div class="d-md-flex align-center">
+            <v-select
+              v-model="filter"
+              class="select-field"
+              label="Filter by type"
+              density="compact"
+              :items="filter_type"
+              item-title="text"
+              item-value="value"
+              variant="outlined"
+            ></v-select>
+            <v-btn
+              prepend-icon="mdi-plus"
+              @click="dialog = true"
+              variant="flat"
+              color="secondary"
+              class="ml-3"
+            >
+              Create New Asset
+            </v-btn>
+        </div>
       </div>
       <v-card class="pa-5">
         <v-row>
@@ -272,8 +310,8 @@ watch(dialog, () => {
                       >
                         <v-list-item-title> Edit Asset </v-list-item-title>
                       </v-list-item>
-                      <v-list-item
-                        @click="restoreAsset(item?.id)"
+                      <v-list-item v-show="filter === 'only'"
+                        @click="restoreItem(item?.id)"
                         link
                         color="secondary"
                       >
@@ -525,5 +563,9 @@ table tbody tr td {
 
 .text-grey {
   color: #afafaf;
+}
+
+:deep(.v-text-field .v-input__details) {
+  display: none !important;
 }
 </style>
