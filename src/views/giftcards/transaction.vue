@@ -3,8 +3,9 @@ import { ref, onMounted, reactive, computed, watch } from "vue";
 import { useGiftCardStore } from "../../stores/giftcard";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
+import { useWithdrawalsStore } from "../../stores/withdrawals";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
-
+// check
 const {
   getAllGiftCardTransaction,
   declineRequest,
@@ -13,6 +14,11 @@ const {
   partialApproveRequest,
   giftCardTransactionQueries,
 } = useGiftCardStore();
+
+const { getAllTransactionCount } = useWithdrawalsStore();
+
+const { giftcard_total } = storeToRefs(useWithdrawalsStore());
+
 const {
   gift_transactions,
   loading,
@@ -166,6 +172,7 @@ const reset = async () => {
 };
 
 onMounted(async () => {
+  await getAllTransactionCount();
   await getAllGiftCardTransaction(
     status.value,
     trade.value,
@@ -185,8 +192,14 @@ onMounted(async () => {
           <h4>Total Earnings</h4>
         </div>
 
-        <div class="mt-11">
-          <h2 class="mb-2">₦‎{{ totalEarnings }}</h2>
+        <div v-if="giftcard_total?.length > 0" class="mt-11">
+          <h2 class="mb-2">
+            ₦‎{{
+              formatCurrency(
+                giftcard_total[0].total_approved_transactions_amount
+              )
+            }}
+          </h2>
           <span>All time</span>
         </div>
       </v-card>
@@ -202,8 +215,14 @@ onMounted(async () => {
               ></vue-feather>
             </v-avatar>
 
-            <div class="pl-3 my-5">
-              <h2 class="mb-2">0</h2>
+            <div v-if="giftcard_total?.length > 0" class="pl-3 my-5">
+              <h2 class="mb-2">
+                {{
+                  formatCurrency(
+                    giftcard_total[0].total_approved_transactions_count
+                  )
+                }}
+              </h2>
               <span>Successful</span>
             </div>
           </div>
@@ -217,9 +236,15 @@ onMounted(async () => {
               ></vue-feather>
             </v-avatar>
 
-            <div class="pl-3 my-5">
-              <h2 class="mb-2">0</h2>
-              <span>pending</span>
+            <div v-if="giftcard_total?.length > 0" class="pl-3 my-5">
+              <h2 class="mb-2">
+                {{
+                  formatCurrency(
+                    giftcard_total[0].total_pending_transactions_count
+                  )
+                }}
+              </h2>
+              <span>Pending</span>
             </div>
           </div>
           <div
@@ -232,9 +257,33 @@ onMounted(async () => {
               ></vue-feather>
             </v-avatar>
 
-            <div class="pl-3 my-5">
-              <h2 class="mb-2">0</h2>
+            <div v-if="giftcard_total?.length > 0" class="pl-3 my-5">
+              <h2 class="mb-2">
+                {{
+                  formatCurrency(
+                    giftcard_total[0].total_declined_transactions_count
+                  )
+                }}
+              </h2>
               <span>Failed</span>
+            </div>
+          </div>
+          <div
+            class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
+          >
+            <v-avatar color="purple" size="x-large">
+              <vue-feather type="check" class="purple-lighten-1"></vue-feather>
+            </v-avatar>
+
+            <div v-if="giftcard_total?.length > 0" class="pl-3 my-5">
+              <h2 class="mb-2">
+                {{
+                  formatCurrency(
+                    giftcard_total[0].total_partially_approved_transactions_count
+                  )
+                }}
+              </h2>
+              <span>Partial</span>
             </div>
           </div>
         </div>
@@ -307,11 +356,19 @@ onMounted(async () => {
     <v-col cols="12" sm="12" class="mt-4">
       <v-card class="pa-5">
         <v-tabs v-model="tab" bg-color="none" class="mb-5 border-bottom">
-          <v-tab @click="getAllGiftCardTransaction(status = '')">All</v-tab>
-          <v-tab @click="getAllGiftCardTransaction(status = 'pending')">Pending</v-tab>
-          <v-tab @click="getAllGiftCardTransaction(status = 'approved')">Approved</v-tab>
-          <v-tab @click="getAllGiftCardTransaction(status = 'declined')">Declined</v-tab>
-          <v-tab @click="getAllGiftCardTransaction(status = 'partial')">Partial</v-tab>
+          <v-tab @click="getAllGiftCardTransaction((status = ''))">All</v-tab>
+          <v-tab @click="getAllGiftCardTransaction((status = 'pending'))"
+            >Pending</v-tab
+          >
+          <v-tab @click="getAllGiftCardTransaction((status = 'approved'))"
+            >Approved</v-tab
+          >
+          <v-tab @click="getAllGiftCardTransaction((status = 'declined'))"
+            >Declined</v-tab
+          >
+          <v-tab @click="getAllGiftCardTransaction((status = 'partial'))"
+            >Partial</v-tab
+          >
         </v-tabs>
         <v-table>
           <thead>
@@ -384,7 +441,7 @@ onMounted(async () => {
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'pending'"
-                        @click="approveRequest(item?.id)"
+                        @click="approveRequest(item?.id, page_no)"
                         link
                         color="secondary"
                       >
@@ -443,37 +500,37 @@ onMounted(async () => {
         v-model="page_no"
         :length="gift_transactions?.last_page"
         @next="
-         (...args)=>
-          getAllGiftCardTransaction(
-            status,
-            trade,
-            ...args,
-            date_from,
-            date_to,
-            reference
-          )
+          (...args) =>
+            getAllGiftCardTransaction(
+              status,
+              trade,
+              ...args,
+              date_from,
+              date_to,
+              reference
+            )
         "
         @prev="
-        (...args)=>
-          getAllGiftCardTransaction(
-            status,
-            trade,
-            ...args,
-            date_from,
-            date_to,
-            reference
-          )
+          (...args) =>
+            getAllGiftCardTransaction(
+              status,
+              trade,
+              ...args,
+              date_from,
+              date_to,
+              reference
+            )
         "
         @update:modelValue="
-        (...args)=>
-          getAllGiftCardTransaction(
-            status,
-            trade,
-            ...args,
-            date_from,
-            date_to,
-            reference
-          )
+          (...args) =>
+            getAllGiftCardTransaction(
+              status,
+              trade,
+              ...args,
+              date_from,
+              date_to,
+              reference
+            )
         "
         active-color="red"
         :start="1"
@@ -561,7 +618,7 @@ onMounted(async () => {
               class="my-5"
               block
               :loading="declining"
-              @click="declineRequest(id, note, reproof)"
+              @click="declineRequest(id, note, reproof,page_no)"
               >Submit</v-btn
             >
           </v-container>

@@ -4,7 +4,7 @@ import { useDateFormat } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useWithdrawalsStore } from "../../stores/withdrawals";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
-import { watchWithFilter, debounceFilter } from "@vueuse/core";
+
 
 const {
   getAllWithDrawals,
@@ -12,6 +12,7 @@ const {
   declineRequest,
   getSingleWithDrawals,
   filterWithDrawalsByDateCreated,
+  getAllTransactionCount,
 } = useWithdrawalsStore();
 const {
   withdrawals,
@@ -20,11 +21,13 @@ const {
   dialog,
   disapproving,
   approving,
+  withdrawals_total,
 } = storeToRefs(useWithdrawalsStore());
 const status = ref("");
 const dialog2 = ref(false);
 onMounted(async () => {
   await getAllWithDrawals(status.value, 1);
+  await getAllTransactionCount();
 });
 
 // const search = ref("");
@@ -67,6 +70,11 @@ const header = ref([
     title: "Actions",
   },
 ]);
+
+
+const formatCurrency = (value: any) => {
+  return new Intl.NumberFormat().format(value);
+};
 
 const id = ref("");
 const disapprove = () => {
@@ -118,26 +126,25 @@ const tab = ref(null);
       :breadcrumbs="breadcrumbs"
     ></BaseBreadcrumb>
     <div class="mt-4">
-     <v-row class="my-3">
-     <v-col  cols="12" sm="6"  md="4">
-      <v-card elevation="0" class="pa-6 h-100">
-        <div class="">
-          <h4>Total Earnings</h4>
-        </div>
+      <v-row class="my-3">
+        <v-col cols="12" sm="6" md="4">
+          <v-card elevation="0" class="pa-6 h-100">
+            <div class="">
+              <h4>Total earnings</h4>
+            </div>
 
-        <div class="mt-11">
-          <h2 class="mb-2">₦‎4000</h2>
-          <span>All time</span>
-        </div>
-      </v-card>
-     </v-col>
-      <v-col cols="12" sm="6"  md="8">
-        <v-card elevation="0" class="py-4 px-2">
-            <div  class="ml-16 d-flex align-center justify-space-between w-100">
-              <div
-                
-                class="d-flex align-start justify-start flex-column w-100"
-              >
+            <div v-if="withdrawals_total?.length > 0" class="mt-11">
+              <h2 class="mb-2">
+                ₦‎{{ formatCurrency(withdrawals_total[0].total_completed_transactions_amount) }}
+              </h2>
+              <span>All time</span>
+            </div>
+          </v-card>
+        </v-col>
+        <v-col cols="12" sm="6" md="8">
+          <v-card elevation="0" class="py-4 px-2">
+            <div class="ml-16 d-flex align-center justify-space-between w-100">
+              <div class="d-flex align-start justify-start flex-column w-100">
                 <v-avatar color="#e5fafb" size="x-large">
                   <vue-feather
                     type="check-circle"
@@ -145,15 +152,16 @@ const tab = ref(null);
                   ></vue-feather>
                 </v-avatar>
 
-                <div class="pl-3 my-5">
-                  <h2 class="mb-2">0</h2>
+                <div v-if="withdrawals_total?.length > 0" class="pl-3 my-5">
+                  <h2 class="mb-2">
+                    {{
+                      withdrawals_total[0].total_completed_transactions_count
+                    }}
+                  </h2>
                   <span>Successful</span>
-                  
                 </div>
-                
               </div>
               <div
-                
                 class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
               >
                 <v-avatar color="#FFF9C4" size="x-large">
@@ -163,15 +171,14 @@ const tab = ref(null);
                   ></vue-feather>
                 </v-avatar>
 
-                <div class="pl-3 my-5">
-                  <h2 class="mb-2">0</h2>
+                <div v-if="withdrawals_total?.length > 0" class="pl-3 my-5">
+                  <h2 class="mb-2">
+                    {{ withdrawals_total[0].total_pending_transactions_count }}
+                  </h2>
                   <span>pending</span>
-                  
                 </div>
-                
               </div>
               <div
-                
                 class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
               >
                 <v-avatar color="#FFCCBC" size="x-large">
@@ -181,146 +188,136 @@ const tab = ref(null);
                   ></vue-feather>
                 </v-avatar>
 
-                <div class="pl-3 my-5">
-                  <h2 class="mb-2">0</h2>
+                <div v-if="withdrawals_total?.length > 0" class="pl-3 my-5">
+                  <h2 class="mb-2">
+                    {{ withdrawals_total[0].total_declined_transactions_count }}
+                  </h2>
                   <span>Failed</span>
-                  
                 </div>
-                
               </div>
-              
             </div>
-           
           </v-card>
-      </v-col>
-     </v-row>
-
+        </v-col>
+      </v-row>
 
       <v-card class="pa-5">
-    <v-tabs
-      v-model="tab"
-      bg-color="none"
-      class="mb-5"
-    >
-      <v-tab @click="getAllWithDrawals('')">All</v-tab>
-      <v-tab @click="getAllWithDrawals('pending')">Pending</v-tab>
-      <v-tab @click="getAllWithDrawals('completed')">Approved</v-tab>
-      <v-tab @click="getAllWithDrawals('declined')">Declined</v-tab>
-    </v-tabs>
-    <v-window v-model="tab">
-
-    <v-table>
-          <thead>
-            <tr>
-              <th
-                v-for="(headings, index) in header"
-                :key="index"
-                class="text-left font-weight-bold"
+        <v-tabs v-model="tab" bg-color="none" class="mb-5">
+          <v-tab @click="getAllWithDrawals('')">All</v-tab>
+          <v-tab @click="getAllWithDrawals('pending')">Pending</v-tab>
+          <v-tab @click="getAllWithDrawals('completed')">Approved</v-tab>
+          <v-tab @click="getAllWithDrawals('declined')">Declined</v-tab>
+        </v-tabs>
+        <v-window v-model="tab">
+          <v-table>
+            <thead>
+              <tr>
+                <th
+                  v-for="(headings, index) in header"
+                  :key="index"
+                  class="text-left font-weight-bold"
+                >
+                  {{ headings.title }}
+                </th>
+              </tr>
+            </thead>
+            <tbody v-if="loading == false">
+              <tr
+                class="pa-3"
+                v-for="(withdrawal, index) in withdrawals?.data"
+                :key="withdrawal?.id"
               >
-                {{ headings.title }}
-              </th>
-            </tr>
-          </thead>
-          <tbody v-if="loading == false">
-            <tr
-              class="pa-3"
-              v-for="(withdrawal, index) in withdrawals?.data"
-              :key="withdrawal?.id"
-            >
-              <td>{{ index + 1 }}</td>
-              <td class="font-weight-bold">
-                <span
-                  @click="
-                    $router.push({
-                      name: 'UserDetails',
-                      params: { id: withdrawal?.user_id },
-                    })
-                  "
-                  class="text-capitalize username"
-                >
-                  {{ withdrawal?.user?.firstname ?? "---" }}
-                  {{ withdrawal?.user?.lastname ?? "---" }}</span
-                >
-              </td>
-              <td>₦‎ {{ withdrawal.amount.toLocaleString() }}</td>
-              <td>{{ withdrawal?.account_number ?? "---" }}</td>
-              <td>
-                {{
-                  useDateFormat(withdrawal?.created_at, "DD, MMMM-YYYY").value
-                }}
-              </td>
-              <!-- <td>{{ item.status }}</td> -->
+                <td>{{ index + 1 }}</td>
+                <td class="font-weight-bold">
+                  <span
+                    @click="
+                      $router.push({
+                        name: 'UserDetails',
+                        params: { id: withdrawal?.user_id },
+                      })
+                    "
+                    class="text-capitalize username"
+                  >
+                    {{ withdrawal?.user?.firstname ?? "---" }}
+                    {{ withdrawal?.user?.lastname ?? "---" }}</span
+                  >
+                </td>
+                <td>₦‎ {{ withdrawal.amount.toLocaleString() }}</td>
+                <td>{{ withdrawal?.account_number ?? "---" }}</td>
+                <td>
+                  {{
+                    useDateFormat(withdrawal?.created_at, "DD, MMMM-YYYY").value
+                  }}
+                </td>
+                <!-- <td>{{ item.status }}</td> -->
 
-              <!-- <td>{{ item.service }}</td>
+                <!-- <td>{{ item.service }}</td>
               <td>{{ item.type }}</td>
 
               <td>{{ item.date }}</td> -->
-              <td>
-                <v-chip
-                  label
-                  class="text-capitalize font-weight-bold pa-3"
-                  :color="status_color(withdrawal?.status)"
-                  >{{ withdrawal?.status }}</v-chip
-                >
-              </td>
-              <td>
-                <!-- <v-icon icon="mdi-dots-vertical"></v-icon> -->
-                <v-row justify="center">
-                  <v-menu transition="scroll-y-transition">
-                    <template v-slot:activator="{ props }">
-                      <v-btn
-                        text
-                        icon="mdi-dots-vertical"
-                        color="transparent"
-                        class="ma-2"
-                        v-bind="props"
-                      >
-                      </v-btn>
-                    </template>
-                    <v-list>
-                      <v-list-item
-                        :to="{
-                          name: 'viewWithdrawals',
-                          params: { id: withdrawal.id },
-                        }"
-                        link
-                        color="secondary"
-                      >
-                        <v-list-item-title> View Details </v-list-item-title>
-                      </v-list-item>
-                      <v-list-item
-                        v-if="withdrawal?.status == 'pending'"
-                        @click="approveRequest(withdrawal?.id)"
-                        link
-                        color="secondary"
-                      >
-                        <v-list-item-title>
-                          Approve Withdrawal Request
-                        </v-list-item-title>
-                      </v-list-item>
-                      <v-list-item
-                        v-if="withdrawal?.status == 'pending'"
-                        @click="
-                          id = withdrawal?.id;
-                          disapprove();
-                        "
-                        link
-                        color="secondary"
-                      >
-                        <v-list-item-title>
-                          Decline Withdrawal Request
-                        </v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </v-row>
-              </td>
-            </tr>
-          </tbody>
-        </v-table>
-
-    </v-window>
-        
+                <td>
+                  <v-chip
+                    label
+                    class="text-capitalize font-weight-bold pa-3"
+                    :color="status_color(withdrawal?.status)"
+                    >{{ withdrawal?.status }}</v-chip
+                  >
+                </td>
+                <td>
+                  <!-- <v-icon icon="mdi-dots-vertical"></v-icon> -->
+                  <v-row justify="center">
+                    <v-menu transition="scroll-y-transition">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          text
+                          icon="mdi-dots-vertical"
+                          color="transparent"
+                          class="ma-2"
+                          v-bind="props"
+                        >
+                        </v-btn>
+                      </template>
+                      <v-list>
+                        <v-list-item
+                          :to="{
+                            name: 'viewWithdrawals',
+                            params: { id: withdrawal.id },
+                          }"
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title> View Details </v-list-item-title>
+                        </v-list-item>
+                        <v-list-item
+                          v-if="withdrawal?.status == 'pending'"
+                          @click="approveRequest(withdrawal?.id)"
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title>
+                            Approve Withdrawal Request
+                          </v-list-item-title>
+                        </v-list-item>
+                        <v-list-item
+                          v-if="withdrawal?.status == 'pending'"
+                          @click="
+                            id = withdrawal?.id;
+                            disapprove();
+                          "
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title>
+                            Decline Withdrawal Request
+                          </v-list-item-title>
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
+                  </v-row>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-window>
 
         <v-layout
           v-if="loading == true"
@@ -551,7 +548,6 @@ const tab = ref(null);
 </template>
 
 <style lang="scss">
-
 table tbody tr td {
   padding: 15px !important;
   font-size: 12px;
@@ -561,8 +557,6 @@ table tbody tr td {
   text-decoration: underline;
   cursor: pointer;
 }
-
-
 
 .view-dialog {
   background: #ffffff;

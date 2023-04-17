@@ -9,6 +9,8 @@ export const resend_two_fa = '/admin/resend-two-fa'
 export const permissions = '/admin/my-permissions'
 export const reset = '/admin/password/reset'
 
+
+export const transaction_count = '/admin/transactions'
 export const user = '/admin/users'
 export const requestCode = '/admin/password/forgot'
 export const verifyCodeAndEmail = '/admin/password/verify'

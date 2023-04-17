@@ -1,53 +1,76 @@
 import { defineStore } from "pinia";
 
 import ksbTechApi from "../../axios";
-import { withdrawals } from "../../apiRoute";
+import { withdrawals, transaction_count } from "../../apiRoute";
 import { useAuthStore } from "../stores/auth";
 import { useNotification } from "@kyvg/vue3-notification";
 
-
 interface Data {
-  id: string,
-  amount: string,
-  created_at: string,
-  status: string,
+  id: string;
+  amount: string;
+  created_at: string;
+  status: string;
 }
-
-    
-
 
 interface State {
-  withdrawal: any,
-  loading: boolean,
-  disapproving:boolean,
-  approving:boolean,
-  singleWithdrawal: any,
-  dialog:boolean
-}
+  withdrawal: any;
+  loading: boolean;
+  disapproving: boolean;
+  approving: boolean;
+  singleWithdrawal: any;
+  dialog: boolean;
 
+  transactions: any;
+}
 
 export const useWithdrawalsStore = defineStore("withdrawals", {
   state: (): State => ({
-    withdrawal: {
-      
-    },
+    withdrawal: {},
     loading: false,
     disapproving: false,
     approving: false,
     singleWithdrawal: {},
-    dialog:false
+    dialog: false,
+    transactions: {},
   }),
   getters: {
-    withdrawals: (state) => state.withdrawal
+    withdrawals: (state) => state.withdrawal,
+    withdrawals_total: (state) => state.transactions?.wallet_transactions?.map((item:any) => {
+      return {
+        total_completed_transactions_amount: item['total_completed_transactions_amount'],
+        total_completed_transactions_count: item['total_completed_transactions_count'],
+        total_declined_transactions_count: item['total_declined_transactions_count'],
+        total_pending_transactions_count:item['total_pending_transactions_count']
+      }
+    }),
+    giftcard_total: (state) => state.transactions?.giftcards?.map((item:any) => {
+      return {
+        total_approved_transactions_amount: item['total_approved_transactions_amount'],
+        total_approved_transactions_count: item['total_approved_transactions_count'],
+        total_declined_transactions_count: item['total_declined_transactions_count'],
+        total_pending_transactions_count:item['total_pending_transactions_count'],
+        total_partially_approved_transactions_count:item['total_partially_approved_transactions_count'],
+      }
+    }),
+ 
+    asset_total: (state) => state.transactions?.asset_transactions?.map((item:any) => {
+      return {
+        total_approved_transactions_amount: item['total_approved_transactions_amount'],
+        total_approved_transactions_count: item['total_approved_transactions_count'],
+        total_declined_transactions_count: item['total_declined_transactions_count'],
+        total_pending_transactions_count:item['total_pending_transactions_count'],
+        total_partially_approved_transactions_count:item['total_partially_approved_transactions_count'],
+      }
+    })
   },
   actions: {
-    async getAllWithDrawals(status:string, page_no:number) {
+    async getAllTransactionCount() {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       try {
         await ksbTechApi
-          .get(withdrawals + '?include=' + 'user' + '&page=' + page_no + '&filter[status]=' + status + '&per_page=100' , {
+          .get(transaction_count, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -57,11 +80,49 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
             (res: {
               data: {
                 message: string;
+                data:any
+              };
+            }) => {
+              this.loading = false;
+
+              this.transactions = res.data.data;
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
+    async getAllWithDrawals(status: string, page_no: number) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(
+            withdrawals +
+              "?include=" +
+              "user" +
+              "&page=" +
+              page_no +
+              "&filter[status]=" +
+              status +
+              "&per_page=100",
+            {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${store.token}`,
+              },
+            }
+          )
+          .then(
+            (res: {
+              data: {
+                message: string;
                 data: { wallet_transactions: Data };
               };
             }) => {
               this.loading = false;
-            
+
               this.withdrawal = res.data.data.wallet_transactions;
             }
           );
@@ -69,13 +130,13 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
         this.loading = false;
       }
     },
-    async filterWithDrawalsByDateCreated(data_created:string) {
+    async filterWithDrawalsByDateCreated(data_created: string) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       try {
         await ksbTechApi
-          .get(withdrawals + '?sort=' + data_created, {
+          .get(withdrawals + "?sort=" + data_created, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -107,7 +168,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
 
       try {
         await ksbTechApi
-          .get(withdrawals + '/' + id, {
+          .get(withdrawals + "/" + id, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -120,8 +181,6 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
                 data: { wallet_transaction: object };
               };
             }) => {
-
-             
               this.singleWithdrawal = res.data.data.wallet_transaction;
             }
           );
@@ -139,12 +198,12 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
       const { notify } = useNotification();
       this.loading = true;
 
-      var formData = new FormData()
+      var formData = new FormData();
 
-      formData.append('_method', 'PATCH');
+      formData.append("_method", "PATCH");
       try {
         await ksbTechApi
-          .post(withdrawals + '/' + id + '/approve', formData, {
+          .post(withdrawals + "/" + id + "/approve", formData, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -163,8 +222,8 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
                 text: res.data.message,
                 type: "success",
               });
-              this.getAllWithDrawals('pending', 1)
-              this.dialog = false 
+              this.getAllWithDrawals("pending", 1);
+              this.dialog = false;
             }
           );
       } catch (error: any) {
@@ -177,7 +236,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
         });
       }
     },
-    async declineRequest(id: string, note:string) {
+    async declineRequest(id: string, note: string) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.disapproving = true;
@@ -186,7 +245,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
       formData.append("note", note);
       try {
         await ksbTechApi
-          .patch(withdrawals + '/' + id + '/decline', formData, {
+          .patch(withdrawals + "/" + id + "/decline", formData, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
@@ -206,8 +265,7 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
                 text: res.data.message,
                 type: "success",
               });
-              this.getAllWithDrawals('pending', 1)
-              
+              this.getAllWithDrawals("pending", 1);
             }
           );
       } catch (error: any) {
@@ -222,7 +280,6 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
     },
   },
 });
-
 
 // https://flexy-vue3-main-admin.vercel.app/ui-components/cards
 // https://flexy-vue3-main-admin.vercel.app/ui-components/tabs
