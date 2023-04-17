@@ -223,6 +223,11 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
         role_id: string;
       }
     ) {
+
+      var formData = new FormData();
+      formData.append('role_id', assign_role_form.role_id);
+      formData.append('_method', 'PATCH');
+
       const { notify } = useNotification();
       const store = useAuthStore();
       this.isAssigning = true;
@@ -231,7 +236,7 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
         await ksbTechApi
           .patch(
             admin + '/' + id + '/role',
-            { ...assign_role_form },
+            formData,
             {
               headers: {
                 Accept: 'application/json',

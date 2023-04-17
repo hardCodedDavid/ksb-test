@@ -84,7 +84,7 @@ const checkedPermission = computed(() => {
   }
 })
 
-const select_permission = (id:string) => {
+const select_permission = (id:never) => {
   role.value.permission_id.push(id)
 }
 

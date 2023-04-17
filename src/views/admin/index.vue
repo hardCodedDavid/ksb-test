@@ -105,6 +105,17 @@ const updateRole = async () => {
 };
 
 const valid = ref(null);
+
+
+const getRoles = (item:Array<object>) => {
+
+const roles = item.map((element:any) => {
+     return  element.name
+  })
+
+  return String(roles)
+}
+
 </script>
 
 <template>
@@ -157,7 +168,7 @@ const valid = ref(null);
             </td>
 
             <td>
-              {{ null ?? "No data" }}
+              {{ getRoles(items?.roles)  }}
             </td>
             <td>
               {{ items?.country?.name ?? "No data" }}
