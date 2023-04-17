@@ -86,9 +86,7 @@ const image = computed(() => {
 });
 
 const transaction_header = ref([
-  {
-    title: "No.",
-  },
+  
   {
     title: "Category",
   },
@@ -162,8 +160,7 @@ onMounted(() => {
       </thead>
 
       <tbody>
-        <tr >
-        <td>1</td>
+        <tr>
         <td>{{singleGiftCardTransaction?.giftcard_product?.giftcard_category?.name}}</td>
         <td>{{singleGiftCardTransaction?.giftcard_product?.name}}</td>
         <td>{{singleGiftCardTransaction?.trade_type}}</td>
@@ -514,7 +511,7 @@ onMounted(() => {
 
                     <vue-easy-lightbox
                       :visible="visibleRef"
-                      :imgs="img"
+                      :imgs="image"
                       :index="indexRef"
                       @hide="onHide"
                     ></vue-easy-lightbox>

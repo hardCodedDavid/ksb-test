@@ -175,7 +175,7 @@ export const useUserStore = defineStore("user", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(admin, {
+          .get(`${admin}?include=roles,country`, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,

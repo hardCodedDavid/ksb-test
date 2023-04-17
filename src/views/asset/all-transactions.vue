@@ -5,6 +5,13 @@ import { useUserStore } from "../../stores/user";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
 import { watchDebounced } from "@vueuse/core";
+
+import { useWithdrawalsStore } from "../../stores/withdrawals";
+
+const { getAllTransactionCount } = useWithdrawalsStore();
+
+const { asset_total } = storeToRefs(useWithdrawalsStore());
+
 const {
   getAllAssetTransactions,
   approveAssetTransactions,
@@ -76,6 +83,7 @@ const search_by_reference = () => {
 };
 
 onMounted(async () => {
+  await getAllTransactionCount()
   await getAllAssetTransactions(
     status.value,
     page.value,
@@ -102,6 +110,10 @@ const status_color = (status: StatusType) => {
     : "";
 };
 //
+
+const formatCurrency = (value: any) => {
+  return new Intl.NumberFormat().format(value);
+};
 
 // const open_file = (file: string) => {
 //   window.open(file);
@@ -144,8 +156,8 @@ const reset = async () => {
               <h4>Total Earnings</h4>
             </div>
 
-            <div class="mt-11">
-              <h2 class="mb-2">₦‎4000</h2>
+            <div v-if="asset_total?.length > 0" class="mt-11">
+              <h2 class="mb-2">₦‎ {{formatCurrency(asset_total[0].total_approved_transactions_amount)}}</h2>
               <span>All time</span>
             </div>
           </v-card>
@@ -161,8 +173,8 @@ const reset = async () => {
                   ></vue-feather>
                 </v-avatar>
 
-                <div class="pl-3 my-5">
-                  <h2 class="mb-2">0</h2>
+                <div v-if="asset_total?.length > 0" class="pl-3 my-5">
+                  <h2 class="mb-2">{{asset_total[0].total_approved_transactions_count}}</h2>
                   <span>Successful</span>
                 </div>
               </div>
@@ -174,8 +186,8 @@ const reset = async () => {
                   ></vue-feather>
                 </v-avatar>
 
-                <div class="pl-3 my-5">
-                  <h2 class="mb-2">0</h2>
+                <div v-if="asset_total?.length > 0" class="pl-3 my-5">
+                  <h2 class="mb-2">{{asset_total[0].total_pending_transactions_count}}</h2>
                   <span>pending</span>
                 </div>
               </div>
@@ -184,9 +196,19 @@ const reset = async () => {
                   <vue-feather type="x-circle" class="text-dark text-error"></vue-feather>
                 </v-avatar>
 
-                <div class="pl-3 my-5">
-                  <h2 class="mb-2">0</h2>
+                <div v-if="asset_total?.length > 0" class="pl-3 my-5">
+                  <h2 class="mb-2">{{asset_total[0].total_declined_transactions_count}}</h2>
                   <span>Failed</span>
+                </div>
+              </div>
+              <div class="d-flex align-start justify-start flex-column w-100 flex-grow-1">
+                <v-avatar color="purple" size="x-large">
+                  <vue-feather type="check" class="purple-lighten-1"></vue-feather>
+                </v-avatar>
+
+                <div v-if="asset_total?.length > 0" class="pl-3 my-5">
+                  <h2 class="mb-2">{{asset_total[0].total_partially_approved_transactions_count}}</h2>
+                  <span>Partial</span>
                 </div>
               </div>
             </div>

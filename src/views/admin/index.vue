@@ -36,15 +36,13 @@ const header = reactive([
   {
     title: "User Info",
   },
-  // {
-  //   title: "Last name",
-  // },
-  // {
-  //   title: "Email",
-  // },
   {
-    title: "Phone number",
+    title: "Roles",
   },
+  {
+    title: "Country",
+  },
+
   {
     title: "Blocked at",
   },
@@ -159,7 +157,10 @@ const valid = ref(null);
             </td>
 
             <td>
-              {{ items?.phone_number ?? "No data" }}
+              {{ null ?? "No data" }}
+            </td>
+            <td>
+              {{ items?.country?.name ?? "No data" }}
             </td>
 
             <td>
