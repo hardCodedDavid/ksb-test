@@ -14,7 +14,11 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
     dialog: false,
     roles: [],
     permissions: [],
-    role: {},
+    role: {
+      name:"",
+      description:"",
+      permission_id:[]
+    },
     assign_role_form: {
       role_id: ''
     }
@@ -98,8 +102,8 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
       formData.append('name', role.name);
       formData.append('description', role.description);
 
-      for (let i = 0; i < this.role.permission_id.length; i++) {
-        formData.append('permissions[]', this.role.permission_id[i]);
+      for (let i = 0; i < role.permission_id.length; i++) {
+        formData.append('permissions[]', role.permission_id[i]);
       }
 
       // formData.append("name", role.name);

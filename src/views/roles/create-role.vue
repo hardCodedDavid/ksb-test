@@ -52,7 +52,7 @@
             v-for="(permission, index) in permissions"
             :key="index"
             class="py-0 my-0"
-            @click="role.permission_id.push(permission.id)"
+            @click="select_permission(permission.id)"
             v-model="permission.id"
           ></v-checkbox>
         </v-col>
@@ -83,6 +83,10 @@ const checkedPermission = computed(() => {
     return false
   }
 })
+
+const select_permission = (id:string) => {
+  role.value.permission_id.push(id)
+}
 
 onMounted(async () => {
   await getAllRoles();
