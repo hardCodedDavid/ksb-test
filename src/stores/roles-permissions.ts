@@ -234,7 +234,7 @@ export const useRolesPermissionsStore = defineStore('roles-permissions', {
 
       try {
         await ksbTechApi
-          .patch(
+          .post(
             admin + '/' + id + '/role',
             formData,
             {
