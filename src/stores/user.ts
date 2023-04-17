@@ -193,8 +193,13 @@ export const useUserStore = defineStore("user", {
               this.admin = res.data.data.admins.data;
             }
           );
-      } catch (error) {
+      } catch (error:any) {
         this.loading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
       }
     },
     async getSingleAdmin(id: string) {
@@ -395,7 +400,7 @@ export const useUserStore = defineStore("user", {
       this.loading = true;
 
       const formData = new FormData();
-      formData.append("country_id", this.country_id[0].id);
+      formData.append("country_id", this.adminDetails.country_name);
       formData.append("firstname", this.adminDetails.firstname);
       formData.append("lastname", this.adminDetails.lastname);
       formData.append("email", this.adminDetails.email);

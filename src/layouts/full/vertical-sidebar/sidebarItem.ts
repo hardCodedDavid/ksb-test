@@ -6,237 +6,145 @@ export interface menu {
   icon?: string;
   to?: any;
   children?: menu[];
+  permissions?:string
+  group_name?:string
 }
 
 const sidebarItem: menu[] = [
-  { header: "Main" },
+  { header: "Main", group_name:"" },
   {
     title: "Dashboard",
     icon: "pie-chart",
     to: "/dashboards/analytical",
+    permissions:""
   },
   {
     title: "Withdrawals",
     icon: "credit-card",
     to: "/withdrawals/all",
+    permissions:"manage_wallet_transactions"
   },
  
-
   {
     title: "Giftcard Transactions",
     icon: "gift",       
     to: "/giftcards/transaction",
+    permissions:"manage_giftcards"
   },
-  // {
-  //   title: "Giftcard Management",
-  //   icon: "users",
-  //   to: "/giftcards/management",
-   
-  // },
-  // { header: "Crypto" },
-  // {
-  //   group: "/form-elements",
-  //   model: false,
-  //   icon: "file",
-  //   title: "Form Elements",
-  //   children: [
-  //     {
-  //       title: "Autocompletes",
-  //       icon: "disc",
-  //       to: "/form-elements/feautocompletes",
-  //     },
-  //     {
-  //       title: "Combobox",
-  //       icon: "disc",
-  //       to: "/form-elements/fecombobox",
-  //     },
-  //     {
-  //       title: "File Inputs",
-  //       icon: "disc",
-  //       to: "/form-elements/fefileinputs",
-  //     },
-  //     {
-  //       title: "Inputs",
-  //       icon: "disc",
-  //       to: "/form-elements/feinputs",
-  //     },
-
-  //     {
-  //       title: "Selection Controls",
-  //       icon: "disc",
-  //       to: "/form-elements/feselectioncontrols",
-  //     },
-  //     {
-  //       title: "Selects",
-  //       icon: "disc",
-  //       to: "/form-elements/feselects",
-  //     },
-  //     {
-  //       title: "Sliders",
-  //       icon: "disc",
-  //       to: "/form-elements/fesliders",
-  //     },
-  //     {
-  //       title: "Textareas",
-  //       icon: "disc",
-  //       to: "/form-elements/fetextareas",
-  //     },
-  //     {
-  //       title: "Textfields",
-  //       icon: "disc",
-  //       to: "/form-elements/fetextfields",
-  //     },
-  //   ],
-  // },
+  
   {
     title: "Asset Transaction",
     icon: "trending-down",
     to: "/asset/transaction",
+    permissions:"manage_asset_transactions"
   },
-  // {
-  //   title: "Crypto Management",
-  //   icon: "disc",
-  //   to: "/form-layouts/flformbasic",
-
-  //   children: [
-  //     {
-  //       title: "Network Transaction",
-  //       icon: "trending-up",
-  //       to: "/form-elements/feautocompletes",
-  //     },
-  //     {
-  //       title: "Asset Management",
-  //       icon: "layout",
-  //       to: "/form-elements/fecombobox",
-  //     },
-  //   ],
-  // },
-  // {
-  //   group: "/form-layouts",
-  //   model: false,
-  //   icon: "codesandbox",
-  //   title: "Form Layouts",
-  //   children: [
-  //     {
-  //       title: "Form Action",
-  //       icon: "disc",
-  //       to: "/form-layouts/flformaction",
-  //     },
-  //     {
-  //       title: "Form Basic",
-  //       icon: "disc",
-  //       to: "/form-layouts/flformbasic",
-  //     },
-
-  //     {
-  //       title: "Form Horizontal",
-  //       icon: "disc",
-  //       to: "/form-layouts/flformhorizontal",
-  //     },
-  //   ],
-  // },
-  { header: "Users" },
+ 
+  { header: "Users", group_name:"user"},
   {
     title: "Users",
     icon: "copy",
     to: "/user/all",
+    permissions:"manage_users"
   },
-  // { header: "Admin Management" },
   {
     title: "Admin",
     icon: "users",
     to: "/admin",
+    permissions:"manage_admins"
   },
   
   {
     title: "Roles & Permissions",
     icon: "user-plus",
     to: "/roles",
+    permissions:"manage_access_control_list"
   },
 
-  { header: "Notifications" },
+  { header: "Notifications", group_name:"notification" },
   {
     title: "Announcements",
     icon: "bell",
     to: "/announcements",
+    permissions:'manage_alerts'
   },
   {
     title: "Notifications",
     icon: "user-plus",
     to: "/notifications/all",
+    permissions:"receive_notifications"
   },
 
- 
-  // {
-  //   title: "All Roles",
-  //   icon: "users",
-  //   to: "/tables",
-  // },
-  // {
-  //   title: "Create Roles",
-  //   icon: "user-plus",
-  //   to: "/create-role",
-  // },
-  { header: "Settings" },
+  { header: "Settings",  group_name:"giftcard"  },
 
   {
     title:"GiftCard Mgt",
     icon:"gift",
+    group_name:"giftcard",
     children: [
 
       {
         title: "Categories",
         icon: "",
         to: "/giftcards/categories",
+        permissions:"manage_giftcard_categories"
       },
       {
         title: "Products",
         icon: "",
         to: "/giftcards/products",
+        permissions:"manage_giftcard_products"
       },
 ],
   },
   {
     title:"Crypto",
     icon:"cpu",
+    group_name:'crypto',
     children: [
 
       {
         title: "Networks",
         icon: "",
         to: "/networks/all",
+        permissions:"manage_networks"
       },
       {
         title: "Assets",
         icon: "",
         to: "/assets/all",
+        permissions:"manage_assets"
       },
       {
         title: "Currencies",
         icon: "",
         to: "/currencies/all",
+        permissions:"manage_currencies"
       },
 ],
   },
   {
     title:"Configuration",
     icon:"command",
+    group_name:'config',
     children: [
 
       {
         title: "App version",
         icon: "",
         to: "/system-data",
+        permissions:"manage_system_data"
       },
       {
         title: "Countries Mgt",
         icon: "",
         to: "/countries/all",
+        permissions:"manage_countries"
       },
       {
         title: "System bank account",
         icon: "users",
         to: "/system-bank",
+        permissions:"manage_system_bank_accounts"
       },
 ],
   }

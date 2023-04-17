@@ -16,6 +16,9 @@ import  { useAuthStore } from '../../../stores/auth'
 
 const action = useAuthStore()
 
+
+
+
 const page = ref({ title: "Dashboard Analytics" });
 const breadcrumbs = ref([
   {
@@ -31,6 +34,8 @@ const breadcrumbs = ref([
 ]);
 
 const mark = ref([])
+
+
 
 onMounted(async ()=> {
   await action.GetProfile()

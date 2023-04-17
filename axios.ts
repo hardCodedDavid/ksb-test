@@ -10,22 +10,34 @@ ksbTechApi.interceptors.response.use(
     return response;
   },
   async function (error: { response: any }) {
-    if (error.response.data.code == 100) {
-      await router.push("/auth/login");
+   
+
+
+    if (error.response.data.message == "Unauthenticated.") {
+      await router.push("/auth/login")
     }
+
+    if (error.response.data.code == 100) {
+      return Promise.reject(error);
+    }
+
     if (
       error.response.data.code == 101 &&
       error.response.data.message ===
         "Access restricted. Second-factor authentication is required."
     ) {
       await router.push("/authentication/verify-two-fa");
-    } else {
+    } 
+    
+    else {
       if (
         error.response.data.code == 105 ||
         error.response.data.message === "Code is invalid."
       ) {
         return Promise.reject(error);
-      } else {
+      } 
+      
+      else {
         return Promise.reject(error);
       }
     }

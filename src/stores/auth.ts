@@ -45,7 +45,7 @@ export const useAuthStore = defineStore("auth", {
     verifyTwoFALoading: false,
     user: {},
     token: "",
-    permissions: {},
+    permissions: [],
     notification: [],
     twoFA: false,
     email: "",
@@ -62,6 +62,8 @@ export const useAuthStore = defineStore("auth", {
         };
       }),
     // tenNotifications: (state) => state.notification?.9(0,10)
+    all_permissions: (state) => state.permissions.map((items:any) => items['name']), 
+    all_permissions_group: (state) => state.permissions.map((items:any) => items['group_name']), 
   },
   actions: {
     async ksbTechLogin(loginDetails: { email: string; password: string }) {

@@ -56,7 +56,7 @@ export const useCountryStore = defineStore({
           .get(countryMgt + '?per_page=' +  150 + '&page=' + page_no + '&filter[name]=' + name + '&filter[registration_activated]=' + registered + '&filter[giftcard_activated]=' + activated, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
+              
             },
           })
           .then(

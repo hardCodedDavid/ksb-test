@@ -231,7 +231,7 @@ const close = () => {
             multiple
             chips
             item-value="id"
-            :items="all_permissions"
+            :items="permissions"
           ></v-autocomplete>
           <v-btn
             :loading="loading"

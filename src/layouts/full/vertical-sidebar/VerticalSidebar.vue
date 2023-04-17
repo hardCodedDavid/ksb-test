@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
-
+import { ref, watch, onMounted, onBeforeMount } from "vue";
+import { storeToRefs } from "pinia";
 import { useCountryStore } from "../../../stores/country";
 import { useAuthStore } from "../../../stores/auth";
 
@@ -10,10 +10,27 @@ import LogoLight from "../logo/LogoLight.vue";
 import LogoDark from "../logo/LogoDark.vue";
 
 const customizer = useCustomizerStore();
-const { getCountries, getCurrency, getProducts, } = useCountryStore();
-const { getNotifications } = useAuthStore();
+const { getCountries, getCurrency, getProducts } = useCountryStore();
+const { getNotifications,getPermissions } = useAuthStore();
+
+// All permissions
+const { all_permissions, all_permissions_group } = storeToRefs(useAuthStore());
+
+
+const unique_groups = ref<any>('')
+
+
+// checkPermissions({permission: 'Manage_giftcards'})
+
 const sidebarMenu = ref(sidebarItems);
 
+
+
+onBeforeMount(async () => {
+  await getPermissions()
+
+  unique_groups.value = [...new Set(all_permissions_group.value)];
+});
 onMounted(async () => {
   await getCountries();
   await getCurrency();
@@ -41,90 +58,107 @@ onMounted(async () => {
     <!---Logo part -->
     <!-- ---------------------------------------------- -->
     <div class="pa-4">
-      <LogoDark v-if="!customizer.darktheme && customizer.SidebarColor == 'white'" />
+      <LogoDark
+        v-if="!customizer.darktheme && customizer.SidebarColor == 'white'"
+      />
       <LogoLight v-else />
     </div>
     <!-- ---------------------------------------------- -->
     <!---Navigation -->
     <!-- ---------------------------------------------- -->
     <perfect-scrollbar class="scrollnavbar">
-      <v-list class="pa-4" color="#34384f">
+      <v-list v-if="unique_groups.length > 0  && all_permissions.length > 0 " class="pa-4" color="#34384f">
         <!-- ---------------------------------------------- -->
         <!---Menu Loop -->
         <!-- ---------------------------------------------- -->
         <template v-for="(item, i) in sidebarMenu" :key="i">
-          <!-- ---------------------------------------------- -->
-          <!---Item Sub Header -->
-          <!-- ---------------------------------------------- -->
-          <v-list-subheader class="font-weight-bold black--text" v-if="item.header">{{
-            item.header
-          }}</v-list-subheader>
-          <!-- ---------------------------------------------- -->
-          <!---If Has Child -->
-          <!-- ---------------------------------------------- -->
-          <v-list-group v-else-if="item.children">
-            <!-- ---------------------------------------------- -->
-            <!---Dropdown  -->
-            <!-- ---------------------------------------------- -->
+          <v-list-subheader
+            class="font-weight-bold black--text"
+            v-if="item.group_name == '' || unique_groups.includes(item?.group_name) && item.header "
+            >{{ item.header }}</v-list-subheader
+          >
+
+          <v-list-group
+            v-else-if="item.children && unique_groups.includes(item?.group_name)"
+          >
             <template v-slot:activator="{ props }">
-              <v-list-item v-bind="props" :value="item.title" rounded="lg" class="mb-1">
+              <v-list-item
+                v-bind="props"
+                :value="item.title"
+                rounded="lg"
+                class="mb-1"
+              >
                 <!---Icon  -->
                 <template v-slot:prepend>
-                  <vue-feather :type="item.icon" class="feather-sm v-icon"></vue-feather>
+                  <vue-feather
+                    :type="item.icon"
+                    class="feather-sm v-icon"
+                  ></vue-feather>
                 </template>
                 <!---Title  -->
                 <v-list-item-title v-text="item.title"></v-list-item-title>
               </v-list-item>
             </template>
-            <!-- ---------------------------------------------- -->
-            <!---Sub Item-->
-            <!-- ---------------------------------------------- -->
+
+            <template v-for="(subitem, i) in item.children" :key="i">
+              <v-list-item
+                :value="subitem.to"
+                :to="subitem.to"
+                rounded="lg"
+                v-if="all_permissions.includes(subitem?.permissions)"
+                color="#34384f"
+                class="first-level-item mb-1"
+              >
+                <template v-slot:prepend>
+                  <vue-feather
+                    v-if="all_permissions.includes(subitem?.permissions)"
+                    type="disc"
+                    class="feather-sm v-icon"
+                  ></vue-feather>
+                </template>
+                <v-list-item-title
+                  v-if="all_permissions.includes(subitem?.permissions)"
+                  v-text="subitem.title"
+                ></v-list-item-title>
+              </v-list-item>
+            </template>
+          </v-list-group>
+
+          <template v-else>
             <v-list-item
-              v-for="(subitem, i) in item.children"
+              v-if="
+                all_permissions.includes(item?.permissions) ||
+                item?.permissions == ''
+              "
               :key="i"
-              :value="subitem.to"
-              :to="subitem.to"
+              :to="item.to"
               rounded="lg"
-              color="#34384f"
-              class="first-level-item mb-1"
+              class="mb-1"
             >
               <template v-slot:prepend>
-                <vue-feather type="disc" class="feather-sm v-icon"></vue-feather>
+                <vue-feather
+                  :type="item.icon"
+                  class="feather-sm v-icon v-icon--size-default"
+                ></vue-feather>
               </template>
-              <v-list-item-title v-text="subitem.title"></v-list-item-title>
+              <v-list-item-title v-text="item.title"></v-list-item-title>
             </v-list-item>
-          </v-list-group>
-          <!-- ---------------------------------------------- -->
-          <!---Single Item-->
-          <!-- ---------------------------------------------- -->
-          <v-list-item v-else :key="i" :to="item.to" rounded="lg" class="mb-1">
-            <template v-slot:prepend>
-              <vue-feather
-                :type="item.icon"
-                class="feather-sm v-icon v-icon--size-default"
-              ></vue-feather>
-            </template>
-            <v-list-item-title v-text="item.title"></v-list-item-title>
-          </v-list-item>
-          <!-- ---------------------------------------------- -->
-          <!---End Single Item-->
-          <!-- ---------------------------------------------- -->
+          </template>
         </template>
       </v-list>
     </perfect-scrollbar>
   </v-navigation-drawer>
 </template>
 
-
 <style>
-.text-h5{
+.text-h5 {
   font-family: "DM Sans", sans-serif !important;
 }
-.v-list-item-title{
-  font-size:13px;
+.v-list-item-title {
+  font-size: 13px;
 }
 
-p{
- font-size:13px; 
+p {
+  font-size: 13px;
 }
 </style>
