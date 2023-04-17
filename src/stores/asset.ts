@@ -43,13 +43,13 @@ export const useAssetStore = defineStore('asset', {
     all_transactions: [],
     single_transactions: [],
     asset: {
-      name: "",
-      code: "",
-      icon: "",
-      buy_rate: "",
-      sell_rate: "",
-      id: "",
-      networks: [],
+      name: '',
+      code: '',
+      icon: '',
+      buy_rate: '',
+      sell_rate: '',
+      id: '',
+      networks: []
     },
     assets: [],
     all_networks: [],
@@ -57,9 +57,10 @@ export const useAssetStore = defineStore('asset', {
   }),
   getters: {
     allTransactions: (state) => state.all_transactions,
-    getIds: (state) => state.asset.networks.map((items) => {
-      return items
-    })
+    getIds: (state) =>
+      state.asset.networks.map((items) => {
+        return items;
+      })
   },
   actions: {
     // ASSETS TRANSACTION
@@ -446,10 +447,20 @@ export const useAssetStore = defineStore('asset', {
       }
     },
     // ASSETS
-    async getAllAsset(page: number = 1, name: string = '', code: string = '') {
+    async getAllAsset(
+      page: number = 1,
+      name: string = '',
+      code: string = '',
+      trashed?: string
+    ) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
+      // Status query
+      let trashedQuery: string = '';
+      trashed
+        ? (trashedQuery += `&filter[trashed]=${trashed}`)
+        : (trashedQuery = '');
       try {
         await ksbTechApi
           .get(
@@ -460,8 +471,10 @@ export const useAssetStore = defineStore('asset', {
               page +
               '&filter[name]=' +
               name +
-              "&filter[code]=" +
-              code + '&include=networks',
+              '&filter[code]=' +
+              code +
+              '&include=networks' +
+              trashedQuery,
             {
               headers: {
                 Accept: 'application/json',
@@ -573,20 +586,19 @@ export const useAssetStore = defineStore('asset', {
 
       this.loading = true;
 
-      formData.append("name", asset_t.name);
-      formData.append("code", asset_t.code);
-      formData.append("icon", asset_t.icon);
-      formData.append("buy_rate", asset_t.buy_rate);
-      formData.append("sell_rate", asset_t.sell_rate);
-
+      formData.append('name', asset_t.name);
+      formData.append('code', asset_t.code);
+      formData.append('icon', asset_t.icon);
+      formData.append('buy_rate', asset_t.buy_rate);
+      formData.append('sell_rate', asset_t.sell_rate);
 
       const ids = asset_t.networks;
 
       for (let i = 0; i < ids.length; i++) {
-        formData.append("networks[]", ids[i]);
+        formData.append('networks[]', ids[i]);
       }
 
-      formData.append("_method", "PATCH");
+      formData.append('_method', 'PATCH');
 
       const { notify } = useNotification();
       try {
