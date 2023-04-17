@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed, watch, onUnmounted } from "vue";
-import { useQuery, useMutation } from 'vue-query'
+import { ref, onMounted, reactive, computed, watch } from "vue";
 import { useGiftCardStore } from "../../stores/giftcard";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
+import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 
 const {
   getAllGiftCardTransaction,
@@ -23,18 +23,18 @@ const {
 } = storeToRefs(useGiftCardStore());
 
 const formatCurrency = (value: any) => {
-  return new Intl.NumberFormat().format(value)
-}
+  return new Intl.NumberFormat().format(value);
+};
 
 // Get and sum up total earnings from list of transactions
-const totalEarnings = ref<any>(0)
+const totalEarnings = ref<any>(0);
 watch(gift_transactions, (newValue, oldValue) => {
   let total = 0;
   gift_transactions.value?.data.forEach((transaction: any) => {
     total += transaction.payable_amount;
   });
   totalEarnings.value = formatCurrency(total);
-})
+});
 
 const dialog2 = ref(false);
 const note = ref("");
@@ -136,51 +136,9 @@ const page_no = ref(1);
 const date_from = ref("");
 const date_to = ref("");
 const reference = ref("");
-// const dialog = ref(false);
-
-const { data, isLoading, isFetching, refetch } = useQuery(
-  ["giftCard-transaction", page_no, status, trade, date_from, date_to, reference],
-  () =>
-    giftCardTransactionQueries(
-      status.value,
-      trade.value,
-      page_no.value,
-      date_from.value,
-      date_to.value,
-      reference.value
-    ),
-  {
-    refetchOnWindowFocus: false,
-    retry: 4,
-    staleTime: 200000,
-  }
-);
-
-
-const  { mutate:approve } = useMutation(approveRequest, {
-  onSuccess(){
-    const q = refetch.value
-
-    q()
-  }
-})
-const  { mutate:partialApprove } = useMutation(()=>partialApproveRequest(id.value, partial_approve), {
-  onSuccess(){
-    const q = refetch.value
-
-    q()
-  }
-})
-
-const transaction_query = computed(() => {
-  return data.value?.data?.data?.giftcards;
-});
 
 const nextPage = (val: any) => {
   page_no.value = val;
-};
-const status_t = (val: any) => {
-  status.value = val;
 };
 
 const tab = ref(null);
@@ -190,23 +148,32 @@ const formate_text = (text: string) => {
   return text;
 };
 
-const reset = () => {
+const reset = async () => {
   (status.value = ""),
     (trade.value = ""),
     (page_no.value = 1),
     (date_from.value = ""),
     (date_to.value = "");
 
-  
+  await getAllGiftCardTransaction(
+    status.value,
+    trade.value,
+    page_no.value,
+    date_from.value,
+    date_to.value,
+    reference.value
+  );
 };
 
-onUnmounted(() => {
-  status.value = "";
-  (status.value = ""),
-    (trade.value = ""),
-    (page_no.value = 1),
-    (date_from.value = ""),
-    (date_to.value = "");
+onMounted(async () => {
+  await getAllGiftCardTransaction(
+    status.value,
+    trade.value,
+    page_no.value,
+    date_from.value,
+    date_to.value,
+    reference.value
+  );
 });
 </script>
 <template>
@@ -219,7 +186,7 @@ onUnmounted(() => {
         </div>
 
         <div class="mt-11">
-          <h2 class="mb-2">₦‎{{totalEarnings}}</h2>
+          <h2 class="mb-2">₦‎{{ totalEarnings }}</h2>
           <span>All time</span>
         </div>
       </v-card>
@@ -279,7 +246,21 @@ onUnmounted(() => {
       <h4>Filter Options:</h4>
       <div>
         <v-btn @click="reset" width="200px" class="mr-4">Reset</v-btn>
-        <v-btn @click="refetch" width="200px" color="secondary">Filter</v-btn>
+        <v-btn
+          @click="
+            getAllGiftCardTransaction(
+              status,
+              trade,
+              page_no,
+              date_from,
+              date_to,
+              reference
+            )
+          "
+          width="200px"
+          color="secondary"
+          >Filter</v-btn
+        >
       </div>
     </div>
     <v-row class="mt-3">
@@ -326,11 +307,11 @@ onUnmounted(() => {
     <v-col cols="12" sm="12" class="mt-4">
       <v-card class="pa-5">
         <v-tabs v-model="tab" bg-color="none" class="mb-5 border-bottom">
-          <v-tab @click="status_t('')">All</v-tab>
-          <v-tab @click="status_t('pending')">Pending</v-tab>
-          <v-tab @click="status_t('approved')">Approved</v-tab>
-          <v-tab @click="status_t('declined')">Declined</v-tab>
-          <v-tab @click="status_t('partial')">Partial</v-tab>
+          <v-tab @click="getAllGiftCardTransaction(status = '')">All</v-tab>
+          <v-tab @click="getAllGiftCardTransaction(status = 'pending')">Pending</v-tab>
+          <v-tab @click="getAllGiftCardTransaction(status = 'approved')">Approved</v-tab>
+          <v-tab @click="getAllGiftCardTransaction(status = 'declined')">Declined</v-tab>
+          <v-tab @click="getAllGiftCardTransaction(status = 'partial')">Partial</v-tab>
         </v-tabs>
         <v-table>
           <thead>
@@ -344,10 +325,8 @@ onUnmounted(() => {
               </th>
             </tr>
           </thead>
-          <tbody
-            v-if="transaction_query?.data?.length > 0 && isFetching == false"
-          >
-            <tr v-for="(item, index) in transaction_query?.data" :key="item.id">
+          <tbody v-if="gift_transactions?.data?.length > 0 && loading == false">
+            <tr v-for="(item, index) in gift_transactions?.data" :key="item.id">
               <td>{{ index + 1 }}</td>
               <td
                 class="font-weight-bold username"
@@ -405,7 +384,7 @@ onUnmounted(() => {
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'pending'"
-                        @click="approve(item?.id)"
+                        @click="approveRequest(item?.id)"
                         link
                         color="secondary"
                       >
@@ -448,24 +427,54 @@ onUnmounted(() => {
         </v-table>
 
         <v-layout
-          v-if="isLoading == true || isFetching == true"
+          v-if="loading == true"
           class="align-center justify-center w-100 my-5"
         >
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
         <p
           class="font-weight-bold text-center my-3"
-          v-if="transaction_query?.data?.length <= 0 && isLoading == false"
+          v-if="gift_transactions?.data?.length <= 0 && loading == false"
         >
           No data found
         </p>
       </v-card>
       <v-pagination
         v-model="page_no"
-        :length="transaction_query?.last_page"
-        @next="nextPage"
-        @prev="nextPage"
-        @update:modelValue="nextPage"
+        :length="gift_transactions?.last_page"
+        @next="
+         (...args)=>
+          getAllGiftCardTransaction(
+            status,
+            trade,
+            ...args,
+            date_from,
+            date_to,
+            reference
+          )
+        "
+        @prev="
+        (...args)=>
+          getAllGiftCardTransaction(
+            status,
+            trade,
+            ...args,
+            date_from,
+            date_to,
+            reference
+          )
+        "
+        @update:modelValue="
+        (...args)=>
+          getAllGiftCardTransaction(
+            status,
+            trade,
+            ...args,
+            date_from,
+            date_to,
+            reference
+          )
+        "
         active-color="red"
         :start="1"
         variant="flat"
@@ -514,7 +523,7 @@ onUnmounted(() => {
           ></v-file-input>
           <v-btn
             :loading="approving"
-            @click="partialApprove(id, partial_approve)"
+            @click="partialApproveRequest(id, partial_approve)"
             block
             color="secondary"
             >submit</v-btn
@@ -562,7 +571,7 @@ onUnmounted(() => {
   </v-row>
 </template>
 
-<style  lang="scss">
+<style lang="scss">
 .username {
   text-decoration: underline;
   cursor: pointer;

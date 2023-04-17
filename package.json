@@ -25,7 +25,6 @@
     "vue-easy-lightbox": "^1.15.0",
     "vue-feather": "2.0.0",
     "vue-instantsearch": "4.4.2",
-    "vue-query": "^1.26.0",
     "vue-router": "4.1.4",
     "vue3-apexcharts": "1.4.1",
     "vue3-otp-input": "^0.3.6",
