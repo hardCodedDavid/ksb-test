@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed, watch, onUnmounted } from "vue";
-import { useQuery } from 'vue-query'
+import { useQuery, useMutation } from 'vue-query'
 import { useGiftCardStore } from "../../stores/giftcard";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
@@ -155,6 +155,22 @@ const { data, isLoading, isFetching, refetch } = useQuery(
     staleTime: 200000,
   }
 );
+
+
+const  { mutate:approve } = useMutation(approveRequest, {
+  onSuccess(){
+    const q = refetch.value
+
+    q()
+  }
+})
+const  { mutate:partialApprove } = useMutation(()=>partialApproveRequest(id.value, partial_approve), {
+  onSuccess(){
+    const q = refetch.value
+
+    q()
+  }
+})
 
 const transaction_query = computed(() => {
   return data.value?.data?.data?.giftcards;
@@ -389,7 +405,7 @@ onUnmounted(() => {
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'pending'"
-                        @click="approveRequest(item?.id)"
+                        @click="approve(item?.id)"
                         link
                         color="secondary"
                       >
@@ -498,7 +514,7 @@ onUnmounted(() => {
           ></v-file-input>
           <v-btn
             :loading="approving"
-            @click="partialApproveRequest(id, partial_approve)"
+            @click="partialApprove(id, partial_approve)"
             block
             color="secondary"
             >submit</v-btn

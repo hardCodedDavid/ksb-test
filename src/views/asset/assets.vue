@@ -53,15 +53,10 @@ const header = ref([
 const name = ref("");
 const code = ref("");
 const page = ref(1);
-const edit = ref(false);
-const btnText = ref("Create new asset");
 
-const editItem = (item: never) => {
-  edit.value = true;
-  btnText.value = "Update asset";
-  dialog.value = true;
-  asset.value = Object.assign({}, item);
-};
+
+
+
 
 const close = () => {
   dialog.value = false;
