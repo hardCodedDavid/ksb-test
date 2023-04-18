@@ -220,7 +220,7 @@ export const useCountryStore = defineStore({
     async getProducts() {
       try {
         await ksbTechApi
-          .get('/giftcard-categories' + '?include=countries', {
+          .get('/giftcard-categories' + '?include=countries' + '&do_not_paginate=1', {
             headers: {
               Accept: "application/json",
             },
@@ -232,7 +232,7 @@ export const useCountryStore = defineStore({
                 data: any;
               };
             }) => {
-              this.giftCategories = res.data.data.giftcard_categories.data;
+              this.giftCategories = res.data.data.giftcard_categories;
             }
           );
       } catch (error) {
