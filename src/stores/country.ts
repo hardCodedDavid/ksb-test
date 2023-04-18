@@ -1,30 +1,31 @@
-import { defineStore } from "pinia";
-import { country, countryMgt, all_country } from "../../apiRoute";
-import { useNotification } from "@kyvg/vue3-notification";
-import ksbTechApi from "../../axios";
-import { useAuthStore } from "./auth";
+import { defineStore } from 'pinia';
+import { country, countryMgt, all_country } from '../../apiRoute';
+import { useNotification } from '@kyvg/vue3-notification';
+import ksbTechApi from '../../axios';
+import { useAuthStore } from './auth';
 
 export const useCountryStore = defineStore({
-  id: "country",
+  id: 'country',
   state: () => ({
     country: [],
     countryMgt: [],
     currencies: [],
     giftCategories: [],
-    dialog:false,
-    exchange_rate_to_ngn:"",
+    dialog: false,
+    exchange_rate_to_ngn: '',
     loading: false,
-    all_country:{}
+    all_country: {}
   }),
   getters: {
     countryNames: (state) => state.country.map((country) => country['name']),
     countries: (state) => state.country,
-    giftCardCategories: state => state.giftCategories.map((items) => {
-      return {
-        id: items['id'],
-        name: items['name'],
-      }
-    })
+    giftCardCategories: (state) =>
+      state.giftCategories.map((items) => {
+        return {
+          id: items['id'],
+          name: items['name']
+        };
+      })
   },
   actions: {
     async getCountries() {
@@ -32,8 +33,8 @@ export const useCountryStore = defineStore({
         await ksbTechApi
           .get(country + '?filter[giftcard_activated]=' + 1, {
             headers: {
-              Accept: "application/json",
-            },
+              Accept: 'application/json'
+            }
           })
           .then(
             (res: {
@@ -45,21 +46,37 @@ export const useCountryStore = defineStore({
               this.country = res.data.data.countries.data;
             }
           );
-      } catch (error) {
-
-      }
+      } catch (error) {}
     },
-    async getCountryMgt(page_no:number = 1, name:string = "" , activated:string = '', registered:string = '') {
+    async getCountryMgt(
+      page_no: number = 1,
+      name: string = '',
+      activated: string = '',
+      registered: string = ''
+    ) {
       const store = useAuthStore();
-      this.loading = true
+      this.loading = true;
       try {
         await ksbTechApi
-          .get(countryMgt + '?per_page=' +  150 + '&page=' + page_no + '&filter[name]=' + name + '&filter[registration_activated]=' + registered + '&filter[giftcard_activated]=' + activated, {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
-          })
+          .get(
+            countryMgt +
+              '?per_page=' +
+              150 +
+              '&page=' +
+              page_no +
+              '&filter[name]=' +
+              name +
+              '&filter[registration_activated]=' +
+              registered +
+              '&filter[giftcard_activated]=' +
+              activated,
+            {
+              headers: {
+                Accept: 'application/json',
+                Authorization: `Bearer ${store.token}`
+              }
+            }
+          )
           .then(
             (res: {
               data: {
@@ -68,24 +85,40 @@ export const useCountryStore = defineStore({
               };
             }) => {
               this.countryMgt = res.data.data.countries;
-              this.loading = false
+              this.loading = false;
             }
           );
       } catch (error) {
-        this.loading = false
+        this.loading = false;
       }
     },
-    async getAllCountry(page_no:number = 1, name:string = "" , activated:string = '', registered:string = '') {
+    async getAllCountry(
+      page_no: number = 1,
+      name: string = '',
+      activated: string = '',
+      registered: string = ''
+    ) {
       const store = useAuthStore();
-      this.loading = true
+      this.loading = true;
       try {
         await ksbTechApi
-          .get(all_country + '?do_not_paginate=1' + '&page=' + page_no + '&filter[name]=' + name + '&filter[registration_activated]=' + registered + '&filter[giftcard_activated]=' + activated, {
-            headers: {
-              Accept: "application/json",
-              
-            },
-          })
+          .get(
+            all_country +
+              '?do_not_paginate=1' +
+              '&page=' +
+              page_no +
+              '&filter[name]=' +
+              name +
+              '&filter[registration_activated]=' +
+              registered +
+              '&filter[giftcard_activated]=' +
+              activated,
+            {
+              headers: {
+                Accept: 'application/json'
+              }
+            }
+          )
           .then(
             (res: {
               data: {
@@ -94,23 +127,23 @@ export const useCountryStore = defineStore({
               };
             }) => {
               this.all_country = res.data.data.countries;
-              this.loading = false
+              this.loading = false;
             }
           );
       } catch (error) {
-        this.loading = false
+        this.loading = false;
       }
     },
     async registrationActivation(id: string) {
       const store = useAuthStore();
-      this.loading = true
+      this.loading = true;
       try {
         await ksbTechApi
-          .patch(countryMgt + '/' + id + '/registration', "", {
+          .patch(countryMgt + '/' + id + '/registration', '', {
             headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Accept: 'application/json',
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -119,25 +152,24 @@ export const useCountryStore = defineStore({
                 data: any;
               };
             }) => {
-              this.getCountryMgt(1)
-              this.loading = false
+              this.getCountryMgt(1);
+              this.loading = false;
             }
           );
       } catch (error) {
-        this.loading = false
+        this.loading = false;
       }
     },
-    async giftcardActivation(id: string) {
-      
+    async giftcardActivation(id: string, page: number) {
       const store = useAuthStore();
-      this.loading = true
+      this.loading = true;
       try {
         await ksbTechApi
-          .patch(countryMgt + '/' + id + '/giftcard', "", {
+          .patch(countryMgt + '/' + id + '/giftcard', '', {
             headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Accept: 'application/json',
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -146,23 +178,23 @@ export const useCountryStore = defineStore({
                 data: any;
               };
             }) => {
-              this.getCountryMgt(1)
-              this.loading = false
+              this.getCountryMgt(page);
+              this.loading = false;
             }
           );
       } catch (error) {
-        this.loading = false
+        this.loading = false;
       }
     },
-    
-    async getCurrency(name:string = '') {
+
+    async getCurrency(name: string = '') {
       try {
-        this.loading = true
+        this.loading = true;
         await ksbTechApi
           .get('/currencies' + '?do_not_paginate=' + 1, {
             headers: {
-              Accept: "application/json",
-            },
+              Accept: 'application/json'
+            }
           })
           .then(
             (res: {
@@ -172,30 +204,29 @@ export const useCountryStore = defineStore({
               };
             }) => {
               this.currencies = res.data.data.currencies;
-              this.loading = false
+              this.loading = false;
             }
           );
       } catch (error) {
-
-        this.loading = false
+        this.loading = false;
       }
     },
-    async updateCurrency(id:string) {
+    async updateCurrency(id: string) {
       try {
         const { notify } = useNotification();
         const store = useAuthStore();
-        this.loading = true
-        var formData = new FormData()
+        this.loading = true;
+        var formData = new FormData();
 
-        formData.append("exchange_rate_to_ngn", this.exchange_rate_to_ngn);
-        formData.append("_method", "PATCH");
+        formData.append('exchange_rate_to_ngn', this.exchange_rate_to_ngn);
+        formData.append('_method', 'PATCH');
 
         await ksbTechApi
-          .post('/admin/currencies' + '/' + id, formData ,{
+          .post('/admin/currencies' + '/' + id, formData, {
             headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Accept: 'application/json',
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -205,26 +236,31 @@ export const useCountryStore = defineStore({
               };
             }) => {
               notify({
-                title: "Successful",
+                title: 'Successful',
                 text: res.data.message,
-                type: "success",
+                type: 'success'
               });
-              this.loading =false
-              this.dialog =false
+              this.loading = false;
+              this.dialog = false;
             }
           );
       } catch (error) {
-        this.loading =false
+        this.loading = false;
       }
     },
     async getProducts() {
       try {
         await ksbTechApi
-          .get('/giftcard-categories' + '?include=countries' + '&do_not_paginate=1', {
-            headers: {
-              Accept: "application/json",
-            },
-          })
+          .get(
+            '/giftcard-categories' +
+              '?include=countries' +
+              '&do_not_paginate=1',
+            {
+              headers: {
+                Accept: 'application/json'
+              }
+            }
+          )
           .then(
             (res: {
               data: {
@@ -235,10 +271,8 @@ export const useCountryStore = defineStore({
               this.giftCategories = res.data.data.giftcard_categories;
             }
           );
-      } catch (error) {
-
-      }
-    },
-  },
+      } catch (error) {}
+    }
+  }
 });
 //  + '?do_not_paginate=1'
