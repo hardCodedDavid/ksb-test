@@ -13,7 +13,7 @@ interface GiftCard {
     sale_term: string;
     countries: any;
     data: string;
-    admin: [];
+    admins: [];
   };
   loading: boolean;
   declining: boolean;
@@ -46,7 +46,7 @@ export const useGiftCardStore = defineStore('giftcard', {
       countries: [],
       data: '',
 
-      admin: []
+      admins: []
     },
     loading: false,
     declining: false,
@@ -70,6 +70,18 @@ export const useGiftCardStore = defineStore('giftcard', {
     //     }
     //   });
     // },
+    country_id:(state) => state.giftCard.countries?.map((item:any) => {
+      if(item.id){
+      return item.id
+      }
+      else return item
+    }),
+    admin_id:(state) => state.giftCard.admins?.map((item:any) => {
+      if(item.id){
+        return item.id
+        }
+        else return item
+    }),
   },
   actions: {
     async getAllGifCardCategories(
@@ -380,7 +392,7 @@ export const useGiftCardStore = defineStore('giftcard', {
       const store = useAuthStore();
       try {
         await ksbTechApi
-          .get(giftCardCategory + '/' + id + '?include=countries', {
+          .get(giftCardCategory + '/' + id + '?include=countries,admins', {
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${store.token}`
@@ -393,7 +405,7 @@ export const useGiftCardStore = defineStore('giftcard', {
                 data: any;
               };
             }) => {
-              this.singleGiftCard = res.data.data.giftcard_category;
+              this.giftCard = res.data.data.giftcard_category;
             }
           );
       } catch (error: any) {
@@ -563,8 +575,8 @@ export const useGiftCardStore = defineStore('giftcard', {
       formData.append('icon', file);
       formData.append('sale_term', payload.sale_term);
 
-      const ids = this.giftCard.countries;
-      const admin_id = this.giftCard.admin;
+      const ids = this.country_id;
+      const admin_id = this.admin_id;
       for (let i = 0; i < ids.length; i++) {
         formData.append('countries[]', ids[i]);
       }
@@ -618,15 +630,31 @@ export const useGiftCardStore = defineStore('giftcard', {
       var formData = new FormData();
       formData.append('name', payload.name);
       !file.name ? '' : formData.append('icon', file, file.name);
+      
       !payload?.sale_term
         ? ''
         : formData.append('sale_term', payload?.sale_term);
-      for (let country in Object.keys(payload.countries)) {
-        countries.push(payload.countries[country].id);
-      }
-      for (let id in countries) {
-        formData.append('countries[]', countries[id]);
-      }
+      
+        const ids = this.country_id;
+        if (ids?.length > 0) {
+          for (let i = 0; i < ids.length; i++) {
+            formData.append('countries[]', ids[i]);
+          }
+        }
+
+        const admin_id = this.admin_id;
+       if (admin_id?.length > 0) {
+        
+        for (let i = 0; i < admin_id.length; i++) {
+          formData.append('admins[]', admin_id[i]);
+        }
+       }
+      //  for (let country in Object.keys(payload.countries)) {
+      //   formData.append('countries[]', country);
+      // }
+      // for (let id in countries) {
+      //   formData.append('countries[]', countries[id]);
+      // }
       formData.append('_method', 'PATCH');
 
       this.loading = true;

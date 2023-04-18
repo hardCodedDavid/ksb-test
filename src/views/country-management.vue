@@ -95,7 +95,19 @@ const registration_text = (status: string | null) => {
           ></v-select>
         </v-col>
         <v-col cols="12" sm="12" md="6" lg="3">
-          <v-btn @click="getCountryMgt(page, name, activated, registered)" block color="secondary">Filter</v-btn>
+          <v-btn
+            @click="
+              getCountryMgt(
+                page,
+                name,
+                activated == 'In active' ? 0 : 1,
+                registered == 'In active' ? 0 : 1
+              )
+            "
+            block
+            color="secondary"
+            >Filter</v-btn
+          >
         </v-col>
       </v-row>
     </v-card>
@@ -112,7 +124,7 @@ const registration_text = (status: string | null) => {
             </th>
           </tr>
         </thead>
-        <tbody >
+        <tbody>
           <tr v-for="countries in countryMgt?.data" :key="countries.id">
             <td>{{ countries?.alpha3_code }}</td>
             <td>

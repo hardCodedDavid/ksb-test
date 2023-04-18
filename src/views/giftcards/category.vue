@@ -105,12 +105,22 @@ const addGiftCard = async (giftCard: any) => {
 
 const edit = ref(false);
 const btnText = ref("Create Item");
-const editItem = (item: never) => {
-  giftCard.value = Object.assign({}, item);
+const editItem = async (item: any) => {
+  await getSingleGifCardCategories(item.id);
+
+  giftCard.value = {
+    id:item.id,
+    name: item.name,
+    icon: item.icon,
+    sale_term: item.sale_term,
+    countries: item?.countries,
+    admins: giftCard.value?.admins,
+  }
+
   btnText.value = "Update category";
   dialog.value = true;
   edit.value = true;
-  console.log(item, giftCard.value);
+  // console.log(item, giftCard.value);
 };
 
 const close = () => {
@@ -346,7 +356,7 @@ const statusColor = (status: string | null) => {
                     label="Countries"
                     required
                     chips
-                    :custom-filter="customFilter"
+                    
                     multiple
                     item-title="name"
                     item-value="id"
@@ -365,7 +375,7 @@ const statusColor = (status: string | null) => {
                     multiple
                     item-title="email"
                     item-value="id"
-                    v-model="giftCard.admin"
+                    v-model="giftCard.admins"
                     hint="This field is optional"
                     persistent-hint
                   ></v-autocomplete>
