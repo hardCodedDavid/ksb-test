@@ -403,13 +403,14 @@ onMounted(async () => {
 
               <td>
                 {{
-                  useDateFormat(item?.created_at, "DD, MMMM-YYYY hh:mm a").value
+                  useDateFormat(item?.created_at, "DD-MM-YYYY hh:mm a").value
                 }}
               </td>
               <!-- <td>{{ item.trade_type }}</td> -->
               <td>
                 <v-chip
                   label
+                  size="small"
                   class="text-capitalize font-weight-bold pa-3"
                   :color="status_color(item?.status)"
                   >{{ formate_text(item?.status) }}</v-chip
@@ -629,6 +630,9 @@ onMounted(async () => {
 </template>
 
 <style lang="scss">
+.v-table td {
+  font-size: 12px !important;
+}
 .username {
   text-decoration: underline;
   cursor: pointer;
