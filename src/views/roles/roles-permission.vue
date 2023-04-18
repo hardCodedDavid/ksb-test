@@ -224,7 +224,7 @@ const close = () => {
             variant="outlined"
           ></v-textarea>
           <v-autocomplete
-            v-model="role.permissions"
+            v-model="role.permission_id"
             variant="outlined"
             label="Permissions"
             item-title="name"
