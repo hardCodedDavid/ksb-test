@@ -29,7 +29,8 @@ export const network = '/admin/networks'
 export const all_network = '/networks'
 
 export const country = '/countries'
-export const countryMgt = '/countries'
+export const all_country = '/countries'
+export const countryMgt = '/admin/countries'
 export const systemData = '/admin/system-data'
 
 export const admin = "/admin/admins"

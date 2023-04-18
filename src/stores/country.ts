@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { country, countryMgt } from "../../apiRoute";
+import { country, countryMgt, all_country } from "../../apiRoute";
 import { useNotification } from "@kyvg/vue3-notification";
 import ksbTechApi from "../../axios";
 import { useAuthStore } from "./auth";
@@ -13,7 +13,8 @@ export const useCountryStore = defineStore({
     giftCategories: [],
     dialog:false,
     exchange_rate_to_ngn:"",
-    loading: false
+    loading: false,
+    all_country:{}
   }),
   getters: {
     countryNames: (state) => state.country.map((country) => country['name']),
@@ -56,7 +57,7 @@ export const useCountryStore = defineStore({
           .get(countryMgt + '?per_page=' +  150 + '&page=' + page_no + '&filter[name]=' + name + '&filter[registration_activated]=' + registered + '&filter[giftcard_activated]=' + activated, {
             headers: {
               Accept: "application/json",
-              
+              Authorization: `Bearer ${store.token}`,
             },
           })
           .then(
@@ -67,6 +68,32 @@ export const useCountryStore = defineStore({
               };
             }) => {
               this.countryMgt = res.data.data.countries;
+              this.loading = false
+            }
+          );
+      } catch (error) {
+        this.loading = false
+      }
+    },
+    async getAllCountry(page_no:number = 1, name:string = "" , activated:string = '', registered:string = '') {
+      const store = useAuthStore();
+      this.loading = true
+      try {
+        await ksbTechApi
+          .get(all_country + '?do_not_paginate=1' + '&page=' + page_no + '&filter[name]=' + name + '&filter[registration_activated]=' + registered + '&filter[giftcard_activated]=' + activated, {
+            headers: {
+              Accept: "application/json",
+              
+            },
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.all_country = res.data.data.countries;
               this.loading = false
             }
           );

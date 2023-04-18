@@ -23,8 +23,8 @@ const { roles, assign_role_form, dialog3, isAssigning } = storeToRefs(
 const { admin, loading, dialog, adminDetails, id, dialog2, single_admin } =
   storeToRefs(useUserStore());
 const form = ref(null);
-const { countryMgt } = storeToRefs(useCountryStore());
-const {  getCountryMgt } = useCountryStore()
+const { all_country } = storeToRefs(useCountryStore());
+const {  getAllCountry } = useCountryStore()
 // @ts-ignore   
 // yarn add vue-virtual-scroller@next
 
@@ -71,7 +71,7 @@ const close = () => {
 onMounted(async () => {
   await getAdmin();
   await getAllRoles();
-  await getCountryMgt();
+  await getAllCountry();
 });
 
 const blockedStatus = (status: string | null) => {
@@ -289,10 +289,11 @@ const roles = item.map((element:any) => {
                   </v-col>
                   <v-col cols="12" sm="12">
                     <v-autocomplete
-                      :items="[...countryMgt.data]"
+                      :items="all_country"
                       label="Countries"
                       no-filter
                       required
+                      
                       item-title="name"
                       item-value="id"
                       v-model="adminDetails.country_name"

@@ -112,7 +112,7 @@ const registration_text = (status: string | null) => {
             </th>
           </tr>
         </thead>
-        <tbody>
+        <tbody >
           <tr v-for="countries in countryMgt?.data" :key="countries.id">
             <td>{{ countries?.alpha3_code }}</td>
             <td>
