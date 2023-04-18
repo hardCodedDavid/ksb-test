@@ -43,7 +43,7 @@ export const useCountryStore = defineStore({
                 data: any;
               };
             }) => {
-              this.country = res.data.data.countries.data;
+              this.country = res.data.data.countries;
             }
           );
       } catch (error) {}
