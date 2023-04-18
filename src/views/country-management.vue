@@ -174,7 +174,7 @@ const registration_text = (status: string | null) => {
                   </template>
                   <v-list>
                     <v-list-item
-                      @click="giftcardActivation(countries.id)"
+                      @click="giftcardActivation(countries.id, page)"
                       link
                       color="secondary"
                     >
