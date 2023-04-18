@@ -31,7 +31,7 @@ export const useCountryStore = defineStore({
     async getCountries() {
       try {
         await ksbTechApi
-          .get(country + '?filter[giftcard_activated]=' + 1, {
+          .get(country + '?filter[giftcard_activated]=' + 1 + '&do_not_paginate=1', {
             headers: {
               Accept: 'application/json'
             }
