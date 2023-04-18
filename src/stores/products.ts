@@ -13,6 +13,7 @@ interface GiftCardProduct {
     sell_rate: Number | null;
     sell_min_amount: string;
     sell_max_amount: string;
+    giftcard_category:string
   };
   loading: boolean;
   gift_products: GiftProductPayload;
@@ -42,6 +43,7 @@ export const useGiftProductStore = defineStore("gift_product", {
       sell_rate: 0,
       sell_min_amount: "",
       sell_max_amount: "",
+      giftcard_category:""
     },
     loading: false,
     gift_products: {
@@ -108,19 +110,16 @@ export const useGiftProductStore = defineStore("gift_product", {
         });
       }
     },
-    async createGiftCardProduct(payload: GiftProductPayload) {
+    async createGiftCardProduct(payload: any) {
       const store = useAuthStore();
       const { notify } = useNotification();
 
       //   const country_id = this.country_id;
 
       var formData = new FormData();
-      formData.append(
-        "giftcard_category_id",
-        "987d0d01-97dc-41d8-8725-6316e520cae8"
-      );
-      formData.append("country_id", "98419dc7-b43a-4723-b7b3-e1525269b193");
-      formData.append("currency_id", "9874e18a-cedd-49fa-8f71-191b040bc661");
+      formData.append("giftcard_category_id", payload.giftcard_category);
+      formData.append("country_id", payload.country);
+      formData.append("currency_id", payload.currency);
 
       formData.append("name", payload.name);
       formData.append("sell_rate", payload.sell_rate);

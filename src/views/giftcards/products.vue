@@ -1,19 +1,42 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted, reactive, computed, toRefs } from "vue";
 import { storeToRefs } from "pinia";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 import { useCountryStore } from "../../stores/country";
 import { useGiftProductStore } from "../../stores/products";
+import { useGiftCardStore } from "../../stores/giftcard";
 import { useDateFormat } from "@vueuse/core";
-const { countries, giftCardCategories, currencies } = storeToRefs(useCountryStore());
+const { countries, giftCardCategories, currencies, giftCategories } = storeToRefs(useCountryStore());
 const { giftCard, loading, dialog, gift_products } = storeToRefs(useGiftProductStore());
+// const { giftCard:productCard } = storeToRefs(useGiftCardStore());
+const { getSingleGifCardCategories } = useGiftCardStore();
 const {
   createGiftCardProduct,
   getAllGifCardProduct,
   deleteGifCardProducts,
   activationGifCardProduct,
   editGiftCardProduct,
+  
 } = useGiftProductStore();
+
+
+const gCountries = computed<any>(() => {
+  return giftCategories.value.find((item:any)=> {
+    if(item.id == giftCard.value.giftcard_category ){
+      return item.countries
+    }
+  })
+  
+})
+
+const countriez = computed(() => {
+  return gCountries.value?.countries?.filter((item:any)=> {
+     return item
+  })
+  
+})
+
+
 const page = ref({ title: "Gift Card Product" });
 const breadcrumbs = ref([
   {
@@ -292,11 +315,24 @@ const activation_status = ref("");
                 </v-col>
                 <v-col cols="12" sm="12">
                   <v-autocomplete
-                    :items="countries"
+                   variant="outlined"
+                    :items="giftCardCategories"
+                    label="Giftcard categories*"
+                    required
+                    @update:modelValue="getSingleGifCardCategories"
+                    item-title="name"
+                    item-value="id"
+                    v-model="giftCard.giftcard_category"
+                    
+                  ></v-autocomplete>
+                </v-col>
+                <v-col v-if="giftCard.giftcard_category" cols="12" sm="12">
+                  <v-autocomplete
+                    :items="countriez"
                     label="Countries*"
                     required
                      variant="outlined"
-                    chips
+                    
                     item-title="name"
                     item-value="id"
                     v-model="giftCard.country"
@@ -304,33 +340,20 @@ const activation_status = ref("");
                     persistent-hint
                   ></v-autocomplete>
                 </v-col>
+                
                 <v-col cols="12" sm="12">
                   <v-autocomplete
+                  :items="currencies"
                    variant="outlined"
-                    :items="giftCardCategories"
-                    label="Giftcard categories*"
-                    required
-                    chips
-                    item-title="name"
-                    item-value="id"
-                    v-model="giftCard.giftcard_category"
-                    hint="This field is required"
-                    persistent-hint
-                  ></v-autocomplete>
-                </v-col>
-                <v-col cols="12" sm="12">
-                  <v-autocomplete
-                   variant="outlined"
-                    :items="currencies"
+                    
                     label="Currency*"
                     required
 
                     v-model="giftCard.currency"
-                    chips
+                    
                     item-title="code"
                     item-value="id"
-                    hint="This field is required"
-                    persistent-hint
+                    
                   ></v-autocomplete>
                 </v-col>
               </v-row>
