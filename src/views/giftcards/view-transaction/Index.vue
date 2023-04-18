@@ -11,10 +11,10 @@ const {
   declineRequest,
   approveRequest,
   getAllGiftCardTransactionByUserId,
-  partialApproveRequest,
+  partialApproveRequest
 } = useGiftCardStore();
 
-const { loading, approving, declining, singleGiftCardTransaction, dialog, dialog2 } =
+const { loading, approving, declining, singleGiftCardTransaction, dialog, dialog2, singleGiftcardUnit } =
   storeToRefs(useGiftCardStore());
 
 const route: any = useRoute();
@@ -106,6 +106,9 @@ const transaction_header = ref([
     title: "Rate",
   },
   {
+    title: "Units",
+  },
+  {
     title: "Total",
   },
 ]);
@@ -166,6 +169,8 @@ onMounted(() => {
         <td>{{singleGiftCardTransaction?.trade_type}}</td>
         <td>{{singleGiftCardTransaction?.giftcard_product?.country?.name}}</td>
         <td>{{singleGiftCardTransaction?.giftcard_product?.sell_rate}}</td>
+        <td>{{singleGiftCardTransaction?.rate}}</td>
+        <td>{{ singleGiftcardUnit }}</td>
         <td>1</td>
         </tr>
       </tbody>
