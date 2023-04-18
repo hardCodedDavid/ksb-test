@@ -13,9 +13,9 @@ ksbTechApi.interceptors.response.use(
    
 
 
-    // if (error.response.data.message == "Unauthenticated.") {
-    //   await router.push("/auth/login")
-    // }
+    if (error.response.data.message == "Unauthenticated.") {
+      await router.push("/auth/login")
+    }
 
     if (error.response.data.code == 100) {
       return Promise.reject(error);
