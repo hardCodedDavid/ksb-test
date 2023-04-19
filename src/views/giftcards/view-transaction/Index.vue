@@ -14,7 +14,7 @@ const {
   partialApproveRequest
 } = useGiftCardStore();
 
-const { loading, approving, declining, singleGiftCardTransaction, dialog, dialog2, singleGiftcardUnit } =
+const { loading, approving, declining, singleGiftCardTransaction, dialog, dialog2, singleGiftcardUnit, relatedGiftCards } =
   storeToRefs(useGiftCardStore());
 
 const route: any = useRoute();
@@ -84,6 +84,42 @@ const image = computed(() => {
     return img.value
 
 });
+
+const related_giftcard = ref([
+  {
+    title: "No.",
+  },
+  {
+    title: "User name",
+  },
+  {
+    title: "Category",
+  },
+  {
+    title: "Reference No.",
+  },
+  {
+    title: "Trade Type.",
+  },
+
+  {
+    title: "Amount",
+  },
+  {
+    title: "Date",
+  },
+  {
+    title: "Status",
+  },
+  {
+    title: "Actions",
+  },
+]);
+
+const formate_text = (text: string) => {
+  if (text === "partially_approved") return "Partial";
+  return text;
+};
 
 const transaction_header = ref([
   
@@ -175,9 +211,94 @@ onMounted(() => {
         </tr>
       </tbody>
       </v-table>
+
+      <h4 class="mt-8">Related Giftcards:</h4>
+
+      <v-table class="border my-2">
+          <thead>
+            <tr>
+              <th
+                v-for="(headings, index) in related_giftcard"
+                :key="index"
+                class="text-left"
+              >
+                {{ headings.title }}
+              </th>
+            </tr>
+          </thead>
+
+          <tbody v-if="related_giftcards?.length > 0">
+          <tr v-for="(item, index) in related_giftcards" :key="item.id">
+            <td>{{ index + 1}}</td>
+            <td
+                class="font-weight-bold username"
+                @click="
+                  $router.push({
+                    name: 'UserDetails',
+                    params: { id: item?.user_id },
+                  })
+                "
+              >
+                {{ item.user.firstname }} {{ item.user.lastname }}
+              </td>
+              <td>{{ item?.giftcard_product?.giftcard_category?.name }}</td>
+              <td>{{ item.reference }}</td>
+              <td>{{ item.trade_type }}</td>
+              <td>₦‎ {{ item.payable_amount.toLocaleString() }}</td>
+
+              <td>
+                {{
+                  useDateFormat(item?.created_at, "DD-MM-YYYY hh:mm a").value
+                }}
+              </td>
+              <!-- <td>{{ item.trade_type }}</td> -->
+              <td>
+                <v-chip
+                  label
+                  size="small"
+                  class="text-capitalize font-weight-bold pa-3"
+                  :color="status_color(item?.status)"
+                  >{{ formate_text(item?.status) }}</v-chip
+                >
+              </td>
+
+               <td>
+                <v-row justify="center">
+                  <v-menu transition="scroll-y-transition">
+                    <template v-slot:activator="{ props }">
+                      <v-btn
+                        text
+                        icon="mdi-dots-vertical"
+                        color="transparent"
+                        class="ma-2"
+                        v-bind="props"
+                      >
+                      </v-btn>
+                    </template>
+                    <v-list>
+                      <v-list-item
+                        :to="{
+                          name: 'ViewGiftCardTransaction',
+                          params: { id: item.id },
+                        }"
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> View thread </v-list-item-title>
+                      </v-list-item>
+                    
+                    </v-list>
+                  </v-menu>
+                </v-row>
+              </td>
+          </tr>
+
+          </tbody>
+          
+      </v-table>
+      <p v-if="related_giftcards?.length <= 0 || related_giftcards == null" class="text-center pa-5">No related giftcard</p>
     </v-card>
         <v-row class="px-4">
-       
             <v-col cols="12" sm="12" lg="6">
             <v-card :loading="loading" class="mx-auto my-12">
               <template v-slot:loader="{ isActive }">
@@ -271,7 +392,7 @@ onMounted(() => {
 
               <v-divider v-if="singleGiftCardTransaction.status == 'pending'" class="mx-4 mb-1"></v-divider>
 
-              <v-card-actions v-if="singleGiftCardTransaction.status == 'pending'">
+              <v-card-actions v-if="singleGiftCardTransaction.status == 'pending' && !singleGiftcardUnit">
                     <v-btn
                     class="mr-4"
                   color="green lighten-3"

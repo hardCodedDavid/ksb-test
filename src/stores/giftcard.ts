@@ -27,6 +27,7 @@ interface GiftCard {
     cards: string[];
   };
   singleGiftcardUnit: number;
+  relatedGiftCards:any
 }
 
 interface GiftCategoryPayload {
@@ -59,7 +60,8 @@ export const useGiftCardStore = defineStore('giftcard', {
     singleGiftCardTransaction: {
       cards: []
     },
-    singleGiftcardUnit: 0
+    singleGiftcardUnit: 0,
+    relatedGiftCards:[]
   }),
   getters: {
     // country_id(state) {
@@ -232,6 +234,7 @@ export const useGiftCardStore = defineStore('giftcard', {
             }) => {
               this.singleGiftCardTransaction = res.data.data.giftcard;
               this.singleGiftcardUnit = res.data.data.related_giftcards.length;
+              this.relatedGiftCards = res.data.data.related_giftcards
               this.loading = false;
             }
           );
