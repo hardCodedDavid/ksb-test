@@ -438,7 +438,7 @@ onMounted(async () => {
                         link
                         color="secondary"
                       >
-                        <v-list-item-title> {{ item.children_count > 0 ? 'View tread' : 'View giftcard' }} </v-list-item-title>
+                        <v-list-item-title> {{ item.children_count > 0 ? 'View List' : 'View giftcard' }} </v-list-item-title>
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'pending' && item.children_count == 0"

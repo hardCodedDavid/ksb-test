@@ -189,7 +189,7 @@ onMounted(() => {
         :to="{name:'RelatedGiftCards', params: { id: singleGiftCardTransaction?.id },}"
     >
         <v-icon start icon="mdi-arrow-left"></v-icon>
-        Go back to previous page
+         Back to List 
     </v-btn>
     </div>
 

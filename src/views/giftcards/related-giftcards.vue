@@ -24,7 +24,7 @@
         </tr>
       </thead>
       <tbody v-if="relatedGiftCards?.length > 0 && loading == false">
-        <tr class="pa-2">
+        <tr>
           <td>{{ 1 }}</td>
 
           <td
@@ -134,13 +134,7 @@
             </v-row>
           </td>
         </tr>
-      </tbody>
-    </v-table>
-
-    <v-table class="border">
-     
-      <tbody v-if="relatedGiftCards?.length > 0 && loading == false">
-        <tr
+         <tr
           class="pa-2"
           v-for="(item, index) in relatedGiftCards"
           :key="item.id"
@@ -238,6 +232,8 @@
         </tr>
       </tbody>
     </v-table>
+
+    
     <v-layout
       v-if="loading == true"
       class="align-center justify-center w-100 my-5"
