@@ -57,6 +57,13 @@ const router = createRouter({
            meta: { requiresAuth: true}
         },
         {
+          name: "RelatedGiftCards",
+          path: "/giftcards/related-transactions/:id",
+          component: () => import("@/views/giftcards/related-giftcards.vue"),
+           meta: { requiresAuth: true},
+           props:true
+        },
+        {
           name: "ViewGiftCardTransaction",
           path: "/giftcards/transaction/:id",
           component: () => import("@/views/giftcards/view-transaction/Index.vue"),

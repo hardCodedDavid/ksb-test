@@ -432,7 +432,7 @@ onMounted(async () => {
                     <v-list>
                       <v-list-item
                         :to="{
-                          name: 'ViewGiftCardTransaction',
+                          name: item.children_count > 0 ? 'RelatedGiftCards' : 'ViewGiftCardTransaction',
                           params: { id: item.id },
                         }"
                         link

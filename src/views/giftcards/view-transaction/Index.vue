@@ -4,18 +4,26 @@ import VueEasyLightbox from "vue-easy-lightbox";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useGiftCardStore } from "@/stores/giftcard";
-import 'vue-easy-lightbox/dist/external-css/vue-easy-lightbox.css'
+import "vue-easy-lightbox/dist/external-css/vue-easy-lightbox.css";
 import { useDateFormat } from "@vueuse/core";
 
 const {
   declineRequest,
   approveRequest,
   getAllGiftCardTransactionByUserId,
-  partialApproveRequest
+  partialApproveRequest,
 } = useGiftCardStore();
 
-const { loading, approving, declining, singleGiftCardTransaction, dialog, dialog2, singleGiftcardUnit, relatedGiftCards } =
-  storeToRefs(useGiftCardStore());
+const {
+  loading,
+  approving,
+  declining,
+  singleGiftCardTransaction,
+  dialog,
+  dialog2,
+  singleGiftcardUnit,
+  relatedGiftCards,
+} = storeToRefs(useGiftCardStore());
 
 const route: any = useRoute();
 
@@ -77,12 +85,10 @@ const get_reproof = (e: any) => {
 };
 
 const image = computed(() => {
-
-    img.value = singleGiftCardTransaction.value?.cards.map((images:any) => {
-        return images['original_url']
-    });
-    return img.value
-
+  img.value = singleGiftCardTransaction.value?.cards.map((images: any) => {
+    return images["original_url"];
+  });
+  return img.value;
 });
 
 const related_giftcard = ref([
@@ -122,7 +128,6 @@ const formate_text = (text: string) => {
 };
 
 const transaction_header = ref([
-  
   {
     title: "Category",
   },
@@ -173,6 +178,21 @@ onMounted(() => {
         <v-icon start icon="mdi-arrow-left"></v-icon>
         GiftCard Transactions
     </v-btn>
+    <br>
+    <div>
+      <v-btn 
+        class="ml-4 text-normal" 
+        link
+        size="large"
+        variant="plain"
+        color="grey-darken-4"
+        :to="{name:'RelatedGiftCards', params: { id: singleGiftCardTransaction?.id },}"
+    >
+        <v-icon start icon="mdi-arrow-left"></v-icon>
+        Go back to previous page
+    </v-btn>
+    </div>
+
     <v-col cols="12" sm="12" lg="12">
     
       <v-card>
@@ -212,91 +232,7 @@ onMounted(() => {
       </tbody>
       </v-table>
 
-      <h4 class="mt-8">Related Giftcards:</h4>
-
-      <v-table class="border my-2">
-          <thead>
-            <tr>
-              <th
-                v-for="(headings, index) in related_giftcard"
-                :key="index"
-                class="text-left"
-              >
-                {{ headings.title }}
-              </th>
-            </tr>
-          </thead>
-
-          <tbody v-if="relatedGiftCards?.length > 0">
-          <tr v-for="(item, index) in relatedGiftCards" :key="item.id">
-            <td>{{ index + 1}}</td>
-            <td
-                class="font-weight-bold username"
-                @click="
-                  $router.push({
-                    name: 'UserDetails',
-                    params: { id: item?.user_id },
-                  })
-                "
-              >
-                {{ item.user.firstname }} {{ item.user.lastname }}
-              </td>
-              <td>{{ item?.giftcard_product?.giftcard_category?.name }}</td>
-              <td>{{ item.reference }}</td>
-              <td>{{ item.trade_type }}</td>
-              <td>₦‎ {{ item.payable_amount.toLocaleString() }}</td>
-
-              <td>
-                {{
-                  useDateFormat(item?.created_at, "DD-MM-YYYY hh:mm a").value
-                }}
-              </td>
-              <!-- <td>{{ item.trade_type }}</td> -->
-              <td>
-                <v-chip
-                  label
-                  size="small"
-                  class="text-capitalize font-weight-bold pa-3"
-                  :color="status_color(item?.status)"
-                  >{{ formate_text(item?.status) }}</v-chip
-                >
-              </td>
-
-               <td>
-                <v-row justify="center">
-                  <v-menu transition="scroll-y-transition">
-                    <template v-slot:activator="{ props }">
-                      <v-btn
-                        text
-                        icon="mdi-dots-vertical"
-                        color="transparent"
-                        class="ma-2"
-                        v-bind="props"
-                      >
-                      </v-btn>
-                    </template>
-                    <v-list>
-                      <v-list-item
-                        :to="{
-                          name: 'ViewGiftCardTransaction',
-                          params: { id: item.id },
-                        }"
-                        link
-                        color="secondary"
-                      >
-                        <v-list-item-title> View giftcard </v-list-item-title>
-                      </v-list-item>
-                    
-                    </v-list>
-                  </v-menu>
-                </v-row>
-              </td>
-          </tr>
-
-          </tbody>
-          
-      </v-table>
-      <p v-if="relatedGiftCards?.length <= 0 || relatedGiftCards == null" class="text-center pa-5">No related giftcard</p>
+      
     </v-card>
         <v-row class="px-4">
             <v-col cols="12" sm="12" lg="6">
@@ -392,7 +328,7 @@ onMounted(() => {
 
               <v-divider v-if="singleGiftCardTransaction.status == 'pending'" class="mx-4 mb-1"></v-divider>
 
-              <v-card-actions v-if="singleGiftCardTransaction.status == 'pending' && !singleGiftcardUnit">
+              <v-card-actions v-if="singleGiftCardTransaction.status == 'pending'">
                     <v-btn
                     class="mr-4"
                   color="green lighten-3"

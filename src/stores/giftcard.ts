@@ -280,6 +280,7 @@ export const useGiftCardStore = defineStore('giftcard', {
                 text: res.data.message,
                 type: 'success'
               });
+              this.getAllGiftCardTransactionByUserId(id);
               this.getAllGiftCardTransaction('', '', page, '', '');
             }
           );
@@ -333,6 +334,8 @@ export const useGiftCardStore = defineStore('giftcard', {
           );
       } catch (error: any) {
         this.approving = false;
+        this.dialog = false;
+        this.dialog2 = false
         notify({
           title: 'An Error Occurred',
           text: error.response.data.message,
@@ -371,6 +374,8 @@ export const useGiftCardStore = defineStore('giftcard', {
             }) => {
               this.declining = false;
               this.dialog = false;
+              this.dialog2 = false
+
               notify({
                 title: 'Declined Successfully',
                 text: res.data.message,
