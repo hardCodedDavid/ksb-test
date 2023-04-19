@@ -284,7 +284,7 @@ onMounted(() => {
                         link
                         color="secondary"
                       >
-                        <v-list-item-title> View thread </v-list-item-title>
+                        <v-list-item-title> View giftcard </v-list-item-title>
                       </v-list-item>
                     
                     </v-list>
@@ -296,7 +296,7 @@ onMounted(() => {
           </tbody>
           
       </v-table>
-      <p v-if="related_giftcards?.length <= 0 || related_giftcards == null" class="text-center pa-5">No related giftcard</p>
+      <p v-if="relatedGiftCards?.length <= 0 || relatedGiftCards == null" class="text-center pa-5">No related giftcard</p>
     </v-card>
         <v-row class="px-4">
             <v-col cols="12" sm="12" lg="6">
