@@ -25,6 +25,10 @@ const gCountries = computed<any>(() => {
     if(item.id == giftCard.value.giftcard_category ){
       return item.countries
     }
+    else if(item.id == giftCard.value.giftcard_category?.id){
+      return item.countries
+    }
+   
   })
   
 })

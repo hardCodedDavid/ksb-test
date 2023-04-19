@@ -13,7 +13,7 @@ interface GiftCardProduct {
     sell_rate: Number | null;
     sell_min_amount: string;
     sell_max_amount: string;
-    giftcard_category:string
+    giftcard_category:[]
   };
   loading: boolean;
   gift_products: GiftProductPayload;
@@ -43,7 +43,7 @@ export const useGiftProductStore = defineStore("gift_product", {
       sell_rate: 0,
       sell_min_amount: "",
       sell_max_amount: "",
-      giftcard_category:""
+      giftcard_category:[]
     },
     loading: false,
     gift_products: {
