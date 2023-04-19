@@ -438,9 +438,44 @@ onMounted(async () => {
                         link
                         color="secondary"
                       >
-                        <v-list-item-title> View thread </v-list-item-title>
+                        <v-list-item-title> {{ item.children_count > 0 ? 'View tread' : 'View giftcard' }} </v-list-item-title>
                       </v-list-item>
-                    
+                      <v-list-item
+                        v-if="item?.status == 'pending' && item.children_count == 0"
+                        @click="approveRequest(item?.id, page_no)"
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title>
+                          Approve giftcard
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        v-if="item?.status == 'pending' && item.children_count == 0"
+                        @click="
+                          dialog = true;
+                          id = item.id;
+                        "
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title>
+                          Partial approval
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        v-if="item?.status == 'pending' && item.children_count == 0"
+                        @click="
+                          id = item?.id;
+                          disapprove();
+                        "
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title>
+                          Decline giftcard
+                        </v-list-item-title>
+                      </v-list-item>
                     </v-list>
                   </v-menu>
                 </v-row>
