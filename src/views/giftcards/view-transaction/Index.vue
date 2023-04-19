@@ -227,8 +227,8 @@ onMounted(() => {
             </tr>
           </thead>
 
-          <tbody v-if="related_giftcards?.length > 0">
-          <tr v-for="(item, index) in related_giftcards" :key="item.id">
+          <tbody v-if="relatedGiftCards?.length > 0">
+          <tr v-for="(item, index) in relatedGiftCards" :key="item.id">
             <td>{{ index + 1}}</td>
             <td
                 class="font-weight-bold username"
