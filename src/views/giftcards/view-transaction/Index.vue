@@ -364,9 +364,10 @@ onMounted(() => {
                   <strong>Review Note:</strong>
                   {{ singleGiftCardTransaction?.review_note ?? 'No data'}}
                 </div>
-                <div class="font-weight-normal mb-4">
+                <div class="font-weight-normal mb-5">
                   <strong>Review By:</strong>
-                  {{ singleGiftCardTransaction?.reviewed_by ?? 'No data'}}
+                  <p class="my-1">Email: <span class="font-weight-bold">{{ singleGiftCardTransaction?.reviewer?.email ?? 'No data'}}</span></p>
+                  <p>Full name: <span class="font-weight-bold">{{ singleGiftCardTransaction?.reviewer?.firstname }}  {{ singleGiftCardTransaction?.reviewer?.lastname}}</span></p>
                 </div>
                 <div class="font-weight-normal mb-4">
                   <strong>Review Rate:</strong>
@@ -465,8 +466,8 @@ onMounted(() => {
                     :key="index" cols="12" sm="6" md="4" lg="3">
                     <v-img
                       cover
-                      width="180"
-                      height="100"
+                      width="80"
+                      height="80"
                       @click="onShow"
                       :src="images.original_url"
                       class="cursor-pointer mt-4"

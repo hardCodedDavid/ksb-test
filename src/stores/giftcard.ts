@@ -219,7 +219,7 @@ export const useGiftCardStore = defineStore('giftcard', {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(`${giftCard}/${id}?include=user,bank,giftcardProduct`, {
+          .get(`${giftCard}/${id}?include=user,bank,giftcardProduct,reviewer`, {
             headers: {
               Accept: 'application/json',
               Authorization: `Bearer ${store.token}`

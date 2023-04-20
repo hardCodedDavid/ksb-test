@@ -2,9 +2,11 @@
 import { ref, onMounted, computed, watch } from "vue";
 import { useDateFormat } from "@vueuse/core";
 import { storeToRefs } from "pinia";
+import { useAuthStore } from '../../stores/auth'
 import { useWithdrawalsStore } from "../../stores/withdrawals";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
 
+const { permissions } = storeToRefs(useAuthStore())
 
 const {
   getAllWithDrawals,
@@ -126,7 +128,7 @@ const tab = ref(null);
       :breadcrumbs="breadcrumbs"
     ></BaseBreadcrumb>
     <div class="mt-4">
-      <v-row class="my-3">
+      <v-row v-if="permissions?.length == 18" class="my-3">
         <v-col cols="12" sm="6" md="4">
           <v-card elevation="0" class="pa-6 h-100">
             <div class="">

@@ -5,6 +5,8 @@ import { useUserStore } from "../../stores/user";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
 import { watchDebounced } from "@vueuse/core";
+// import { storeToRefs } from "pinia";
+import { useAuthStore } from '../../stores/auth'
 
 import { useWithdrawalsStore } from "../../stores/withdrawals";
 
@@ -149,7 +151,7 @@ const reset = async () => {
   <v-row>
     <v-col cols="12" sm="12" class="mt-4">
       <h2 class="my-3">Asset transactions</h2>
-      <v-row class="my-3">
+      <v-row v-if="permissions?.length == 18" class="my-3">
         <v-col cols="12" sm="6" md="4">
           <v-card elevation="0" class="pa-6 h-100">
             <div class="">

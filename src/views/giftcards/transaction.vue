@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed, watch } from "vue";
 import { useGiftCardStore } from "../../stores/giftcard";
+import { useAuthStore } from '../../stores/auth'
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
 import { useWithdrawalsStore } from "../../stores/withdrawals";
@@ -17,6 +18,8 @@ const {
 
 const { getAllTransactionCount } = useWithdrawalsStore();
 
+const { permissions } = storeToRefs(useAuthStore())
+
 const { giftcard_total } = storeToRefs(useWithdrawalsStore());
 
 const {
@@ -26,6 +29,7 @@ const {
   declining,
   approving,
   dialog,
+
 } = storeToRefs(useGiftCardStore());
 
 const formatCurrency = (value: any) => {
@@ -185,7 +189,7 @@ onMounted(async () => {
 </script>
 <template>
   <h3>Giftcard Transactions</h3>
-  <v-row class="my-3">
+  <v-row v-if="permissions?.length == 18" class="my-3">
     <v-col cols="12" sm="6" md="4">
       <v-card elevation="0" class="pa-6 h-100">
         <div class="">
