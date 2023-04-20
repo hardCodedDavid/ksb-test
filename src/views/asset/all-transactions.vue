@@ -13,6 +13,7 @@ import { useWithdrawalsStore } from "../../stores/withdrawals";
 const { getAllTransactionCount } = useWithdrawalsStore();
 
 const { asset_total } = storeToRefs(useWithdrawalsStore());
+const { permissions } = storeToRefs(useAuthStore());
 
 const {
   getAllAssetTransactions,
