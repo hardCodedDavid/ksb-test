@@ -365,6 +365,7 @@ const getRoles = (item: Array<object>) => {
                         :key="category.id"
                         >{{ category.name }}</v-chip
                       >
+                      <p v-if="single_admin.giftcard_categories?.length < 0">Admin has not been assigned to any giftcard category</p>
                     </div>
                     <div class="mt-5">
                       <p class="font-weight-bold mb-2">Roles:</p>
@@ -375,6 +376,7 @@ const getRoles = (item: Array<object>) => {
                         :key="role.id"
                         >{{ role.name }}</v-chip
                       >
+                      <p v-if="single_admin.roles?.length < 0">Admin has not been assigned to any role</p>
                     </div>
                   </div>
                 </div>
