@@ -20,12 +20,13 @@ const { getAllRoles, assignRole } = useRolesPermissionsStore();
 const { roles, assign_role_form, dialog3, isAssigning } = storeToRefs(
   useRolesPermissionsStore()
 );
-const { admin, loading, dialog, adminDetails, id, dialog2, single_admin } =
-  storeToRefs(useUserStore());
+const { admin, loading, dialog, adminDetails, id, dialog2, single_admin } = storeToRefs(
+  useUserStore()
+);
 const form = ref(null);
 const { all_country } = storeToRefs(useCountryStore());
-const {  getAllCountry } = useCountryStore()
-// @ts-ignore   
+const { getAllCountry } = useCountryStore();
+// @ts-ignore
 // yarn add vue-virtual-scroller@next
 
 import { reactive, onMounted, ref } from "vue";
@@ -59,14 +60,17 @@ const header = reactive([
 ]);
 
 const close = () => {
-  dialog.value = false
-  adminDetails.value = Object.assign({}, {
-    firstname: "",
+  dialog.value = false;
+  adminDetails.value = Object.assign(
+    {},
+    {
+      firstname: "",
       lastname: "",
       email: "",
       country_name: "",
-  })
-}
+    }
+  );
+};
 
 onMounted(async () => {
   await getAdmin();
@@ -106,16 +110,13 @@ const updateRole = async () => {
 
 const valid = ref(null);
 
+const getRoles = (item: Array<object>) => {
+  const roles = item.map((element: any) => {
+    return element.name;
+  });
 
-const getRoles = (item:Array<object>) => {
-
-const roles = item.map((element:any) => {
-     return  element.name
-  })
-
-  return String(roles)
-}
-
+  return String(roles);
+};
 </script>
 
 <template>
@@ -123,10 +124,7 @@ const roles = item.map((element:any) => {
     <v-card class="pa-3" rounded="0">
       <div class="d-flex align-center justify-space-between">
         <h3>All Admins</h3>
-        <v-btn
-          @click="dialog = true"
-          prepend-icon="mdi-account-plus"
-          color="secondary"
+        <v-btn @click="dialog = true" prepend-icon="mdi-account-plus" color="secondary"
           >Create Admin</v-btn
         >
       </div>
@@ -134,11 +132,7 @@ const roles = item.map((element:any) => {
       <v-table class="my-5">
         <thead>
           <tr>
-            <td
-              class="font-weight-bold"
-              v-for="(Ttitle, index) in header"
-              :key="index"
-            >
+            <td class="font-weight-bold" v-for="(Ttitle, index) in header" :key="index">
               {{ Ttitle.title }}
             </td>
           </tr>
@@ -159,35 +153,26 @@ const roles = item.map((element:any) => {
                 </div>
                 <div class="ml-2">
                   <span class="font-weight-bold"> {{ items?.firstname }}</span>
-                  <span class="ml-1 font-weight-bold">
-                    {{ items?.lastname }}</span
-                  >
+                  <span class="ml-1 font-weight-bold"> {{ items?.lastname }}</span>
                   <p>{{ items?.email ?? "No data" }}</p>
                 </div>
               </div>
             </td>
 
             <td>
-              {{ getRoles(items?.roles)  }}
+              {{ getRoles(items?.roles) }}
             </td>
             <td>
               {{ items?.country?.name ?? "No data" }}
             </td>
 
             <td>
-              <v-chip
-                label
-                class="pa-2"
-                :color="statusColor(items?.blocked_at)"
-              >
+              <v-chip label class="pa-2" :color="statusColor(items?.blocked_at)">
                 {{ blockedStatus(items?.blocked_at) }}
               </v-chip>
             </td>
             <td>
-              {{
-                useDateFormat(items?.created_at, "DD, MMMM-YYYY").value ??
-                "No data"
-              }}
+              {{ useDateFormat(items?.created_at, "DD, MMMM-YYYY").value ?? "No data" }}
             </td>
             <!-- <td>
               <v-switch @input="restoreAdmin(items?.id)"></v-switch>
@@ -216,11 +201,7 @@ const roles = item.map((element:any) => {
                     >
                       <v-list-item-title> View Details </v-list-item-title>
                     </v-list-item>
-                    <v-list-item
-                      @click="editAdmin(items)"
-                      link
-                      color="secondary"
-                    >
+                    <v-list-item @click="editAdmin(items)" link color="secondary">
                       <v-list-item-title> Update admin </v-list-item-title>
                     </v-list-item>
                     <v-list-item
@@ -230,11 +211,7 @@ const roles = item.map((element:any) => {
                     >
                       <v-list-item-title> Assign role </v-list-item-title>
                     </v-list-item>
-                    <v-list-item
-                      @click="deleteAdmin(items?.id)"
-                      link
-                      color="secondary"
-                    >
+                    <v-list-item @click="deleteAdmin(items?.id)" link color="secondary">
                       <v-list-item-title> Delete admin </v-list-item-title>
                     </v-list-item>
                   </v-list>
@@ -248,10 +225,7 @@ const roles = item.map((element:any) => {
           <td colspan="8" class="text-center">No data found</td>
         </tr>
       </v-table>
-      <v-layout
-        v-if="loading == true"
-        class="align-center justify-center w-100 my-5"
-      >
+      <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
         <v-progress-circular indeterminate></v-progress-circular>
       </v-layout>
     </v-card>
@@ -293,7 +267,6 @@ const roles = item.map((element:any) => {
                       label="Countries"
                       no-filter
                       required
-                      
                       item-title="name"
                       item-value="id"
                       v-model="adminDetails.country_name"
@@ -305,20 +278,13 @@ const roles = item.map((element:any) => {
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn
-              color="secondary"
-              class="px-7"
-              variant="outlined"
-              @click="close"
-            >
+            <v-btn color="secondary" class="px-7" variant="outlined" @click="close">
               Close
             </v-btn>
             <v-btn
               :loading="loading"
               @click="
-                edit == false
-                  ? CreateAdmin()
-                  : updateAdminDetails(adminDetails?.id)
+                edit == false ? CreateAdmin() : updateAdminDetails(adminDetails?.id)
               "
               color="secondary"
               class="px-12"
@@ -339,29 +305,19 @@ const roles = item.map((element:any) => {
           <v-card-text>
             <v-container>
               <div class="d-flex align-center justify-center w-100 my-5">
-                <div
-                  class="d-flex align-center justify-center flex-column w-100"
-                >
-                 
-                    <v-avatar
-                      color="secondary"
-                      :size="80"
-                      class="my-4 position-relative"
-                    >
-                      <v-img
-                        cover
-                        v-if="single_admin.avatar !== null"
-                        :src="single_admin.avatar"
-                      ></v-img>
-                      <span v-else class="text-h5 text-uppercase">{{
-                        single_admin.email.slice(0, 2)
-                      }}</span>
-                    </v-avatar>
-              
+                <div class="d-flex align-center justify-center flex-column w-100">
+                  <v-avatar color="secondary" :size="80" class="my-4 position-relative">
+                    <v-img
+                      cover
+                      v-if="single_admin.avatar !== null"
+                      :src="single_admin.avatar"
+                    ></v-img>
+                    <span v-else class="text-h5 text-uppercase">{{
+                      single_admin.email.slice(0, 2)
+                    }}</span>
+                  </v-avatar>
 
-                  <h3>
-                    {{ single_admin.firstname }} {{ single_admin.lastname }}
-                  </h3>
+                  <h3>{{ single_admin.firstname }} {{ single_admin.lastname }}</h3>
 
                   <div class="text-center">
                     <p>{{ single_admin.email }}</p>
@@ -399,6 +355,27 @@ const roles = item.map((element:any) => {
                         :label="'Toggle Blocked Status'"
                       ></v-switch>
                     </div>
+
+                    <div class="mt-5">
+                      <p class="font-weight-bold mb-2">Giftcard categories:</p>
+                      <v-chip
+                        color="secondary"
+                        class="ml-2 mb-2"
+                        v-for="category in single_admin.giftcard_categories"
+                        :key="category.id"
+                        >{{ category.name }}</v-chip
+                      >
+                    </div>
+                    <div class="mt-5">
+                      <p class="font-weight-bold mb-2">Roles:</p>
+                      <v-chip
+                        color="secondary"
+                        class="ml-2 mb-2"
+                        v-for="role in single_admin.roles"
+                        :key="role.id"
+                        >{{ role.name }}</v-chip
+                      >
+                    </div>
                   </div>
                 </div>
               </div>
@@ -433,7 +410,6 @@ const roles = item.map((element:any) => {
                   label="Roles"
                   required
                   item-title="name"
-
                   item-value="id"
                   v-model="assign_role_form.role_id"
                 ></v-autocomplete>

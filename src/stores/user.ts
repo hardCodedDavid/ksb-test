@@ -209,7 +209,7 @@ export const useUserStore = defineStore("user", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(admin + "/" + id, {
+          .get(admin + "/" + id + '?include=country,roles,giftcardCategories', {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`,
