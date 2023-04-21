@@ -129,6 +129,12 @@ const sidebarItem: menu[] = [
     children: [
 
       {
+        title: "Banners",
+        icon: "",
+        to: "/banners",
+        permissions:"manage_system_data"
+      },
+      {
         title: "App version",
         icon: "",
         to: "/system-data",

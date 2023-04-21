@@ -102,6 +102,12 @@ const router = createRouter({
           component: () => import("@/views/system-bank/index.vue"),
           meta: { requiresAuth: true}
         },
+        {
+          name: "Banners",
+          path: "/banners",
+          component: () => import("@/views/banners.vue"),
+          meta: { requiresAuth: true}
+        },
 
         {
           name: "Notifications",
