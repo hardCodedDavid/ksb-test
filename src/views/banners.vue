@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useQuery, useMutation } from "vue-query";
+import { useQuery, useMutation, useQueryClient } from "vue-query";
 import { ref } from "vue";
 import { useBannersStore } from "../stores/banners";
 import { useDateFormat } from "@vueuse/core";
@@ -8,6 +8,7 @@ import { useNotification } from "@kyvg/vue3-notification";
 import "vue-easy-lightbox/dist/external-css/vue-easy-lightbox.css";
 
 const { notify } = useNotification();
+const queryClient = useQueryClient()
 
 // functions from pinia store
 const {
@@ -84,7 +85,7 @@ const { isLoading: uploading, mutate } = useMutation(
       dialog.value = false;
       preview_image.value = null;
       featured_image.value = null;
-      refetch.value();
+      queryClient.invalidateQueries('get-banners')
     },
     onError: (error: any) => {
       uploading.value = false;
@@ -112,7 +113,7 @@ const { mutate: handleToggle } = useMutation(
         title: "Success",
         text: data?.message,
       });
-      refetch.value();
+      queryClient.invalidateQueries('get-banners')
     },
   }
 );
@@ -140,9 +141,9 @@ const { mutate: handleDelete } = useMutation(
       notify({
         type: "success",
         title: "Success",
-        text: data?.message,
+        text: data?.data?.message,
       });
-      refetch.value();
+     queryClient.invalidateQueries('get-banners')
     },
   }
 );
