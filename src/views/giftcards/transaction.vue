@@ -206,6 +206,7 @@ onMounted(async () => {
           </h2>
           <span>All time</span>
         </div>
+        <p v-else>loading...</p>
       </v-card>
     </v-col>
     <v-col cols="12" sm="6" md="8">
@@ -229,6 +230,7 @@ onMounted(async () => {
               </h2>
               <span>Successful</span>
             </div>
+            <p v-else>loading...</p>
           </div>
           <div
             class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
@@ -250,6 +252,7 @@ onMounted(async () => {
               </h2>
               <span>Pending</span>
             </div>
+            <p v-else>loading...</p>
           </div>
           <div
             class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
@@ -271,6 +274,7 @@ onMounted(async () => {
               </h2>
               <span>Failed</span>
             </div>
+            <p v-else>loading...</p>
           </div>
           <div
             class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
@@ -289,6 +293,7 @@ onMounted(async () => {
               </h2>
               <span>Partial</span>
             </div>
+            <p v-else>loading...</p>
           </div>
         </div>
       </v-card>

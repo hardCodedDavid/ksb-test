@@ -27,7 +27,9 @@ interface GiftCard {
     cards: string[];
   };
   singleGiftcardUnit: number;
-  relatedGiftCards:any
+  relatedGiftCards:any;
+  update_category:boolean;
+  update_admin:boolean;
 }
 
 interface GiftCategoryPayload {
@@ -61,17 +63,11 @@ export const useGiftCardStore = defineStore('giftcard', {
       cards: []
     },
     singleGiftcardUnit: 0,
-    relatedGiftCards:[]
+    relatedGiftCards:[],
+    update_category:false,
+    update_admin:false
   }),
   getters: {
-    // country_id(state) {
-    //   const store = useCountryStore();
-    //   return store.countries.filter((country) => {
-    //     if (state.giftCard.country.includes(country["name"])) {
-    //        return country.id
-    //     }
-    //   });
-    // },
     country_id:(state) => state.giftCard.countries?.map((item:any) => {
       if(item.id){
       return item.id
@@ -87,7 +83,7 @@ export const useGiftCardStore = defineStore('giftcard', {
   },
   actions: {
     async getAllGifCardCategories(
-      page: Number,
+      page:number = 1,
       name: string = '',
       sale: string = '',
       purchase: string = ''
@@ -644,25 +640,20 @@ export const useGiftCardStore = defineStore('giftcard', {
         : formData.append('sale_term', payload?.sale_term);
       
         const ids = this.country_id;
-        if (ids?.length > 0) {
+        if (ids?.length > 0 && this.update_category) {
           for (let i = 0; i < ids.length; i++) {
             formData.append('countries[]', ids[i]);
           }
         }
 
         const admin_id = this.admin_id;
-       if (admin_id?.length > 0) {
+       if (admin_id?.length > 0 && this.update_admin) {
         
         for (let i = 0; i < admin_id.length; i++) {
           formData.append('admins[]', admin_id[i]);
         }
        }
-      //  for (let country in Object.keys(payload.countries)) {
-      //   formData.append('countries[]', country);
-      // }
-      // for (let id in countries) {
-      //   formData.append('countries[]', countries[id]);
-      // }
+      
       formData.append('_method', 'PATCH');
 
       this.loading = true;
@@ -687,6 +678,8 @@ export const useGiftCardStore = defineStore('giftcard', {
                 type: 'success'
               });
               this.dialog = false;
+              this.update_admin = false;
+              this.update_category = false
               this.getAllGifCardCategories();
             }
           );

@@ -12,7 +12,7 @@ const { admin } = storeToRefs(useUserStore());
 const { getAdmin } = useUserStore()
 const router = useRouter()
 
-const { giftCard, loading, dialog, gift_categories, singleGiftCard } = storeToRefs(
+const { giftCard, loading, dialog, gift_categories, singleGiftCard, update_category, update_admin } = storeToRefs(
   useGiftCardStore()
 );
 const {
@@ -360,10 +360,12 @@ const statusColor = (status: string | null) => {
                     multiple
                     item-title="name"
                     item-value="id"
+                     :disabled="!update_category"
                     v-model="giftCard.countries"
-                    hint="This field is optional"
+                    hint="This is a toggle feature, that is, existing country will be removed, new one will be added."
                     persistent-hint
                   ></v-autocomplete>
+                 <v-switch v-model="update_category" density="compact" :hide-details="true" label="Toggle to edit"></v-switch>
                 </v-col>
                 <v-col cols="12" sm="12">
                   <v-autocomplete
@@ -371,14 +373,15 @@ const statusColor = (status: string | null) => {
                     label="Admin"
                     required
                     chips
-                    
+                    :disabled="!update_admin"
                     multiple
                     item-title="email"
                     item-value="id"
                     v-model="giftCard.admins"
-                    hint="This field is optional"
+                    hint="This is a toggle feature, that is, existing admin will be removed, new one will be added."
                     persistent-hint
                   ></v-autocomplete>
+                  <v-switch v-model="update_admin" density="compact" :hide-details="true" label="Toggle to edit"></v-switch>
                 </v-col>
               </v-row>
             </v-form>

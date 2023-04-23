@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, reactive } from "vue";
+import { ref, onBeforeMount, computed, reactive } from "vue";
 import VueEasyLightbox from "vue-easy-lightbox";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useGiftCardStore } from "@/stores/giftcard";
 import "vue-easy-lightbox/dist/external-css/vue-easy-lightbox.css";
 import { useDateFormat } from "@vueuse/core";
+
+const  prop = defineProps({
+  id:{
+    type:String,
+    required:true
+  }
+})
 
 const {
   declineRequest,
@@ -25,7 +32,7 @@ const {
   relatedGiftCards,
 } = storeToRefs(useGiftCardStore());
 
-const route: any = useRoute();
+const route = useRoute();
 
 // const dialog2 = ref(false)
 
@@ -160,8 +167,10 @@ const onShow = () => {
 const indexRef = ref(0);
 const onHide = () => (visibleRef.value = false);
 
-onMounted(() => {
-  getAllGiftCardTransactionByUserId(route.params.id);
+console.log(route.params.id)
+onBeforeMount(async () => {
+
+ await getAllGiftCardTransactionByUserId(prop.id);
 });
 </script>
 

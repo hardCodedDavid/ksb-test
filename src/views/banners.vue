@@ -332,16 +332,6 @@ const statusColor = (status: string | null) => {
       </v-card>
     </v-dialog>
 
-    <!-- <v-dialog v-model="dialog2" max-width="500px">
-      <v-card class="pa-4">
-        <h2 class="mb-4">Banner details</h2>
-        <h4>Featured image:</h4>
-        <v-img width="40px" class="mb-4" :src="banner?.featured_image"></v-img>
-        <h4>Featured image:</h4>
-        <v-img width="40px" :src="banner?.preview_image"></v-img>
-      </v-card>
-    </v-dialog> -->
-
     <vue-easy-lightbox
       :visible="visibleRef"
       :imgs="banner"
@@ -350,5 +340,3 @@ const statusColor = (status: string | null) => {
     ></vue-easy-lightbox>
   </div>
 </template>
-
-<style scoped></style>
