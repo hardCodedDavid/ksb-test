@@ -108,16 +108,22 @@ const filter_by = async () => {
     <h3 class="my-7">All Users</h3>
 
     <v-row>
-      <v-col cols="12" sm="6">
-        <v-card rounded="0" class="pa-3">
-          <h3>Active users count:</h3>
-          <h2>0</h2>
+      <v-col cols="12" sm="4">
+        <v-card elevation="0" class="py-4 px-6">
+          <h4>Active users</h4>
+          <h2 class="mt-6">0</h2>
         </v-card>
       </v-col>
-      <v-col cols="12" sm="6">
-        <v-card rounded="0" class="pa-3">
-          <h3>Inactive user count:</h3>
-          <h2>0</h2>
+      <v-col cols="12" sm="4">
+        <v-card elevation="0" class="py-4 px-6">
+          <h4>Inactive users</h4>
+          <h2 class="mt-6">0</h2>
+        </v-card>
+      </v-col>
+      <v-col cols="12" sm="4">
+        <v-card elevation="0" class="py-4 px-6">
+          <h4>Blocked users</h4>
+          <h2 class="mt-6">0</h2>
         </v-card>
       </v-col>
     </v-row>
