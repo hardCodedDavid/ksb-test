@@ -165,37 +165,9 @@ const filter_by = (value:string) => {
     status.value = value
 }
 
-// const reset = async () => {
-//   (status.value = ""),
-//     (trade.value = ""),
-//     (page_no.value = 1),
-//     (date_from.value = ""),
-//     (date_to.value = "");
-
-//   await getAllGiftCardTransaction(
-//     status.value,
-//     trade.value,
-//     page_no.value,
-//     date_from.value,
-//     date_to.value,
-//     reference.value
-//   );
-// };
-
-// onMounted(async () => {
-
-//   await getAllGiftCardTransaction(
-//     status.value,
-//     trade.value,
-//     page_no.value,
-//     date_from.value,
-//     date_to.value,
-//     reference.value
-//   );
-// });
 </script>
 <template>
-  <h3>Giftcard Transactions test</h3>
+  <h3 class="mb-4">Giftcard Transactions test</h3>
   <!-- <v-row v-if="permissions?.length == 18" class="my-3">
     <v-col cols="12" sm="6" md="4">
       <v-card elevation="0" class="pa-6 h-100">
@@ -639,9 +611,7 @@ const filter_by = (value:string) => {
 </template>
 
 <style lang="scss">
-.v-table td {
-  font-size: 12px !important;
-}
+
 .username {
   text-decoration: underline;
   cursor: pointer;
