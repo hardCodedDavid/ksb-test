@@ -61,7 +61,12 @@ const header = ref([
   {
     title: "No.",
   },
-
+  {
+    title: "User name",
+  },
+  {
+    title: "Category",
+  },
   {
     title: "Reference No.",
   },
@@ -364,9 +369,10 @@ const filter_by = (value:string) => {
     </v-row>
   </v-card> -->
   <v-row>
-    <v-col cols="12" sm="12" class="mt-4">
-      <v-card class="pa-5">
-        <v-tabs v-model="tab" bg-color="none" class="mb-5 border-bottom">
+    <v-col cols="12" sm="12">
+      <v-card>
+       <v-card-text class="pa-5">
+        <!-- <v-tabs v-model="tab" bg-color="none" class="mb-5 border-bottom">
           <v-tab @click="filter_by((status = ''))">All</v-tab>
           <v-tab @click="filter_by((status = 'pending'))"
             >Pending</v-tab
@@ -380,8 +386,8 @@ const filter_by = (value:string) => {
           <v-tab @click="filter_by((status = 'partial'))"
             >Partial</v-tab
           >
-        </v-tabs>
-        <v-table>
+        </v-tabs> -->
+        <v-table class="mt-5">
           <thead>
             <tr>
               <th
@@ -396,7 +402,7 @@ const filter_by = (value:string) => {
           <tbody v-if="data?.data?.length > 0 && isLoading == false && isFetching == false">
             <tr v-for="(item, index) in data?.data" :key="item.id">
               <td>{{ index + 1 }}</td>
-              <!-- <td
+              <td
                 class="font-weight-bold username"
                 @click="
                   $router.push({
@@ -407,7 +413,7 @@ const filter_by = (value:string) => {
               >
                 {{ item.user.firstname }} {{ item.user.lastname }}
               </td>
-              <td>{{ item?.giftcard_product?.giftcard_category?.name }}</td> -->
+              <td>{{ item?.giftcard_product?.giftcard_category?.name }}</td>
               <td>{{ item.reference }}</td>
               <td>{{ item.trade_type }}</td>
               <td>₦‎ {{ item.payable_amount.toLocaleString() }}</td>
@@ -522,6 +528,7 @@ const filter_by = (value:string) => {
         >
           No data found
         </p>
+         </v-card-text>
       </v-card>
       <v-pagination
         v-model="page_no"
