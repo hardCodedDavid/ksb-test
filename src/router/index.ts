@@ -57,6 +57,12 @@ const router = createRouter({
            meta: { requiresAuth: true}
         },
         {
+          name: "Test",
+          path: "/giftcards/test",
+          component: () => import("@/views/test.vue"),
+           meta: { requiresAuth: true}
+        },
+        {
           name: "RelatedGiftCards",
           path: "/giftcards/related-transactions/:id",
           component: () => import("@/views/giftcards/related-giftcards.vue"),
