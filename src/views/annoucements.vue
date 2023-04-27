@@ -20,6 +20,9 @@ const header = ref([
   {
     title: "Title",
   },
+  {
+    title: "Creator",
+  },
 
   {
     title: "Target user",
@@ -81,9 +84,10 @@ const statusColor = (status: status_type) => {
 const edit = ref(false);
 const btnText = ref("Create Alert");
 
-const editItem = (item: never) => {
-  alert.value = Object.assign({}, item);
+const editItem = () => {
+  // alert.value = Object.assign({}, item);
   btnText.value = "Update Alert";
+
   dialog.value = true;
   edit.value = true;
 };
@@ -180,6 +184,7 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
           <tr v-for="(item, index) in alerts.data" :key="item?.id">
             <td>{{ index + 1 }}</td>
             <td class="font-weight-bold">{{ item?.title }}</td>
+            <td class="font-weight-bold">{{ item?.creator?.email }}</td>
             <td>{{ item?.target_user }}</td>
             <td>{{ item?.target_user_count ?? "No data" }}</td>
             <!-- <td>₦‎ {{ item?.sell_max_amount }}</td> -->
@@ -215,7 +220,14 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                     </v-btn>
                   </template>
                   <v-list>
-                    <v-list-item @click="editItem(item)" link color="secondary">
+                    <v-list-item
+                      @click="
+                        editItem();
+                        alert_action.singleAlerts(item?.id);
+                      "
+                      link
+                      color="secondary"
+                    >
                       <v-list-item-title> Edit Alert </v-list-item-title>
                     </v-list-item>
                     <v-list-item
@@ -292,7 +304,7 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                       required
                     ></v-text-field>
                   </v-col>
-                  <v-col v-if="edit == false" cols="12">
+                  <v-col cols="12">
                     <v-textarea
                       v-model="alert.body"
                       variant="outlined"

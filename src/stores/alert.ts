@@ -52,7 +52,8 @@ export const useAlertStore = defineStore("alert", {
               "&filter[target_user]=" +
               target.toLowerCase() +
               "&filter[dispatch_date]=" +
-              date,
+              date + '&include=creator',
+              
             {
               headers: {
                 Accept: "application/json",
@@ -68,6 +69,43 @@ export const useAlertStore = defineStore("alert", {
               };
             }) => {
               this.alerts = res.data.data.alerts;
+              this.loading = false;
+            }
+          );
+      } catch (error: any) {
+        this.loading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error",
+        });
+      }
+    },
+    async singleAlerts(
+      uuid:string
+    ) {
+      const { notify } = useNotification();
+      const store = useAuthStore();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(
+            `${alert}/${uuid}`,
+            {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${store.token}`,
+              },
+            }
+          )
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.alert = res.data.data.alert;
               this.loading = false;
             }
           );
