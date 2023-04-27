@@ -611,6 +611,10 @@ const filter_by = (value:string) => {
 </template>
 
 <style lang="scss">
+table tbody tr td {
+  padding: 15px !important;
+  font-size: 12px;
+}
 
 .username {
   text-decoration: underline;

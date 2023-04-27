@@ -379,7 +379,7 @@ onMounted(async () => {
             >Partial</v-tab
           >
         </v-tabs>
-        <v-table>
+        <v-table >
           <thead>
             <tr>
               <th
@@ -639,6 +639,10 @@ onMounted(async () => {
 </template>
 
 <style lang="scss">
+table tbody tr td {
+  padding: 15px !important;
+  font-size: 12px;
+}
 .v-table td {
   font-size: 12px !important;
 }
