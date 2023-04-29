@@ -203,12 +203,6 @@ export const useAlertStore = defineStore("alert", {
       );
 
       formData.append("_method", "PATCH");
-      // for (let i = 0; i < this.role.permission_id.length; i++) {
-      //     formData.append('permissions[]', this.role.permission_id[i]);
-      //   }
-
-      // formData.append("name", role.name);
-
       try {
         await ksbTechApi
           .post(alert + "/" + alerts.id, formData, {
