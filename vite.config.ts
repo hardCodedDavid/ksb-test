@@ -28,4 +28,7 @@ export default defineConfig({
       './src/**/*.vue',
     ],
   },
+  server: {
+    port: 8080
+  }
 });

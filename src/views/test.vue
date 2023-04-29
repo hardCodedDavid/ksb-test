@@ -344,7 +344,7 @@ const filter_by = (value:string) => {
     <v-col cols="12" sm="12">
       <v-card>
        <v-card-text class="pa-5">
-        <!-- <v-tabs v-model="tab" bg-color="none" class="mb-5 border-bottom">
+        <v-tabs v-model="tab" bg-color="none" class="mb-5 border-bottom">
           <v-tab @click="filter_by((status = ''))">All</v-tab>
           <v-tab @click="filter_by((status = 'pending'))"
             >Pending</v-tab
@@ -358,7 +358,7 @@ const filter_by = (value:string) => {
           <v-tab @click="filter_by((status = 'partial'))"
             >Partial</v-tab
           >
-        </v-tabs> -->
+        </v-tabs>
         <v-table class="mt-5">
           <thead>
             <tr>
@@ -611,10 +611,6 @@ const filter_by = (value:string) => {
 </template>
 
 <style lang="scss">
-table tbody tr td {
-  padding: 15px !important;
-  font-size: 12px;
-}
 
 .username {
   text-decoration: underline;

@@ -60,6 +60,19 @@ onMounted(async () => {
   await getUsers(1);
 });
 
+const selected_option = ref('')
+
+const channels = computed(() => {
+  if(selected_option.value == 'email'){
+    return ['email']
+  }
+  else if(selected_option.value == 'in_app'){
+    return ['in_app']
+  }
+  else return ['push']
+})
+
+
 const reset = async () => {
   (page_no.value = 1),
     (status.value = ""),
@@ -104,7 +117,7 @@ const close = (item: never) => {
       users: [],
     }
   );
-  btnText.value = "Create Network";
+  btnText.value = "Create Alert";
 
   edit.value = false;
 };
@@ -157,15 +170,31 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
       </v-row>
     </v-card>
     <v-card class="pa-7">
-      <div class="d-flex align-center justify-space-between">
+      <div class="d-flex align-center justify-space-between mb-6">
         <h3>All Annoucement</h3>
 
+       <div>
+         <v-btn
+          color="secondary"
+          prepend-icon="mdi-email"
+          @click="dialog = true; selected_option = 'email'"
+          >Send email</v-btn
+        >
+        <v-btn
+          color="secondary"
+          prepend-icon="mdi-apps"
+          @click="dialog = true; selected_option = 'in_app'"
+          class="ml-2"
+          >Send in app</v-btn
+        >
         <v-btn
           color="secondary"
           prepend-icon="mdi-bell-ring-outline"
-          @click="dialog = true"
-          >Create an annoucement</v-btn
+          @click="dialog = true; selected_option = 'push'"
+          class="ml-2"
+          >Send push</v-btn
         >
+       </div>
       </div>
 
       <v-table class="my-4">
@@ -318,7 +347,7 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                       variant="outlined"
                       label="Target user*"
                       required
-                      :items="['All', 'Verified', 'Specific']"
+                      :items="['All','Verified','Specific']"
                     ></v-select>
                   </v-col>
                   <v-col cols="12" sm="12">
@@ -347,7 +376,7 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                   </v-col>
                   <v-col cols="12" sm="12">
                     <v-autocomplete
-                      :items="['email', 'in_app', 'push']"
+                      :items="channels"
                       label="Channels*"
                       required
                       multiple
