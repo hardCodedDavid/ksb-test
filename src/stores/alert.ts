@@ -196,7 +196,7 @@ export const useAlertStore = defineStore("alert", {
       var formData = new FormData();
       formData.append("title", alerts.title);
       !alerts.body ? null : formData.append("body", alerts.body);
-      formData.append("target_user", alerts.target_user);
+      formData.append("target_user", alerts.target_user.toLowerCase());
       formData.append(
         "dispatch_datetime",
         alerts.dispatched_at + " " + this.time
