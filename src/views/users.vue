@@ -5,7 +5,7 @@ import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useDateFormat, watchDebounced } from "@vueuse/core";
 const { getUsers, restoreUsers, blockUsers, financeUsers } = useUserStore();
-const { user, loading, filterUserById } = storeToRefs(useUserStore());
+const { user, loading, filterUserById, use_activity } = storeToRefs(useUserStore());
 
 const dialog = ref(false);
 const dialog2 = ref(false);
@@ -111,19 +111,19 @@ const filter_by = async () => {
       <v-col cols="12" sm="4">
         <v-card elevation="0" class="py-4 px-6">
           <h4>Active users</h4>
-          <h2 class="mt-6">{{user?.active_users}}</h2>
+          <h2 class="mt-6">{{use_activity?.active_users}}</h2>
         </v-card>
       </v-col>
       <v-col cols="12" sm="4">
         <v-card elevation="0" class="py-4 px-6">
           <h4>Inactive users</h4>
-          <h2 class="mt-6">{{user?.inactive_users}}</h2>
+          <h2 class="mt-6">{{use_activity?.inactive_users}}</h2>
         </v-card>
       </v-col>
       <v-col cols="12" sm="4">
         <v-card elevation="0" class="py-4 px-6">
           <h4>Blocked users</h4>
-          <h2 class="mt-6">{{user?.blocked_users}}</h2>
+          <h2 class="mt-6">{{use_activity?.blocked_users}}</h2>
         </v-card>
       </v-col>
     </v-row>

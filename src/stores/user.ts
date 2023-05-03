@@ -45,7 +45,8 @@ interface State {
   single_admin: any;
   single_user:any;
   bank_info:[];
-  banks:[]
+  banks:[];
+  use_activity:any
 }
 
 export const useUserStore = defineStore("user", {
@@ -56,6 +57,7 @@ export const useUserStore = defineStore("user", {
     loading: false,
     dialog: false,
     dialog2: false,
+    use_activity:{},
     fund: {
       type: "",
       amount: "",
@@ -133,7 +135,7 @@ export const useUserStore = defineStore("user", {
               };
             }) => {
               this.loading = false;
-
+                this.use_activity = res.data.data
               this.user = res.data.data.users;
             }
           );
