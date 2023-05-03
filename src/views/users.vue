@@ -111,19 +111,19 @@ const filter_by = async () => {
       <v-col cols="12" sm="4">
         <v-card elevation="0" class="py-4 px-6">
           <h4>Active users</h4>
-          <h2 class="mt-6">{{user?.active_users ?? '0'}}</h2>
+          <h2 class="mt-6">{{user?.data?.active_users ?? '0'}}</h2>
         </v-card>
       </v-col>
       <v-col cols="12" sm="4">
         <v-card elevation="0" class="py-4 px-6">
           <h4>Inactive users</h4>
-          <h2 class="mt-6">{{user?.inactive_users ?? '0'}}</h2>
+          <h2 class="mt-6">{{user?.data?.inactive_users ?? '0'}}</h2>
         </v-card>
       </v-col>
       <v-col cols="12" sm="4">
         <v-card elevation="0" class="py-4 px-6">
           <h4>Blocked users</h4>
-          <h2 class="mt-6">{{user?.blocked_users ?? '0'}}</h2>
+          <h2 class="mt-6">{{user?.data?.blocked_users ?? '0'}}</h2>
         </v-card>
       </v-col>
     </v-row>
