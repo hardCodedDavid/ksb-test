@@ -273,6 +273,28 @@ onMounted(async () => {
                 </v-btn>
               </v-card-actions>
             </v-card>
+
+             <v-card>
+              <v-card-title>Receipt Information</v-card-title>
+                 <v-divider></v-divider>
+              <v-card-text>
+                <div class="font-weight-normal mb-4">
+                  <strong>Review Note: </strong>
+                  {{ single_transactions?.review_note ?? 'No data'}}
+                </div>
+                <div class="font-weight-normal mb-4">
+                  <strong>Review By: </strong>
+                  {{ single_transactions?.reviewed_by ?? 'No data'}}
+                </div>
+           
+               <div class="font-weight-normal mb-4">
+                  <strong>Review By: </strong>
+                  {{ single_transactions?.reviewed_by ?? 'No data'}}
+                </div>
+          </v-card-text>
+
+              <v-btn v-if="single_transactions?.review_proof" @click="view_img(single_transactions?.review_proof)" color="secondary" class="ml-4 mb-3">Review proof image</v-btn>
+            </v-card>
             </v-col>
 
             <v-col cols="12" sm="12" lg="6">
@@ -309,6 +331,8 @@ onMounted(async () => {
                   <strong>Phone number:</strong>
                   {{ single_transactions.user?.phone_number}}
                 </div>
+
+
               </v-card-text>
 
               <!-- <v-divider class="mx-4 mb-1"></v-divider> -->
@@ -341,23 +365,17 @@ onMounted(async () => {
               <v-card-title>Other Information</v-card-title>
                  <v-divider></v-divider>
               <v-card-text>
-                <div class="font-weight-normal mb-4">
-                  <strong>Review Note:</strong>
-                  {{ single_transactions?.review_note ?? 'No data'}}
-                </div>
-                <div class="font-weight-normal mb-4">
-                  <strong>Review By:</strong>
-                  {{ single_transactions?.reviewed_by ?? 'No data'}}
-                </div>
+               
+               
            
               
                 <div class="font-weight-normal mb-4">
-                  <strong>Network name:</strong>
+                  <strong>Network name: </strong>
                   {{ single_transactions.network?.name }}
                 </div>
               
                 <div class="font-weight-normal">
-                  <strong>Review At:</strong>
+                  <strong>Review At: </strong>
                   <span v-if="single_transactions.reviewed_at">
                     {{  useDateFormat(
                         single_transactions?.reviewed_at,
@@ -430,7 +448,7 @@ onMounted(async () => {
             v-model="partial_approve.review_rate"
             type="number"
             variant="outlined"
-            label="Review Rate"
+            label="Amount"
           ></v-text-field>
           <v-textarea
             v-model="partial_approve.review_note"

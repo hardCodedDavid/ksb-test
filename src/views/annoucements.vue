@@ -2,7 +2,7 @@
 import { useAuthStore } from "../stores/auth";
 import { useAlertStore } from "../stores/alert";
 import { useUserStore } from "../stores/user";
-import { onMounted, computed, ref } from "vue";
+import { onMounted, computed, ref, watch } from "vue";
 
 import { useDateFormat } from "@vueuse/core";
 import { storeToRefs } from "pinia";
@@ -60,18 +60,24 @@ onMounted(async () => {
   await getUsers(1);
 });
 
-const selected_option = ref('')
+const selected_option = ref("");
 
-const channels = computed(() => {
-  if(selected_option.value == 'email'){
-    return ['email']
-  }
-  else if(selected_option.value == 'in_app'){
-    return ['in_app']
-  }
-  else return ['push']
+const channels = computed<any>({
+  get() {
+    return selected_option.value;
+  },
+  set(value) {
+    if (value == "email") {
+      return "email";
+    } else if (value == "in_app") {
+      return "in_app";
+    } else return "push";
+  },
+});
+
+watch(channels,() => {
+  return alert.value.channels = [channels.value]
 })
-
 
 const reset = async () => {
   (page_no.value = 1),
@@ -132,7 +138,14 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
         <div>
           <v-btn @click="reset" width="200px" class="mr-4">Reset</v-btn>
           <v-btn
-            @click="alert_action.getAlerts(page_no, status, target_user, dispatched_at)"
+            @click="
+              alert_action.getAlerts(
+                page_no,
+                status,
+                target_user,
+                dispatched_at
+              )
+            "
             width="200px"
             color="secondary"
             >Filter</v-btn
@@ -173,28 +186,37 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
       <div class="d-flex align-center justify-space-between mb-6">
         <h3>All Annoucement</h3>
 
-       <div>
-         <v-btn
-          color="secondary"
-          prepend-icon="mdi-email"
-          @click="dialog = true; selected_option = 'email'"
-          >Send email</v-btn
-        >
-        <v-btn
-          color="secondary"
-          prepend-icon="mdi-apps"
-          @click="dialog = true; selected_option = 'in_app'"
-          class="ml-2"
-          >Send in app</v-btn
-        >
-        <v-btn
-          color="secondary"
-          prepend-icon="mdi-bell-ring-outline"
-          @click="dialog = true; selected_option = 'push'"
-          class="ml-2"
-          >Send push</v-btn
-        >
-       </div>
+        <div>
+          <v-btn
+            color="secondary"
+            prepend-icon="mdi-email"
+            @click="
+              dialog = true;
+              selected_option = 'email';
+            "
+            >Send email</v-btn
+          >
+          <v-btn
+            color="secondary"
+            prepend-icon="mdi-apps"
+            @click="
+              dialog = true;
+              selected_option = 'in_app';
+            "
+            class="ml-2"
+            >Send in app</v-btn
+          >
+          <v-btn
+            color="secondary"
+            prepend-icon="mdi-bell-ring-outline"
+            @click="
+              dialog = true;
+              selected_option = 'push';
+            "
+            class="ml-2"
+            >Send push</v-btn
+          >
+        </div>
       </div>
 
       <v-table class="my-4">
@@ -218,10 +240,15 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
             <td>{{ item?.target_user_count ?? "No data" }}</td>
             <!-- <td>₦‎ {{ item?.sell_max_amount }}</td> -->
             <td>
-              {{ useDateFormat(item?.created_at, "DD, MMM YYYY - hh:mm a").value }}
+              {{
+                useDateFormat(item?.created_at, "DD, MMM YYYY - hh:mm a").value
+              }}
             </td>
             <td>
-              {{ useDateFormat(item?.dispatched_at, "DD, MMM YYYY - hh:mm a").value }}
+              {{
+                useDateFormat(item?.dispatched_at, "DD, MMM YYYY - hh:mm a")
+                  .value
+              }}
             </td>
             <td>
               <v-chip
@@ -288,10 +315,16 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
         </tbody>
       </v-table>
 
-      <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
+      <v-layout
+        v-if="loading == true"
+        class="align-center justify-center w-100 my-5"
+      >
         <v-progress-circular indeterminate></v-progress-circular>
       </v-layout>
-      <p v-if="loading == false && alerts?.length <= 0" class="text-center py-6">
+      <p
+        v-if="loading == false && alerts?.length <= 0"
+        class="text-center py-6"
+      >
         No data available
       </p>
     </v-card>
@@ -299,8 +332,12 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
     <v-pagination
       v-model="page_no"
       :length="alerts?.last_page"
-      @next="alert_action.getAlerts(page_no, status, target_user, dispatched_at)"
-      @prev="alert_action.getAlerts(page_no, status, target_user, dispatched_at)"
+      @next="
+        alert_action.getAlerts(page_no, status, target_user, dispatched_at)
+      "
+      @prev="
+        alert_action.getAlerts(page_no, status, target_user, dispatched_at)
+      "
       @update:modelValue="
         alert_action.getAlerts(page_no, status, target_user, dispatched_at)
       "
@@ -317,7 +354,12 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
         <v-card>
           <div class="d-flex align-center w-100 justify-space-between pa-7">
             <h3 class="text-h5 font-weight-bold">{{ btnText }}</h3>
-            <v-btn @click="close" color="secondary" variant="outlined" icon="mdi-close">
+            <v-btn
+              @click="close"
+              color="secondary"
+              variant="outlined"
+              icon="mdi-close"
+            >
               <v-icon icon="mdi-close"></v-icon>
             </v-btn>
           </div>
@@ -347,7 +389,7 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                       variant="outlined"
                       label="Target user*"
                       required
-                      :items="['All','Verified','Specific']"
+                      :items="['All', 'Verified', 'Specific']"
                     ></v-select>
                   </v-col>
                   <v-col cols="12" sm="12">
@@ -374,9 +416,9 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                       variant="outlined"
                     ></v-text-field>
                   </v-col>
-                  <v-col cols="12" sm="12">
+                  <v-col v-if="edit == true" cols="12" sm="12">
                     <v-autocomplete
-                      :items="channels"
+                      :items="['email', 'in_app', 'push']"
                       label="Channels*"
                       required
                       multiple
@@ -387,7 +429,11 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                       persistent-hint
                     ></v-autocomplete>
                   </v-col>
-                  <v-col v-if="alert.target_user == 'Specific'" cols="12" sm="12">
+                  <v-col
+                    v-if="alert.target_user == 'Specific'"
+                    cols="12"
+                    sm="12"
+                  >
                     <v-autocomplete
                       :items="getUsersByEmailAndId"
                       label="Users*"
@@ -406,7 +452,12 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn color="secondary" class="px-7" variant="outlined" @click="close">
+            <v-btn
+              color="secondary"
+              class="px-7"
+              variant="outlined"
+              @click="close"
+            >
               Close
             </v-btn>
             <v-btn

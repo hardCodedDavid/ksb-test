@@ -547,7 +547,7 @@ const filter_by = (value:string) => {
             v-model="partial_approve.review_rate"
             type="number"
             variant="outlined"
-            label="Review Rate"
+            label="Amount"
           ></v-text-field>
           <v-textarea
             v-model="partial_approve.review_note"
