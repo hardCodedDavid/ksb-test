@@ -79,13 +79,7 @@ export const useUserStore = defineStore("user", {
       state.user?.data?.filter((selectedUser:any) => {
         return selectedUser["id"] == id;
       }),
-      getUsersByEmailAndId: (state) => 
-        state.user?.data?.map((selectedUser:any) => {
-          return  {
-            email:selectedUser.email,
-            id:selectedUser.id
-          }
-        }),
+      getUsersByEmailAndId: (state) => state.user?.data,
     country_id() {
       const store = useCountryStore();
       return store.countries.filter((country) => {
@@ -135,7 +129,7 @@ export const useUserStore = defineStore("user", {
               };
             }) => {
               this.loading = false;
-                this.use_activity = res.data.data
+              this.use_activity = res.data.data
               this.user = res.data.data.users;
             }
           );

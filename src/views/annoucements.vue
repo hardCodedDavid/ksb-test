@@ -44,7 +44,7 @@ const header = ref([
     title: "Actions",
   },
 ]);
-
+const search = ref('')
 const page_no = ref(1);
 const status = ref("");
 const dispatched_at = ref("");
@@ -392,6 +392,25 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                       :items="['All', 'Verified', 'Specific']"
                     ></v-select>
                   </v-col>
+                  <v-col
+                    v-if="alert.target_user == 'Specific'"
+                    cols="12"
+                    sm="12"
+                  >
+                  <v-text-field placeholder="Search for users"  v-model="search"  @update:modelValue="(...args) => getUsers(1,'',...args, '', '')"></v-text-field>
+                    <v-autocomplete
+                      :items="getUsersByEmailAndId"
+                      label="Users*"
+                      multiple
+                      required
+                      placeholder="Select user"
+                      v-model="alert.users"
+                      item-title="email"
+                      item-value="id"
+                      hint="This field is required"
+                      persistent-hint
+                    ></v-autocomplete>
+                  </v-col>
                   <v-col cols="12" sm="12">
                     <v-text-field
                       type="date"
@@ -429,23 +448,7 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                       persistent-hint
                     ></v-autocomplete>
                   </v-col>
-                  <v-col
-                    v-if="alert.target_user == 'Specific'"
-                    cols="12"
-                    sm="12"
-                  >
-                    <v-autocomplete
-                      :items="getUsersByEmailAndId"
-                      label="Users*"
-                      required
-                      multiple
-                      v-model="alert.users"
-                      item-title="email"
-                      item-value="id"
-                      hint="This field is required"
-                      persistent-hint
-                    ></v-autocomplete>
-                  </v-col>
+                  
                 </v-row>
               </v-form>
             </v-container>
