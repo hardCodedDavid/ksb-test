@@ -339,7 +339,7 @@ export const useAssetStore = defineStore('asset', {
             asset +
               '/' +
               id +
-              '?include=asset,user,bank,network' +
+              '?include=asset,user,bank,network,reviewer' +
               '&page=' +
               page,
             {

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive } from "vue";
+import { ref, onMounted, reactive, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 // import { useGiftCardStore } from "@/stores/giftcard";
-
+import VueEasyLightbox from "vue-easy-lightbox";
 import { useAssetStore } from "../../stores/asset";
 import { useDateFormat } from "@vueuse/core";
 
@@ -95,6 +95,17 @@ const partial = (e: any) => {
 onMounted(async () => {
   await getSingleAssetTransactions(route.params.id);
 });
+
+const visibleRef = ref(false);
+const onShow = () => {
+  visibleRef.value = true;
+};
+const indexRef = ref(0);
+const onHide = () => (visibleRef.value = false);
+
+const  image = computed(() => {
+  return Array(single_transactions?.value?.proof)
+})
 </script>
 
 <template>
@@ -159,12 +170,12 @@ onMounted(async () => {
                 ></v-progress-linear>
               </template>
 
-              <v-img
+              <!-- <v-img
                 cover
                 v-if="single_transactions?.proof"
                 height="250"
                 :src="single_transactions?.proof "
-              ></v-img>
+              ></v-img> -->
 
               <v-card-item class="pa-0 mb-5">
                 <v-card-title class="pa-4">Asset Transaction Information</v-card-title>
@@ -282,18 +293,23 @@ onMounted(async () => {
                   <strong>Review Note: </strong>
                   {{ single_transactions?.review_note ?? 'No data'}}
                 </div>
-                <div class="font-weight-normal mb-4">
-                  <strong>Review By: </strong>
-                  {{ single_transactions?.reviewed_by ?? 'No data'}}
+               <div class="font-weight-normal mb-5">
+                  <strong>Review By:</strong>
+                  <p class="my-1">Email: <span class="font-weight-bold">{{ single_transactions?.reviewer?.email ?? 'No data'}}</span></p>
+                  <p>Full name: <span class="font-weight-bold">{{ single_transactions?.reviewer?.firstname }}  {{ single_transactions?.reviewer?.lastname}}</span></p>
                 </div>
-           
-               <div class="font-weight-normal mb-4">
-                  <strong>Review By: </strong>
-                  {{ single_transactions?.reviewed_by ?? 'No data'}}
+                <div class="font-weight-normal">
+                  <strong>Review At: </strong>
+                  <span v-if="single_transactions.reviewed_at">
+                    {{  useDateFormat(
+                        single_transactions?.reviewed_at,
+                        "DD, MMMM-YYYY hh:mm a"
+                      ).value ?? 'No data' }}
+                  </span>
                 </div>
           </v-card-text>
 
-              <v-btn v-if="single_transactions?.review_proof" @click="view_img(single_transactions?.review_proof)" color="secondary" class="ml-4 mb-3">Review proof image</v-btn>
+              <v-btn v-if="single_transactions?.review_proof" @click="view_img(single_transactions?.review_proof)" color="secondary" class="ml-6 mb-3">Review proof image</v-btn>
             </v-card>
             </v-col>
 
@@ -374,18 +390,20 @@ onMounted(async () => {
                   {{ single_transactions.network?.name }}
                 </div>
               
-                <div class="font-weight-normal">
-                  <strong>Review At: </strong>
-                  <span v-if="single_transactions.reviewed_at">
-                    {{  useDateFormat(
-                        single_transactions?.reviewed_at,
-                        "DD, MMMM-YYYY hh:mm a"
-                      ).value ?? 'No data' }}
-                  </span>
-                </div>
+              <strong class="mb-4">Proof Image:</strong>
+               <v-img
+               v-if="single_transactions?.proof"
+                      cover
+                      width="100"
+                      height="100"
+                      @click="onShow"
+                     :src="single_transactions?.proof "
+                      class="cursor-pointer mt-4"
+                      ></v-img>
+                
               </v-card-text>
 
-              <v-btn v-if="single_transactions?.proof" @click="view_img(single_transactions?.proof)" color="secondary" class="ml-4 my-4">View Proof image</v-btn>
+              <!-- <v-btn v-if="single_transactions?.proof" @click="view_img(single_transactions?.proof)" color="secondary" class="ml-4 my-4">View Proof image</v-btn> -->
             </v-card>
             </v-col>
             
@@ -393,6 +411,12 @@ onMounted(async () => {
         </v-row>
       </v-card>
     </v-col>
+                  <vue-easy-lightbox
+                      :visible="visibleRef"
+                      :imgs="image"
+                      :index="indexRef"
+                      @hide="onHide"
+                    ></vue-easy-lightbox>
 
       <v-dialog
         v-if="dialog"
@@ -471,6 +495,7 @@ onMounted(async () => {
         </v-form>
       </v-card>
     </v-dialog>
+
   </v-row>
 </template>
 
