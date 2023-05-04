@@ -4,13 +4,13 @@ import { useAlertStore } from "../stores/alert";
 import { useUserStore } from "../stores/user";
 import { onMounted, computed, ref, watch } from "vue";
 
-import { useDateFormat } from "@vueuse/core";
+import { useDateFormat, watchDebounced } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 const action = useAuthStore();
 const alert_action = useAlertStore();
 const { loading, alerts, dialog, alert, time } = storeToRefs(useAlertStore());
-const { getUsersByEmailAndId } = storeToRefs(useUserStore());
-const { getUsers } = useUserStore();
+const { getUsersByEmailAndId, search_users } = storeToRefs(useUserStore());
+const { getUsers, searchUsers } = useUserStore();
 
 const date = ref();
 const header = ref([
@@ -50,6 +50,19 @@ const status = ref("");
 const dispatched_at = ref("");
 const target_user = ref("");
 
+
+// const filter = () => {
+
+//   watchDebounced(
+//   search,
+//  async () => { 
+   
+//     await searchUsers(search.value)
+//    },
+//   { debounce: 500, maxWait: 1000 },
+// )
+
+// }
 onMounted(async () => {
   await alert_action.getAlerts(
     page_no.value,
@@ -61,6 +74,7 @@ onMounted(async () => {
 });
 
 const selected_option = ref("");
+
 
 const channels = computed<any>({
   get() {
@@ -397,16 +411,17 @@ const currentDate = ref(new Date().toISOString().slice(0, 10));
                     cols="12"
                     sm="12"
                   >
-                  <v-text-field placeholder="Search for users"  v-model="search"  @update:modelValue="(...args) => getUsers(1,'',...args, '', '')"></v-text-field>
+                  <!-- <v-text-field placeholder="Search for users"  v-model="search"  ></v-text-field> -->
                     <v-autocomplete
-                      :items="getUsersByEmailAndId"
+                      :items="search_users"
                       label="Users*"
-                      multiple
                       required
-                      placeholder="Select user"
-                      v-model="alert.users"
+                      @input="(e)=> searchUsers(e.target.value)"
+                      v-model.lazy="alert.users"
+                      multiple
                       item-title="email"
                       item-value="id"
+                      clearable
                       hint="This field is required"
                       persistent-hint
                     ></v-autocomplete>

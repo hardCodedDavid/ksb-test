@@ -46,7 +46,8 @@ interface State {
   single_user:any;
   bank_info:[];
   banks:[];
-  use_activity:any
+  use_activity:any,
+  search_users:[]
 }
 
 export const useUserStore = defineStore("user", {
@@ -72,14 +73,21 @@ export const useUserStore = defineStore("user", {
     single_admin: "",
     single_user:"",
     bank_info:[],
-    banks:[]
+    banks:[],
+    search_users:[]
   }),
   getters: {
     filterUserById: (state) => (id: string) =>
       state.user?.data?.filter((selectedUser:any) => {
         return selectedUser["id"] == id;
       }),
-      getUsersByEmailAndId: (state) => state.user?.data,
+      getUsersByEmailAndId: (state) => 
+        state.user?.data?.map((selectedUser:any) => {
+          return  {
+            email:selectedUser.email,
+            id:selectedUser.id
+          }
+        }),
     country_id() {
       const store = useCountryStore();
       return store.countries.filter((country) => {
@@ -131,6 +139,39 @@ export const useUserStore = defineStore("user", {
               this.loading = false;
               this.use_activity = res.data.data
               this.user = res.data.data.users;
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
+    async searchUsers(
+      email: string = "",
+    ) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(
+            `${user}?filter[email]=${email}`,
+            {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${store.token}`,
+              },
+            }
+          )
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.loading = false;
+           
+              this.search_users = res.data.data.users.data;
             }
           );
       } catch (error) {
