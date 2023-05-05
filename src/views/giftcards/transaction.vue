@@ -29,7 +29,7 @@ const {
   declining,
   approving,
   dialog,
-
+  page
 } = storeToRefs(useGiftCardStore());
 
 const formatCurrency = (value: any) => {
@@ -37,14 +37,14 @@ const formatCurrency = (value: any) => {
 };
 
 // Get and sum up total earnings from list of transactions
-const totalEarnings = ref<any>(0);
-watch(gift_transactions, (newValue, oldValue) => {
-  let total = 0;
-  gift_transactions.value?.data.forEach((transaction: any) => {
-    total += transaction.payable_amount;
-  });
-  totalEarnings.value = formatCurrency(total);
-});
+// const totalEarnings = ref<any>(0);
+// watch(gift_transactions, (newValue, oldValue) => {
+//   let total = 0;
+//   gift_transactions.value?.data.forEach((transaction: any) => {
+//     total += transaction.payable_amount;
+//   });
+//   totalEarnings.value = formatCurrency(total);
+// });
 
 const dialog2 = ref(false);
 const note = ref("");
@@ -103,7 +103,7 @@ const header = ref([
   },
 ]);
 
-const page = ref({ title: "Gift Cards Transactions" });
+
 const breadcrumbs = ref([
   {
     text: "Cards",
@@ -142,13 +142,13 @@ const status_options = ref([
 const status = ref("");
 const trade = ref("");
 const trade_type = ref(["Buy", "Sell"]);
-const page_no = ref(1);
+// const page_no = ref(1);
 const date_from = ref("");
 const date_to = ref("");
 const reference = ref("");
 
 const nextPage = (val: any) => {
-  page_no.value = val;
+  page.value = val;
 };
 
 const tab = ref(null);
@@ -161,14 +161,14 @@ const formate_text = (text: string) => {
 const reset = async () => {
   (status.value = ""),
     (trade.value = ""),
-    (page_no.value = 1),
+    (page.value = 1),
     (date_from.value = ""),
     (date_to.value = "");
 
   await getAllGiftCardTransaction(
     status.value,
     trade.value,
-    page_no.value,
+    page.value,
     date_from.value,
     date_to.value,
     reference.value
@@ -180,7 +180,7 @@ onMounted(async () => {
   await getAllGiftCardTransaction(
     status.value,
     trade.value,
-    page_no.value,
+    page.value,
     date_from.value,
     date_to.value,
     reference.value
@@ -309,7 +309,7 @@ onMounted(async () => {
             getAllGiftCardTransaction(
               status,
               trade,
-              page_no,
+              page,
               date_from,
               date_to,
               reference
@@ -507,7 +507,7 @@ onMounted(async () => {
         </p>
       </v-card>
       <v-pagination
-        v-model="page_no"
+        v-model="page"
         :length="gift_transactions?.last_page"
         @next="
           (...args) =>

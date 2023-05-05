@@ -190,6 +190,7 @@ onBeforeMount(async () => {
     <br>
     <div>
       <v-btn 
+      v-if="singleGiftcardUnit"
         class="ml-4 text-normal" 
         link
         size="large"

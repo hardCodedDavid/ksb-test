@@ -30,6 +30,7 @@ interface GiftCard {
   relatedGiftCards: any;
   update_category: boolean;
   update_admin: boolean;
+  page:number
 }
 
 interface GiftCategoryPayload {
@@ -66,6 +67,7 @@ export const useGiftCardStore = defineStore("giftcard", {
     relatedGiftCards: [],
     update_category: false,
     update_admin: false,
+    page:1
   }),
   getters: {
     country_id: (state) =>
@@ -267,7 +269,7 @@ export const useGiftCardStore = defineStore("giftcard", {
                 type: "success",
               });
               this.getAllGiftCardTransactionByUserId(id);
-              this.getAllGiftCardTransaction("", "", page, "", "");
+              this.getAllGiftCardTransaction("", "", this.page, "", "");
             }
           );
       } catch (error: any) {
@@ -310,7 +312,7 @@ export const useGiftCardStore = defineStore("giftcard", {
               this.approving = false;
               this.dialog2 = false;
               this.getAllGiftCardTransactionByUserId(id);
-              this.getAllGiftCardTransaction("", "", 1, "", "");
+              this.getAllGiftCardTransaction("", "", this.page, "", "");
               notify({
                 title: "Approved Successfully",
                 text: res.data.message,
@@ -368,7 +370,7 @@ export const useGiftCardStore = defineStore("giftcard", {
                 type: "success",
               });
               this.getAllGiftCardTransactionByUserId(id);
-              this.getAllGiftCardTransaction("", "", page, "", "");
+              this.getAllGiftCardTransaction("", "", this.page, "", "");
             }
           );
       } catch (error: any) {
