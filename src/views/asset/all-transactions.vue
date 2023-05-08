@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, reactive } from "vue";
+import { ref, onMounted,onUnmounted, computed, reactive } from "vue";
 import { useAssetStore } from "../../stores/asset";
 import { useUserStore } from "../../stores/user";
 import { storeToRefs } from "pinia";
@@ -85,7 +85,8 @@ const search_by_reference = () => {
   );
 };
 
-onMounted(async () => {
+// Define the function that will be called every 2 minutes
+const fetchData = async () => {
   await getAllTransactionCount()
   await getAllAssetTransactions(
     status.value,
@@ -95,7 +96,18 @@ onMounted(async () => {
     date.value,
     date2.value
   );
-  // await getAllUsers()
+}
+
+// Set up the interval on mount
+let intervalId = ref<any>(null);
+onMounted(() => {
+  fetchData()
+  intervalId.value = setInterval(fetchData, 120000); // 120000 milliseconds = 2 minutes
+});
+
+// Clear the interval on unmount
+onUnmounted(() => {
+  clearInterval(intervalId.value);
 });
 
 // CHANGE STATUS COLOR
