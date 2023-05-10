@@ -14,7 +14,8 @@ export const useCountryStore = defineStore({
     dialog: false,
     exchange_rate_to_ngn: '',
     loading: false,
-    all_country: {}
+    all_country: {},
+    page:1,
   }),
   getters: {
     countryNames: (state) => state.country.map((country) => country['name']),

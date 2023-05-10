@@ -1,15 +1,18 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted, provide } from "vue";
+import { useWithdrawalsStore } from "../../../stores/withdrawals";
 import WelcomeCard from "../dashboardComponents/analytical/welcome-card/WelcomeCard.vue";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
+import { storeToRefs } from "pinia";
 import TheEarnings from "@/views/dashboards/dashboardComponents/analytical/earnings/TheEarnings.vue";
 import MonthlyRevenue from "@/views/dashboards/dashboardComponents/analytical/monthly-revenue/MonthlyRevenue.vue";
-import TheSalesOverview from "@/views/dashboards/dashboardComponents/analytical/sales-overview/TheSalesOverview.vue";
-import TotalSales from "@/views/dashboards/dashboardComponents/analytical/total-sales/TotalSales.vue";
-import ProductMonthTable from "@/views/dashboards/dashboardComponents/analytical/project-month-table/ProductMonthTable.vue";
-import BlogCard from "@/views/dashboards/dashboardComponents/analytical/blog-card/BlogCard.vue";
-import WeeklyStats from "@/views/dashboards/dashboardComponents/analytical/weekly-stats/WeeklyStats.vue";
-import DailyActivities from "@/views/dashboards/dashboardComponents/analytical/daily-activities/DailyActivities.vue";
+import AssetOverview from "@/views/dashboards/dashboardComponents/analytical/asset-overview.vue"
+// import TheSalesOverview from "@/views/dashboards/dashboardComponents/analytical/sales-overview/TheSalesOverview.vue";
+// import TotalSales from "@/views/dashboards/dashboardComponents/analytical/total-sales/TotalSales.vue";
+// import ProductMonthTable from "@/views/dashboards/dashboardComponents/analytical/project-month-table/ProductMonthTable.vue";
+// import BlogCard from "@/views/dashboards/dashboardComponents/analytical/blog-card/BlogCard.vue";
+// import WeeklyStats from "@/views/dashboards/dashboardComponents/analytical/weekly-stats/WeeklyStats.vue";
+// import DailyActivities from "@/views/dashboards/dashboardComponents/analytical/daily-activities/DailyActivities.vue";
 
 
 import  { useAuthStore } from '../../../stores/auth'
@@ -17,7 +20,22 @@ import  { useAuthStore } from '../../../stores/auth'
 const action = useAuthStore()
 
 
+const {
+  getAllTransactionCount,
+} = useWithdrawalsStore();
+const {
 
+  withdrawals_total,
+  giftcard_total,
+  asset_total
+} = storeToRefs(useWithdrawalsStore());
+
+
+provide('revenue', {
+  withdrawals_total,
+  giftcard_total,
+  asset_total
+})
 
 const page = ref({ title: "Dashboard Analytics" });
 const breadcrumbs = ref([
@@ -38,6 +56,7 @@ const mark = ref([])
 
 
 onMounted(async ()=> {
+   await getAllTransactionCount();
   await action.GetProfile()
   await action.getPermissions()
 })
@@ -51,10 +70,10 @@ onMounted(async ()=> {
   <v-row>
     <v-col cols="12" sm="12" lg="12">
       <v-row>
-        <v-col cols="12" sm="8" lg="6">
+        <v-col cols="12" sm="8" lg="12">
           <WelcomeCard />
         </v-col>
-        <v-col cols="12" sm="8" lg="6">
+        <!-- <v-col cols="12" sm="8" lg="6">
           <v-card class="py-4 px-6">
             <v-layout align-center justify-space-between class="ml-6">
               <div
@@ -76,7 +95,7 @@ onMounted(async ()=> {
               </div>
             </v-layout>
           </v-card>
-        </v-col>
+        </v-col> -->
       </v-row>
       <v-row class="mt-4">
         <v-col cols="12" sm="6" lg="4" class="">
@@ -86,7 +105,7 @@ onMounted(async ()=> {
           <MonthlyRevenue></MonthlyRevenue>
         </v-col>
         <v-col cols="12" sm="6" lg="4" class="">
-          <TheEarnings></TheEarnings>
+          <AssetOverview />
         </v-col>
       </v-row>
     </v-col>

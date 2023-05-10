@@ -2,7 +2,7 @@
 import { reactive, ref, onMounted, computed } from "vue";
 import { storeToRefs } from "pinia";
 import { useCountryStore } from "../stores/country";
-const { countryMgt, loading } = storeToRefs(useCountryStore());
+const { countryMgt, loading, page } = storeToRefs(useCountryStore());
 const { getCountryMgt, giftcardActivation, registrationActivation } = useCountryStore();
 const countryHeader = reactive([
   {
@@ -32,7 +32,7 @@ const countryHeader = reactive([
 
 const heading = ref("Country Management");
 
-const page = ref(1);
+// const page = ref(1);
 const name = ref("");
 const activated = ref("");
 const registered = ref("");

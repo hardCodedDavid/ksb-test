@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed, watch, onUnmounted } from "vue";
 import { useDateFormat } from "@vueuse/core";
 import { storeToRefs } from "pinia";
 import { useAuthStore } from '../../stores/auth'
@@ -27,9 +27,22 @@ const {
 } = storeToRefs(useWithdrawalsStore());
 const status = ref("");
 const dialog2 = ref(false);
-onMounted(async () => {
+
+const fetchData = async () => {
   await getAllWithDrawals(status.value, 1);
   await getAllTransactionCount();
+}
+
+// Set up the interval on mount
+let intervalId = ref<any>(null);
+onMounted(() => {
+  fetchData()
+  intervalId.value = setInterval(fetchData, 120000); // 120000 milliseconds = 2 minutes
+});
+
+// Clear the interval on unmount
+onUnmounted(() => {
+  clearInterval(intervalId.value);
 });
 
 // const search = ref("");

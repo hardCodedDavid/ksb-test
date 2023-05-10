@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed, watch } from "vue";
+import { ref, onMounted, reactive, computed, watch, onUnmounted } from "vue";
 import { useGiftCardStore } from "../../stores/giftcard";
 import { useAuthStore } from '../../stores/auth'
 import { storeToRefs } from "pinia";
@@ -175,7 +175,7 @@ const reset = async () => {
   );
 };
 
-onMounted(async () => {
+const fetchData = async () => {
   await getAllTransactionCount();
   await getAllGiftCardTransaction(
     status.value,
@@ -185,7 +185,21 @@ onMounted(async () => {
     date_to.value,
     reference.value
   );
+}
+
+// Set up the interval on mount
+let intervalId = ref<any>(null);
+onMounted(() => {
+  fetchData()
+  intervalId.value = setInterval(fetchData, 120000); // 120000 milliseconds = 2 minutes
 });
+
+// Clear the interval on unmount
+onUnmounted(() => {
+  clearInterval(intervalId.value);
+});
+
+
 </script>
 <template>
   <h3>Giftcard Transactions</h3>
