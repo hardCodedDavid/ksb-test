@@ -117,7 +117,7 @@ const show2 = ref(false)
                 </v-form>
 
                 <center>
-                  <v-btn prepend-icon="mdi-arrow-left" color="transparent" flat
+                  <v-btn @click="goBack" prepend-icon="mdi-arrow-left" color="transparent" flat
                     >Back to login</v-btn
                   >
                 </center>
@@ -129,3 +129,11 @@ const show2 = ref(false)
     </v-row>
   </v-container>
 </template>
+
+
+<!-- countries not returning when editing admin -->
+<!-- text should be more that 20 characters -->
+<!-- sub admins should not see dashboard
+
+format characters
+ -->

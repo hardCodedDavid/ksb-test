@@ -13,6 +13,7 @@ interface Admin {
   avatar: string;
   id: string;
   blocked_at: boolean;
+  
 }
 interface User {
   firstname: string;
@@ -67,7 +68,7 @@ export const useUserStore = defineStore("user", {
       firstname: "",
       lastname: "",
       email: "",
-      country_name: "",
+      country: "",
     },
     id: "",
     single_admin: "",
@@ -392,7 +393,7 @@ export const useUserStore = defineStore("user", {
       this.loading = true;
 
       const formData = new FormData();
-      formData.append("country_id", this.adminDetails.country_name);
+      formData.append("country_id", this.adminDetails.country);
       formData.append("firstname", this.adminDetails.firstname);
       formData.append("lastname", this.adminDetails.lastname);
       formData.append("email", this.adminDetails.email);
@@ -437,7 +438,7 @@ export const useUserStore = defineStore("user", {
       this.loading = true;
 
       const formData = new FormData();
-      formData.append("country_id", this.adminDetails.country_name);
+      formData.append("country_id", this.adminDetails.country);
       formData.append("firstname", this.adminDetails.firstname);
       formData.append("lastname", this.adminDetails.lastname);
       formData.append("email", this.adminDetails.email);

@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed, watch, onUnmounted } from "vue";
 import { useGiftCardStore } from "../../stores/giftcard";
-import { useAuthStore } from '../../stores/auth'
+import { useAuthStore } from "../../stores/auth";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
 import { useWithdrawalsStore } from "../../stores/withdrawals";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
+
 // check
 const {
   getAllGiftCardTransaction,
@@ -18,7 +19,7 @@ const {
 
 const { getAllTransactionCount } = useWithdrawalsStore();
 
-const { permissions } = storeToRefs(useAuthStore())
+const { permissions } = storeToRefs(useAuthStore());
 
 const { giftcard_total } = storeToRefs(useWithdrawalsStore());
 
@@ -29,7 +30,8 @@ const {
   declining,
   approving,
   dialog,
-  page
+  dialog2,
+  page,
 } = storeToRefs(useGiftCardStore());
 
 const formatCurrency = (value: any) => {
@@ -46,7 +48,7 @@ const formatCurrency = (value: any) => {
 //   totalEarnings.value = formatCurrency(total);
 // });
 
-const dialog2 = ref(false);
+// const dialog2 = ref(false);
 const note = ref("");
 const id = ref("");
 const disapprove = () => {
@@ -102,8 +104,7 @@ const header = ref([
     title: "Actions",
   },
 ]);
-
-
+// 
 const breadcrumbs = ref([
   {
     text: "Cards",
@@ -133,12 +134,7 @@ const status_color = (status: StatusType) => {
 };
 //
 
-const status_options = ref([
-  "Pending",
-  "Approved",
-  "Declined",
-  "Partially_approved",
-]);
+const status_options = ref(["Pending", "Approved", "Declined", "Partially_approved"]);
 const status = ref("");
 const trade = ref("");
 const trade_type = ref(["Buy", "Sell"]);
@@ -175,7 +171,9 @@ const reset = async () => {
   );
 };
 
-const fetchData = async () => {
+
+let intervalId = ref<any>(null);
+onMounted(async() => {
   await getAllTransactionCount();
   await getAllGiftCardTransaction(
     status.value,
@@ -185,23 +183,30 @@ const fetchData = async () => {
     date_to.value,
     reference.value
   );
-}
-
-// Set up the interval on mount
-let intervalId = ref<any>(null);
-onMounted(() => {
-  fetchData()
-  intervalId.value = setInterval(fetchData, 120000); // 120000 milliseconds = 2 minutes
 });
 
-// Clear the interval on unmount
+
+
+var pusher = new Pusher("2bd4bb8b30b7085ba28d", {
+  cluster: "mt1",
+});
+
+var channel = pusher.subscribe("giftcards");
+channel.bind("new-giftcard", function (data: any) {
+  console.log(data);
+  if (gift_transactions.value) {
+    gift_transactions.value?.data.unshift(data?.giftcard);
+  }
+});
+
+
+
 onUnmounted(() => {
-  clearInterval(intervalId.value);
-});
-
-
+  pusher.unsubscribe('giftcards')
+})
 </script>
 <template>
+  <!-- <v-btn @click="add">click</v-btn> -->
   <h3>Giftcard Transactions</h3>
   <v-row v-if="permissions?.length == 18" class="my-3">
     <v-col cols="12" sm="6" md="4">
@@ -212,11 +217,7 @@ onUnmounted(() => {
 
         <div v-if="giftcard_total?.length > 0" class="mt-11">
           <h2 class="mb-2">
-            ₦‎{{
-              formatCurrency(
-                giftcard_total[0].total_approved_transactions_amount
-              )
-            }}
+            ₦‎{{ formatCurrency(giftcard_total[0].total_approved_transactions_amount) }}
           </h2>
           <span>All time</span>
         </div>
@@ -236,63 +237,39 @@ onUnmounted(() => {
 
             <div v-if="giftcard_total?.length > 0" class="pl-3 my-5">
               <h2 class="mb-2">
-                {{
-                  formatCurrency(
-                    giftcard_total[0].total_approved_transactions_count
-                  )
-                }}
+                {{ formatCurrency(giftcard_total[0].total_approved_transactions_count) }}
               </h2>
               <span>Successful</span>
             </div>
             <p v-else>loading...</p>
           </div>
-          <div
-            class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
-          >
+          <div class="d-flex align-start justify-start flex-column w-100 flex-grow-1">
             <v-avatar color="#FFF9C4" size="x-large">
-              <vue-feather
-                type="bar-chart"
-                class="text-dark text-primary"
-              ></vue-feather>
+              <vue-feather type="bar-chart" class="text-dark text-primary"></vue-feather>
             </v-avatar>
 
             <div v-if="giftcard_total?.length > 0" class="pl-3 my-5">
               <h2 class="mb-2">
-                {{
-                  formatCurrency(
-                    giftcard_total[0].total_pending_transactions_count
-                  )
-                }}
+                {{ formatCurrency(giftcard_total[0].total_pending_transactions_count) }}
               </h2>
               <span>Pending</span>
             </div>
             <p v-else>loading...</p>
           </div>
-          <div
-            class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
-          >
+          <div class="d-flex align-start justify-start flex-column w-100 flex-grow-1">
             <v-avatar color="#FFCCBC" size="x-large">
-              <vue-feather
-                type="x-circle"
-                class="text-dark text-error"
-              ></vue-feather>
+              <vue-feather type="x-circle" class="text-dark text-error"></vue-feather>
             </v-avatar>
 
             <div v-if="giftcard_total?.length > 0" class="pl-3 my-5">
               <h2 class="mb-2">
-                {{
-                  formatCurrency(
-                    giftcard_total[0].total_declined_transactions_count
-                  )
-                }}
+                {{ formatCurrency(giftcard_total[0].total_declined_transactions_count) }}
               </h2>
               <span>Failed</span>
             </div>
             <p v-else>loading...</p>
           </div>
-          <div
-            class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
-          >
+          <div class="d-flex align-start justify-start flex-column w-100 flex-grow-1">
             <v-avatar color="purple" size="x-large">
               <vue-feather type="check" class="purple-lighten-1"></vue-feather>
             </v-avatar>
@@ -320,14 +297,7 @@ onUnmounted(() => {
         <v-btn @click="reset" width="200px" class="mr-4">Reset</v-btn>
         <v-btn
           @click="
-            getAllGiftCardTransaction(
-              status,
-              trade,
-              page,
-              date_from,
-              date_to,
-              reference
-            )
+            getAllGiftCardTransaction(status, trade, page, date_from, date_to, reference)
           "
           width="200px"
           color="secondary"
@@ -380,32 +350,25 @@ onUnmounted(() => {
       <v-card class="pa-5">
         <v-tabs v-model="tab" bg-color="none" class="mb-5 border-bottom">
           <v-tab @click="getAllGiftCardTransaction((status = ''))">All</v-tab>
-          <v-tab @click="getAllGiftCardTransaction((status = 'pending'))"
-            >Pending</v-tab
-          >
+          <v-tab @click="getAllGiftCardTransaction((status = 'pending'))">Pending</v-tab>
           <v-tab @click="getAllGiftCardTransaction((status = 'approved'))"
             >Approved</v-tab
           >
           <v-tab @click="getAllGiftCardTransaction((status = 'declined'))"
             >Declined</v-tab
           >
-          <v-tab @click="getAllGiftCardTransaction((status = 'partial'))"
-            >Partial</v-tab
-          >
+          <v-tab @click="getAllGiftCardTransaction((status = 'partial'))">Partial</v-tab>
         </v-tabs>
-        <v-table >
+        <v-table>
           <thead>
             <tr>
-              <th
-                v-for="(headings, index) in header"
-                :key="index"
-                class="text-left"
-              >
+              <th v-for="(headings, index) in header" :key="index" class="text-left">
                 {{ headings.title }}
               </th>
             </tr>
           </thead>
-          <tbody v-if="gift_transactions?.data?.length > 0 && loading == false">
+          <TransitionGroup name="list" tag="tbody" v-if="gift_transactions?.data?.length > 0 && loading == false">
+         
             <tr v-for="(item, index) in gift_transactions?.data" :key="item.id">
               <td>{{ index + 1 }}</td>
               <td
@@ -422,12 +385,10 @@ onUnmounted(() => {
               <td>{{ item?.giftcard_product?.giftcard_category?.name }}</td>
               <td>{{ item.reference }}</td>
               <td>{{ item.trade_type }}</td>
-              <td>₦‎ {{ item.payable_amount.toLocaleString() }}</td>
+              <td>₦‎ {{ item.amount.toLocaleString() }}</td>
 
               <td>
-                {{
-                  useDateFormat(item?.created_at, "DD-MM-YYYY hh:mm a").value
-                }}
+                {{ useDateFormat(item?.created_at, "DD-MM-YYYY hh:mm a").value }}
               </td>
               <!-- <td>{{ item.trade_type }}</td> -->
               <td>
@@ -455,13 +416,18 @@ onUnmounted(() => {
                     <v-list>
                       <v-list-item
                         :to="{
-                          name: item.children_count > 0 ? 'RelatedGiftCards' : 'ViewGiftCardTransaction',
+                          name:
+                            item.children_count > 0
+                              ? 'RelatedGiftCards'
+                              : 'ViewGiftCardTransaction',
                           params: { id: item.id },
                         }"
                         link
                         color="secondary"
                       >
-                        <v-list-item-title> {{ item.children_count > 0 ? 'View List' : 'View giftcard' }} </v-list-item-title>
+                        <v-list-item-title>
+                          {{ item.children_count > 0 ? "View List" : "View giftcard" }}
+                        </v-list-item-title>
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'pending' && item.children_count == 0"
@@ -469,9 +435,7 @@ onUnmounted(() => {
                         link
                         color="secondary"
                       >
-                        <v-list-item-title>
-                          Approve giftcard
-                        </v-list-item-title>
+                        <v-list-item-title> Approve giftcard </v-list-item-title>
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'pending' && item.children_count == 0"
@@ -482,9 +446,7 @@ onUnmounted(() => {
                         link
                         color="secondary"
                       >
-                        <v-list-item-title>
-                          Partial approval
-                        </v-list-item-title>
+                        <v-list-item-title> Partial approval </v-list-item-title>
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'pending' && item.children_count == 0"
@@ -495,22 +457,18 @@ onUnmounted(() => {
                         link
                         color="secondary"
                       >
-                        <v-list-item-title>
-                          Decline giftcard
-                        </v-list-item-title>
+                        <v-list-item-title> Decline giftcard </v-list-item-title>
                       </v-list-item>
                     </v-list>
                   </v-menu>
                 </v-row>
               </td>
             </tr>
-          </tbody>
+          
+          </TransitionGroup>
         </v-table>
 
-        <v-layout
-          v-if="loading == true"
-          class="align-center justify-center w-100 my-5"
-        >
+        <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
         <p
@@ -565,12 +523,7 @@ onUnmounted(() => {
       ></v-pagination>
     </v-col>
 
-    <v-dialog
-      v-if="dialog"
-      v-model="dialog"
-      max-width="429px"
-      min-height="476px"
-    >
+    <v-dialog v-if="dialog" v-model="dialog" max-width="429px" min-height="476px">
       <v-card class="view-dialog pa-4">
         <div class="mb-3 d-flex justify-space-between">
           <h3 class="text-justify mt-7">Partial approval</h3>
@@ -589,7 +542,7 @@ onUnmounted(() => {
             v-model="partial_approve.review_rate"
             type="number"
             variant="outlined"
-            label="Review Rate"
+            label="Review Amount"
           ></v-text-field>
           <v-textarea
             v-model="partial_approve.review_note"
@@ -622,11 +575,7 @@ onUnmounted(() => {
           </v-card-text>
 
           <v-container class="mt-7">
-            <v-textarea
-              label="Comments"
-              v-model="note"
-              variant="outlined"
-            ></v-textarea>
+            <v-textarea label="Comments" v-model="note" variant="outlined"></v-textarea>
 
             <v-file-input
               @change="get_reproof"
@@ -642,7 +591,7 @@ onUnmounted(() => {
               class="my-5"
               block
               :loading="declining"
-              @click="declineRequest(id, note, reproof,page_no)"
+              @click="declineRequest(id, note, reproof, page_no)"
               >Submit</v-btn
             >
           </v-container>
@@ -697,5 +646,15 @@ table tbody tr td {
     width: 188px;
     height: 64px;
   }
+}
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
 }
 </style>

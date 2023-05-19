@@ -289,7 +289,7 @@ export const useGiftCardStore = defineStore("giftcard", {
 
       var formdata = new FormData();
       formdata.append("complete_approval", "0");
-      formdata.append("review_rate", data.review_rate);
+      formdata.append("review_amount", data.review_rate);
       formdata.append("review_note", data.review_note);
       formdata.append("review_proof", data.review_proof);
       formdata.append("_method", "PATCH");
@@ -310,6 +310,7 @@ export const useGiftCardStore = defineStore("giftcard", {
               };
             }) => {
               this.approving = false;
+              this.dialog = false;
               this.dialog2 = false;
               this.getAllGiftCardTransactionByUserId(id);
               this.getAllGiftCardTransaction("", "", this.page, "", "");
@@ -323,7 +324,7 @@ export const useGiftCardStore = defineStore("giftcard", {
       } catch (error: any) {
         this.approving = false;
         this.dialog = false;
-        this.dialog2 = false;
+     
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
@@ -401,7 +402,7 @@ export const useGiftCardStore = defineStore("giftcard", {
                 data: any;
               };
             }) => {
-              this.giftCard = res.data.data.giftcard_category;
+              this.singleGiftCard = res.data.data.giftcard_category;
             }
           );
       } catch (error: any) {
@@ -474,7 +475,7 @@ export const useGiftCardStore = defineStore("giftcard", {
                   text: "Item restored successfully",
                   type: "success",
                 });
-                this.getAllGifCardCategories();
+                this.getSingleGifCardCategories(id);
               }
             );
         } catch (error: any) {
@@ -508,10 +509,10 @@ export const useGiftCardStore = defineStore("giftcard", {
             }) => {
               notify({
                 title: "Successful",
-                text: "Item restored successfully",
+                text: res.data.message,
                 type: "success",
               });
-              this.getAllGifCardCategories();
+              this.getSingleGifCardCategories(id);
             }
           );
       } catch (error: any) {
@@ -544,10 +545,10 @@ export const useGiftCardStore = defineStore("giftcard", {
             }) => {
               notify({
                 title: "Successful",
-                text: "Item restored successfully",
+                text: res.data.message,
                 type: "success",
               });
-              this.getAllGifCardCategories();
+              this.getSingleGifCardCategories(id);
             }
           );
       } catch (error: any) {

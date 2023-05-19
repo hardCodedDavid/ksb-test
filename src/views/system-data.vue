@@ -169,7 +169,7 @@ const editItem = (item: string, id: string) => {
             variant="outlined"
           ></v-text-field>
           <v-btn
-            @click="editSystemData({ content: parseInt(content), id: Id })"
+            @click="editSystemData({ content:content , id: Id })"
             color="primary"
             block
             :loading="loading"

@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from "vue";
 import { useAssetStore } from "../../stores/asset";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
+
 const {
   getAllAsset,
   deleteAsset,
@@ -54,10 +55,6 @@ const name = ref("");
 const code = ref("");
 const page = ref(1);
 
-
-
-
-
 const close = () => {
   dialog.value = false;
   asset.value = Object.assign(
@@ -70,6 +67,10 @@ const close = () => {
       sell_rate: "",
       id: "",
       networks: [],
+      buy_min_amount: "",
+      buy_max_amount: "",
+      sell_min_amount: "",
+      sell_max_amount: "",
     }
   );
   btnText.value = "Create Item";
@@ -80,6 +81,10 @@ onMounted(async () => {
   await getAllAsset(page.value, name.value, code.value);
   await getAllNetworks();
 });
+
+const formatCurrency = (value: any) => {
+  return new Intl.NumberFormat().format(value);
+};
 
 // CHANGE STATUS COLOR
 type StatusType = "pending" | "transferred" | "declined";
@@ -105,9 +110,10 @@ const openlink = (url: string) => {
 };
 
 // Edit asset workflow
-const edit = ref(false)
-const btnText = ref("Create Asset")
-const dialogTitle = ref("Create new asset")
+const edit = ref(false);
+const btnText = ref("Create Asset");
+const dialogTitle = ref("Create new asset");
+
 const editItem = (item: any) => {
   asset.value = {
     name: item.name,
@@ -117,37 +123,46 @@ const editItem = (item: any) => {
     sell_rate: item.sell_rate,
     id: item.id,
     networks: item.networks,
-    network_id: item.networks.map((item: any) => item.id)
-  }
-  btnText.value = "Update Asset"
-  dialogTitle.value = "Edit asset"
-  dialog.value = true
-  edit.value = true
-}
+    network_id: item.networks.map((item: any) => item.id),
+    buy_min_amount: item.buy_min_amount,
+    buy_max_amount: item.buy_max_amount,
+    sell_min_amount: item.sell_min_amount,
+    sell_max_amount: item.sell_max_amount,
+  };
+  btnText.value = "Update Asset";
+  dialogTitle.value = "Edit asset";
+  dialog.value = true;
+  edit.value = true;
+};
 
 const closeDialog = () => {
   asset.value = {
-    name: '',
-    code: '',
-    icon: '',
-    buy_rate: '',
-    sell_rate: '',
-    id: '',
+    name: "",
+    code: "",
+    icon: "",
+    buy_rate: "",
+    sell_rate: "",
+    id: "",
     networks: [],
-    network_id: []
-  }
-  edit.value = false
-  btnText.value = "Create Asset"
-  dialogTitle.value = "Create new asset"
-}
+    network_id: [],
+
+    buy_min_amount: "",
+    buy_max_amount: "",
+    sell_min_amount: "",
+    sell_max_amount: "",
+  };
+  edit.value = false;
+  btnText.value = "Create Asset";
+  dialogTitle.value = "Create new asset";
+};
 
 watch(dialog, () => {
-  if(!dialog.value) {
+  if (!dialog.value) {
     setTimeout(() => {
-      closeDialog()
+      closeDialog();
     }, 500);
   }
-})
+});
 const filter_type = [
   {
     text: "All Assets",
@@ -156,24 +171,24 @@ const filter_type = [
   {
     text: "Deleted Assets",
     value: "only",
-  }
-]
-const filter = ref("with")
+  },
+];
+const filter = ref("with");
 
 const filterByDeleted = (filter: string) => {
-  if(filter == "with") {
-    getAllAsset(page.value, name.value, code.value)
+  if (filter == "with") {
+    getAllAsset(page.value, name.value, code.value);
   } else {
-    getAllAsset(page.value, name.value, code.value, "only")
+    getAllAsset(page.value, name.value, code.value, "only");
   }
-}
+};
 watch(filter, (newValue) => {
-  filterByDeleted(newValue)
-})
+  filterByDeleted(newValue);
+});
 const restoreItem = async (id: string) => {
-  await restoreAsset(id)
-  filter.value = 'with'
-}
+  await restoreAsset(id);
+  filter.value = "with";
+};
 </script>
 
 <template>
@@ -182,25 +197,25 @@ const restoreItem = async (id: string) => {
       <div class="w-full d-md-flex justify-space-between my-3">
         <h2>Assets</h2>
         <div class="d-md-flex align-center">
-            <v-select
-              v-model="filter"
-              class="select-field"
-              label="Filter by type"
-              density="compact"
-              :items="filter_type"
-              item-title="text"
-              item-value="value"
-              variant="outlined"
-            ></v-select>
-            <v-btn
-              prepend-icon="mdi-plus"
-              @click="dialog = true"
-              variant="flat"
-              color="secondary"
-              class="ml-3"
-            >
-              Create New Asset
-            </v-btn>
+          <v-select
+            v-model="filter"
+            class="select-field"
+            label="Filter by type"
+            density="compact"
+            :items="filter_type"
+            item-title="text"
+            item-value="value"
+            variant="outlined"
+          ></v-select>
+          <v-btn
+            prepend-icon="mdi-plus"
+            @click="dialog = true"
+            variant="flat"
+            color="secondary"
+            class="ml-3"
+          >
+            Create New Asset
+          </v-btn>
         </div>
       </div>
       <v-card class="pa-5">
@@ -225,11 +240,7 @@ const restoreItem = async (id: string) => {
           </v-col>
           <v-col cols="12" sm="6" md="4">
             <v-btn
-              @click="
-                name !== '' || code !== ''
-                  ? getAllAsset(page, name, code)
-                  : null
-              "
+              @click="name !== '' || code !== '' ? getAllAsset(page, name, code) : null"
               color="secondary"
               block
               >Search</v-btn
@@ -239,11 +250,7 @@ const restoreItem = async (id: string) => {
         <v-table>
           <thead>
             <tr>
-              <th
-                v-for="(headings, index) in header"
-                :key="index"
-                class="text-left"
-              >
+              <th v-for="(headings, index) in header" :key="index" class="text-left">
                 {{ headings.title }}
               </th>
             </tr>
@@ -267,9 +274,7 @@ const restoreItem = async (id: string) => {
               <td>₦‎{{ item.buy_rate }}</td>
               <td>₦‎{{ item.sell_rate }}</td>
               <td>
-                {{
-                  useDateFormat(item?.created_at, "DD, MMMM-YYYY hh:mm a").value
-                }}
+                {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY hh:mm a").value }}
               </td>
 
               <td>
@@ -286,13 +291,9 @@ const restoreItem = async (id: string) => {
                       </v-btn>
                     </template>
                     <v-list>
-                      <v-list-item
-                        @click="editItem(item)"
-                        link
-                        color="secondary"
-                      >
+                      <!-- <v-list-item @click="editItem(item)" link color="secondary">
                         <v-list-item-title> Update Asset </v-list-item-title>
-                      </v-list-item>
+                      </v-list-item> -->
                       <v-list-item
                         @click="
                           dialog2 = true;
@@ -303,25 +304,18 @@ const restoreItem = async (id: string) => {
                       >
                         <v-list-item-title> View Asset </v-list-item-title>
                       </v-list-item>
-                      <v-list-item
-                        @click="editItem(item)"
-                        link
-                        color="secondary"
-                      >
+                      <v-list-item @click="editItem(item)" link color="secondary">
                         <v-list-item-title> Edit Asset </v-list-item-title>
                       </v-list-item>
-                      <v-list-item v-show="filter === 'only'"
+                      <v-list-item
+                        v-show="filter === 'only'"
                         @click="restoreItem(item?.id)"
                         link
                         color="secondary"
                       >
                         <v-list-item-title> Restore Asset </v-list-item-title>
                       </v-list-item>
-                      <v-list-item
-                        @click="deleteAsset(item?.id)"
-                        link
-                        color="secondary"
-                      >
+                      <v-list-item @click="deleteAsset(item?.id)" link color="secondary">
                         <v-list-item-title> Delete Asset </v-list-item-title>
                       </v-list-item>
                     </v-list>
@@ -339,10 +333,7 @@ const restoreItem = async (id: string) => {
           No data found
         </p>
 
-        <v-layout
-          v-if="loading == true"
-          class="align-center justify-center w-100 my-5"
-        >
+        <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
       </v-card>
@@ -368,11 +359,7 @@ const restoreItem = async (id: string) => {
           <h3 class="text-h5 font-weight-bold pa-7">{{ btnText }}</h3>
           <v-card-text>
             <v-container>
-              <v-form
-                @submit.prevent="
-                  edit ? updateAssets(asset) : createAssets(asset)
-                "
-              >
+              <v-form @submit.prevent="edit ? updateAssets(asset) : createAssets(asset)">
                 <v-row>
                   <v-col cols="12" sm="6" md="12">
                     <v-text-field
@@ -429,6 +416,44 @@ const restoreItem = async (id: string) => {
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="12">
+                    <v-text-field
+                      v-model="asset.buy_min_amount"
+                      variant="outlined"
+                      label="Buy min amount*"
+                      required
+                      type="number"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="12">
+                    <v-text-field
+                      v-model="asset.buy_max_amount"
+                      variant="outlined"
+                      label="Buy max amount*"
+                      required
+                      type="number"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="12">
+                    <v-text-field
+                      v-model="asset.sell_min_amount"
+                      variant="outlined"
+                      label="Sell min amount*"
+                      required
+                      
+                      type="number"
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="12">
+                    <v-text-field
+                      v-model="asset.sell_max_amount"
+                      variant="outlined"
+                      label="Sell max amount*"
+                      required
+                      @update:modelValue="()=> formatCurrency(asset.sell_max_amount)"
+                      
+                    ></v-text-field>
+                  </v-col>
+                  <v-col cols="12" sm="12">
                     <v-select
                       variant="outlined"
                       item-title="name"
@@ -445,18 +470,24 @@ const restoreItem = async (id: string) => {
                 </v-row>
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn
-                    color="secondary"
-                    class="px-7"
-                    variant="outlined"
-                    @click="close"
-                  >
+                  <v-btn color="secondary" class="px-7" variant="outlined" @click="close">
                     Close
                   </v-btn>
                   <v-btn
                     color="secondary"
                     class="px-12"
-                    :disabled="!asset.name || !asset.code || !asset.buy_rate || !asset.sell_rate || !asset.network_id || !asset.icon"
+                    :disabled="
+                      !asset.name ||
+                      !asset.code ||
+                      !asset.buy_rate ||
+                      !asset.sell_rate ||
+                      !asset.network_id ||
+                      !asset.icon ||
+                      !asset.buy_min_amount ||
+                      !asset.buy_max_amount ||
+                      !asset.sell_min_amount ||
+                      !asset.sell_max_amount
+                    "
                     :loading="loading"
                     variant="flat"
                     @click="edit === true ? updateAssets(asset) : createAssets(asset)"
@@ -475,10 +506,7 @@ const restoreItem = async (id: string) => {
       <v-dialog v-model="dialog2" max-width="500px">
         <v-card>
           <h3 class="text-center my-4">Asset Details</h3>
-          <v-layout
-            v-if="loading == true"
-            class="align-center justify-center w-100 my-5"
-          >
+          <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
             <v-progress-circular indeterminate></v-progress-circular>
           </v-layout>
           <v-container v-else class="fill-height">
@@ -510,9 +538,7 @@ const restoreItem = async (id: string) => {
                   </p>
                 </div>
                 <div>
-                  <h4 class="text-grey grey-darken-4 font-weight-light">
-                    Sell Rate
-                  </h4>
+                  <h4 class="text-grey grey-darken-4 font-weight-light">Sell Rate</h4>
                   <p class="my-3 font-weight-bold">
                     {{ asset_details.sell_rate }}
                   </p>
@@ -535,9 +561,7 @@ const restoreItem = async (id: string) => {
                       <p class="font-weight-bold">{{ network.name }}</p>
                     </div>
                     <div class="mb-2">
-                      <h4 class="mb-1 text-grey font-weight-light">
-                        Wallet address
-                      </h4>
+                      <h4 class="mb-1 text-grey font-weight-light">Wallet address</h4>
                       <p class="font-weight-bold">
                         {{ network.wallet_address }}
                       </p>
@@ -545,9 +569,7 @@ const restoreItem = async (id: string) => {
                   </v-col>
                 </v-row>
               </div>
-              <p v-else class="text-center py-5">
-                This asset has no related network
-              </p>
+              <p v-else class="text-center py-5">This asset has no related network</p>
             </div>
           </v-container>
         </v-card>

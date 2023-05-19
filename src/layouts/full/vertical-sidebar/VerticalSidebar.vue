@@ -128,7 +128,7 @@ onMounted(async () => {
             <v-list-item
               v-if="
                 all_permissions.includes(item?.permissions) ||
-                item?.permissions == ''
+                item?.permissions == '' && all_permissions.length == 18
               "
               :key="i"
               :to="item.to"

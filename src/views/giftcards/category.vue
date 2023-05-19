@@ -12,7 +12,7 @@ const { admin } = storeToRefs(useUserStore());
 const { getAdmin } = useUserStore()
 const router = useRouter()
 
-const { giftCard, loading, dialog, gift_categories, singleGiftCard, update_category, update_admin } = storeToRefs(
+const { giftCard, loading, dialog, gift_categories, singleGiftCard, update_category, update_admin, page:page_no } = storeToRefs(
   useGiftCardStore()
 );
 const {
@@ -89,11 +89,12 @@ onMounted(async () => {
 });
 
 const id = ref("");
-const page_no = ref(1);
+// const page_no = ref(1);
 const dialog2 = ref(false);
 const showDetails = async (id: string) => {
   // dialog2.value = true;
-  router.push(`/giftcards/view-transactions/category/${id}`)
+  // router.push(`/giftcards/view-transactions/category/${id}`)
+  router.push({name:'GiftCardCategoryView', params:{id:id}})
   // await getSingleGifCardCategories(id);
 };
 

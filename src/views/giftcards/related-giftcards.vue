@@ -50,7 +50,7 @@
           <td>{{ singleGiftCardTransaction?.reference }}</td>
           <td>{{ singleGiftCardTransaction?.trade_type }}</td>
           <td>
-            ₦‎ {{ singleGiftCardTransaction?.payable_amount.toLocaleString() }}
+            ₦‎ {{ singleGiftCardTransaction?.amount.toLocaleString() }}
           </td>
 
           <td>
@@ -154,7 +154,7 @@
           <td>{{ item?.giftcard_product?.giftcard_category?.name }}</td>
           <td>{{ item.reference }}</td>
           <td>{{ item.trade_type }}</td>
-          <td>₦‎ {{ item.payable_amount.toLocaleString() }}</td>
+          <td>₦‎ {{ item.amount.toLocaleString() }}</td>
 
           <td>
             {{ useDateFormat(item?.created_at, "DD-MM-YYYY hh:mm a").value }}
@@ -271,7 +271,7 @@
             v-model="partial_approve.review_rate"
             type="number"
             variant="outlined"
-            label="Review Rate"
+            label="Review Amount"
           ></v-text-field>
           <v-textarea
             v-model="partial_approve.review_note"

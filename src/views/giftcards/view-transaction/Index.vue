@@ -380,7 +380,7 @@ onBeforeMount(async () => {
                   <p>Full name: <span class="font-weight-bold">{{ singleGiftCardTransaction?.reviewer?.firstname }}  {{ singleGiftCardTransaction?.reviewer?.lastname}}</span></p>
                 </div>
                 <div class="font-weight-normal mb-4">
-                  <strong>Review Rate:</strong>
+                  <strong>Review Amount:</strong>
                   {{ singleGiftCardTransaction.review_rate ?? 'No data'}}
                 </div>
                 <div class="font-weight-normal mb-4">
@@ -558,7 +558,7 @@ onBeforeMount(async () => {
             v-model="partial_approve.review_rate"
             type="number"
             variant="outlined"
-            label="New Rate"
+            label="Review Amount"
           ></v-text-field>
           <v-textarea
             v-model="partial_approve.review_note"

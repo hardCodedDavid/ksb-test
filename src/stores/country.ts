@@ -13,6 +13,8 @@ export const useCountryStore = defineStore({
     giftCategories: [],
     dialog: false,
     exchange_rate_to_ngn: '',
+    buy_rate:"",
+    sell_rate:"",
     loading: false,
     all_country: {},
     page:1,
@@ -220,6 +222,8 @@ export const useCountryStore = defineStore({
         var formData = new FormData();
 
         formData.append('exchange_rate_to_ngn', this.exchange_rate_to_ngn);
+        formData.append('buy_rate', this.buy_rate);
+        formData.append('sell_rate', this.sell_rate);
         formData.append('_method', 'PATCH');
 
         await ksbTechApi
@@ -242,6 +246,8 @@ export const useCountryStore = defineStore({
                 type: 'success'
               });
               this.loading = false;
+
+              this.getCurrency()
               this.dialog = false;
             }
           );

@@ -13,6 +13,13 @@ const { loading, approving, declining, singleGiftCard, dialog, dialog2 } =
   storeToRefs(useGiftCardStore());
 
 const route: any = useRoute();
+const  prop = defineProps({
+  id:{
+    type:String,
+    required:true
+  }
+})
+
 
 // const dialog2 = ref(false)
 
@@ -45,7 +52,7 @@ const view_img = (url: string) => {
 // CHANGE STATUS COLOR
 
 const status_color = (status: any) => {
-  return status !== null ? "yellow-darken-3" : "red lighten-3";
+  return status !== null ? "green-darken-3" : "red lighten-3";
 };
 //
 
@@ -96,7 +103,8 @@ const indexRef = ref(0);
 const onHide = () => (visibleRef.value = false);
 
 onMounted(async () => {
-  await getSingleGifCardCategories(route.params.id);
+  console.log(prop.id)
+  await getSingleGifCardCategories(prop.id);
 });
 </script>
 
@@ -108,7 +116,7 @@ onMounted(async () => {
       size="large"
       variant="plain"
       color="grey-darken-4"
-      :to="{ name: 'GiftCardCategoryView' }"
+      :to="{ name: 'GiftCardCategory' }"
     >
       <v-icon start icon="mdi-arrow-left"></v-icon>
       GiftCard categories
@@ -141,18 +149,18 @@ onMounted(async () => {
                 height="250"
                 :src="
                   singleGiftCard?.icon ??
-                  'https://cdn.vuetifyjs.com/images/cards/cooking.png'
+                  ''
                 "
               ></v-img>
 
               <v-card-item class="pa-0 mb-5">
                 <v-card-title class="pa-4">GiftCard Information</v-card-title>
                 <v-divider></v-divider>
-                <v-card-subtitle class="ml-6 my-2">
+                <!-- <v-card-subtitle class="ml-6 my-2">
                   <span class="mr-1">Name:</span>
 
-                  <span></span>
-                </v-card-subtitle>
+                  <span class="font-weight-bold">{{singleGiftCard?.name}}</span>
+                </v-card-subtitle> -->
               </v-card-item>
 
               <v-card-text>
@@ -163,6 +171,7 @@ onMounted(async () => {
                    <v-chip
                     label
                     size="small"
+                    :color="status_color(singleGiftCard.sale_activated_at)"
                     density="comfortable"
                     class="text-capitalize font-weight-bold pa-3 mr-4"
                     >{{ text(singleGiftCard.sale_activated_at) }}</v-chip
@@ -174,7 +183,7 @@ onMounted(async () => {
                     <v-chip
                       label
                       size="small"
-                      
+                      :color="status_color(singleGiftCard.purchase_activated_at)"
                       density="comfortable"
                       class="text-capitalize font-weight-bold pa-3 mr-2"
                       >{{ text(singleGiftCard.purchase_activated_at) }}</v-chip
@@ -201,6 +210,18 @@ onMounted(async () => {
                   >
                     {{ country?.name }}
                   </v-chip>
+                </div>
+                <div class="mt-4">
+                  <h4 class="py-1">Giftcard Admins:</h4>
+                  <v-chip
+                    v-for="country in singleGiftCard?.admins"
+                    :key="country.id"
+                    class="ma-1"
+                    color="secondary"
+                  >
+                    {{ country?.email }}
+                  </v-chip>
+                  <p v-if="singleGiftCard?.admins?.length <= 0">No record</p>
                 </div>
               </v-card-text>
 
@@ -246,7 +267,7 @@ onMounted(async () => {
               density="compact"
               :flat="true"
               :value="singleGiftCard.sale_activated_at"
-              v-model="sale_activation"
+              v-model="singleGiftCard.sale_activated_at"
               focused
               label="Toggle Sale Activation"
               :color="singleGiftCard?.sale_activated_at == null ? '' : 'secondary'"

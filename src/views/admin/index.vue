@@ -269,7 +269,7 @@ const getRoles = (item: Array<object>) => {
                       required
                       item-title="name"
                       item-value="id"
-                      v-model="adminDetails.country_name"
+                      v-model="adminDetails.country"
                     ></v-autocomplete>
                   </v-col>
                 </v-row>

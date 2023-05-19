@@ -21,6 +21,11 @@ interface Asset {
   sell_rate: string;
   id: string;
   networks: [];
+  buy_min_amount:string;
+  buy_max_amount:string;
+  sell_min_amount:string;
+  sell_max_amount:string;
+  network_id:[]
 }
 
 interface State {
@@ -49,7 +54,12 @@ export const useAssetStore = defineStore('asset', {
       buy_rate: '',
       sell_rate: '',
       id: '',
-      networks: []
+      networks: [],
+      buy_min_amount:'',
+      buy_max_amount:'',
+      sell_min_amount:'',
+      sell_max_amount:'',
+      network_id:[],
     },
     assets: [],
     all_networks: [],
@@ -537,7 +547,12 @@ export const useAssetStore = defineStore('asset', {
       formData.append('icon', asset_t.icon);
       formData.append('buy_rate', asset_t.buy_rate);
       formData.append('sell_rate', asset_t.sell_rate);
+      formData.append('buy_min_amount', asset_t.buy_min_amount);
+      formData.append('buy_max_amount', asset_t.buy_max_amount);
+      formData.append('sell_min_amount', asset_t.sell_min_amount);
+      formData.append('sell_max_amount', asset_t.sell_max_amount);
 
+     
       const ids = this.asset.networks;
 
       for (let i = 0; i < ids.length; i++) {
@@ -591,8 +606,12 @@ export const useAssetStore = defineStore('asset', {
       formData.append('icon', asset_t.icon);
       formData.append('buy_rate', asset_t.buy_rate);
       formData.append('sell_rate', asset_t.sell_rate);
+      formData.append('buy_min_amount', asset_t.buy_min_amount);
+      formData.append('buy_max_amount', asset_t.buy_max_amount);
+      formData.append('sell_min_amount', asset_t.sell_min_amount);
+      formData.append('sell_max_amount', asset_t.sell_max_amount);
 
-      const ids = asset_t.networks;
+      const ids = asset_t.network_id;
 
       for (let i = 0; i < ids.length; i++) {
         formData.append('networks[]', ids[i]);

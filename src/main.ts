@@ -40,3 +40,6 @@ app.use(Notifications)
 app.use(vuetify).mount("#app");
 app.use(VueQueryPlugin)
 app.component('v-otp-input', VOtpInput)
+
+
+

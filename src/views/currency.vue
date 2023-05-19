@@ -38,6 +38,8 @@
             <td>{{ data?.name }}</td>
             <td>{{ data?.code }}</td>
             <td>{{ data?.exchange_rate_to_ngn }}</td>
+            <td>{{ data?.buy_rate }}</td>
+            <td>{{ data?.sell_rate }}</td>
             <td>
               <v-row>
                 <v-menu transition="scroll-y-transition">
@@ -87,6 +89,19 @@
             v-model="exchange_rate_to_ngn"
             label="Exchange rate"
             variant="outlined"
+            type="number"
+          ></v-text-field>
+          <v-text-field
+            v-model="buy_rate"
+            type="number"
+            label="Buy rate"
+            variant="outlined"
+          ></v-text-field>
+          <v-text-field
+            v-model="sell_rate"
+            type="number"
+            label="Sell rate"
+            variant="outlined"
           ></v-text-field>
           <v-btn
             :loading="loading"
@@ -107,7 +122,7 @@ import { useCountryStore } from "../stores/country";
 import { storeToRefs } from "pinia";
 import { watchDebounced } from "@vueuse/core";
 const { getCurrency, updateCurrency } = useCountryStore();
-const { currencies, loading, dialog, exchange_rate_to_ngn } = storeToRefs(
+const { currencies, loading, dialog, exchange_rate_to_ngn, sell_rate, buy_rate } = storeToRefs(
   useCountryStore()
 );
 const id = ref("");
@@ -153,6 +168,12 @@ const currency_header = ref([
   },
   {
     title: "Exchange rate to naria",
+  },
+  {
+    title: "Buy rate",
+  },
+  {
+    title: "Sell rate",
   },
   {
     title: "Action",
