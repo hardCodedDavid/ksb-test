@@ -6,13 +6,14 @@ import { storeToRefs } from "pinia";
 import { useGiftCardStore } from "@/stores/giftcard";
 import "vue-easy-lightbox/dist/external-css/vue-easy-lightbox.css";
 import { useDateFormat } from "@vueuse/core";
-
-const  prop = defineProps({
-  id:{
-    type:String,
-    required:true
-  }
-})
+import useFormatter from "@/composables/useFormatter";
+const { formatCurrency, formatNumber } = useFormatter();
+const prop = defineProps({
+  id: {
+    type: String,
+    required: true,
+  },
+});
 
 const {
   declineRequest,
@@ -79,11 +80,7 @@ const status_color = (status: StatusType) => {
 type TradeType = "sell" | "buy";
 
 const trade_color = (status: TradeType) => {
-  return status === "buy"
-    ? "green lighten-3"
-    : status === "sell"
-    ? "red lighten-3"
-    : "";
+  return status === "buy" ? "green lighten-3" : status === "sell" ? "red lighten-3" : "";
 };
 //
 const reproof = ref("");
@@ -167,85 +164,86 @@ const onShow = () => {
 const indexRef = ref(0);
 const onHide = () => (visibleRef.value = false);
 
-console.log(route.params.id)
+console.log(route.params.id);
 onBeforeMount(async () => {
-
- await getAllGiftCardTransactionByUserId(prop.id);
+  await getAllGiftCardTransactionByUserId(prop.id);
 });
 </script>
 
 <template>
   <v-row>
-    <v-btn 
-        class="ml-4" 
-        link
-        size="large"
-        variant="plain"
-        color="grey-darken-4"
-        :to="{name:'GiftCardTransaction'}"
+    <v-btn
+      class="ml-4"
+      link
+      size="large"
+      variant="plain"
+      color="grey-darken-4"
+      :to="{ name: 'GiftCardTransaction' }"
     >
-        <v-icon start icon="mdi-arrow-left"></v-icon>
-        GiftCard Transactions
+      <v-icon start icon="mdi-arrow-left"></v-icon>
+      GiftCard Transactions
     </v-btn>
-    <br>
+    <br />
     <div>
-      <v-btn 
-      v-if="singleGiftcardUnit"
-        class="ml-4 text-normal" 
+      <v-btn
+        v-if="singleGiftcardUnit"
+        class="ml-4 text-normal"
         link
         size="large"
         variant="plain"
         color="grey-darken-4"
-        :to="{name:'RelatedGiftCards', params: { id: singleGiftCardTransaction?.id },}"
-    >
+        :to="{ name: 'RelatedGiftCards', params: { id: singleGiftCardTransaction?.id } }"
+      >
         <v-icon start icon="mdi-arrow-left"></v-icon>
-         Back to List 
-    </v-btn>
+        Back to List
+      </v-btn>
     </div>
 
     <v-col cols="12" sm="12" lg="12">
-    
       <v-card>
         <v-toolbar color="transparent">
-          <v-toolbar-title class="font-weight-medium">
-            View transaction
-          </v-toolbar-title>
+          <v-toolbar-title class="font-weight-medium"> View transaction </v-toolbar-title>
 
           <v-spacer></v-spacer>
         </v-toolbar>
         <v-divider></v-divider>
         <v-card class="pa-6" rounded="0" elevation="0">
-      <v-table class="ksb-border">
-        <thead>
-        <tr class="pa-2">
-          <th
-            :key="index"
-            v-for="(headerTitle, index) in transaction_header"
-            class="text-left"
-          >
-            {{ headerTitle.title }}
-          </th>
-        </tr>
-      </thead>
+          <v-table class="ksb-border">
+            <thead>
+              <tr class="pa-2">
+                <th
+                  :key="index"
+                  v-for="(headerTitle, index) in transaction_header"
+                  class="text-left"
+                >
+                  {{ headerTitle.title }}
+                </th>
+              </tr>
+            </thead>
 
-      <tbody>
-        <tr>
-        <td>{{singleGiftCardTransaction?.giftcard_product?.giftcard_category?.name}}</td>
-        <td>{{singleGiftCardTransaction?.giftcard_product?.name}}</td>
-        <td>{{singleGiftCardTransaction?.trade_type}}</td>
-        <td>{{singleGiftCardTransaction?.giftcard_product?.country?.name}}</td>
-        <td>{{singleGiftCardTransaction?.giftcard_product?.sell_rate}}</td>
-        <td>{{singleGiftCardTransaction?.rate}}</td>
-        <td>{{ singleGiftcardUnit }}</td>
-        <td>1</td>
-        </tr>
-      </tbody>
-      </v-table>
-
-      
-    </v-card>
+            <tbody>
+              <tr>
+                <td>
+                  {{
+                    singleGiftCardTransaction?.giftcard_product?.giftcard_category?.name
+                  }}
+                </td>
+                <td>{{ singleGiftCardTransaction?.giftcard_product?.name }}</td>
+                <td>{{ singleGiftCardTransaction?.trade_type }}</td>
+                <td>{{ singleGiftCardTransaction?.giftcard_product?.country?.name }}</td>
+                <td>
+                  {{ singleGiftCardTransaction?.giftcard_product.currency.code }}
+                  <strong>{{ formatNumber(singleGiftCardTransaction.amount) }}</strong>
+                </td>
+                <td>{{ singleGiftCardTransaction?.rate }}</td>
+                <td>{{ singleGiftcardUnit }}</td>
+                <td>1</td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card>
         <v-row class="px-4">
-            <v-col cols="12" sm="12" lg="6">
+          <v-col cols="12" sm="12" lg="6">
             <v-card :loading="loading" class="mx-auto my-12">
               <template v-slot:loader="{ isActive }">
                 <v-progress-linear
@@ -256,14 +254,11 @@ onBeforeMount(async () => {
                 ></v-progress-linear>
               </template>
 
-             
-
               <v-card-item class="pa-0 mb-5">
                 <v-card-title class="pa-4">GiftCard Information</v-card-title>
                 <v-divider></v-divider>
                 <v-card-subtitle class="ml-6 my-2">
                   <span class="mr-1">Reference:</span>
-
                   <span>{{ singleGiftCardTransaction.reference }}</span>
                 </v-card-subtitle>
               </v-card-item>
@@ -278,7 +273,6 @@ onBeforeMount(async () => {
                     :color="status_color(singleGiftCardTransaction?.status)"
                     >{{ singleGiftCardTransaction?.status }}</v-chip
                   >
-
                   <v-chip
                     label
                     size="small"
@@ -288,59 +282,59 @@ onBeforeMount(async () => {
                     >{{ singleGiftCardTransaction?.trade_type }}</v-chip
                   >
                 </v-row>
-
                 <div class="mb-5">
                   <strong>Card type:</strong>
                   {{ singleGiftCardTransaction?.card_type }}
                 </div>
-
-                
-
                 <div class="font-weight-normal mb-4">
                   <strong>Payable Amount:</strong>
-                  &#x20A6{{ singleGiftCardTransaction.payable_amount }}
+                  {{ formatCurrency(singleGiftCardTransaction.payable_amount) }}
                 </div>
-
                 <div class="font-weight-normal mb-4">
                   <strong>Card Amount:</strong>
-                  &#x20A6{{ singleGiftCardTransaction.amount }}
+                  {{ singleGiftCardTransaction?.giftcard_product.currency.code }}
+                  <strong>{{ formatNumber(singleGiftCardTransaction.amount) }}</strong>
                 </div>
-
                 <div class="font-weight-normal mb-4">
                   <strong>Service Charge:</strong>
-                  &#x20A6{{ singleGiftCardTransaction.service_charge }}
+                  {{ formatCurrency(singleGiftCardTransaction.service_charge) }}
                 </div>
-
                 <div class="font-weight-normal mb-4">
                   <strong>Rate:</strong>
-                  &#x20A6{{ singleGiftCardTransaction.rate }}
+                  {{ formatCurrency(singleGiftCardTransaction.rate) }}
                 </div>
-
                 <div class="font-weight-normal mb-4">
                   <strong>Date Created:</strong>
-                    {{ useDateFormat(
-                        singleGiftCardTransaction?.created_at,
-                        "DD, MMM YYYY - hh:mm a"
-                      ).value }}
+                  {{
+                    useDateFormat(
+                      singleGiftCardTransaction?.created_at,
+                      "DD, MMM YYYY - hh:mm a"
+                    ).value
+                  }}
                 </div>
 
                 <div class="font-weight-normal mb-4">
                   <strong>Last Updated:</strong>
-                  {{ useDateFormat(
-                        singleGiftCardTransaction?.updated_at,
-                        "DD, MMM YYYY - hh:mm a"
-                      ).value }}
+                  {{
+                    useDateFormat(
+                      singleGiftCardTransaction?.updated_at,
+                      "DD, MMM YYYY - hh:mm a"
+                    ).value
+                  }}
                 </div>
                 <div class="mb-4">
-                 <strong>Comments:</strong> {{ singleGiftCardTransaction?.comment }}
+                  <strong>Comments:</strong> {{ singleGiftCardTransaction?.comment }}
                 </div>
               </v-card-text>
 
-              <v-divider v-if="singleGiftCardTransaction.status == 'pending'" class="mx-4 mb-1"></v-divider>
+              <v-divider
+                v-if="singleGiftCardTransaction.status == 'pending'"
+                class="mx-4 mb-1"
+              ></v-divider>
 
               <v-card-actions v-if="singleGiftCardTransaction.status == 'pending'">
-                    <v-btn
-                    class="mr-4"
+                <v-btn
+                  class="mr-4"
                   color="green lighten-3"
                   :loading="approving"
                   variant="tonal"
@@ -356,54 +350,81 @@ onBeforeMount(async () => {
                 >
                   Decline
                 </v-btn>
-                <v-btn
-                  color="purple lighten-3"
-                  variant="tonal"
-                  @click="dialog2 = true"
-                >
+                <v-btn color="purple lighten-3" variant="tonal" @click="dialog2 = true">
                   Partial approval
                 </v-btn>
               </v-card-actions>
             </v-card>
 
             <v-card class="my-12">
-              <v-card-title>Other Information</v-card-title>
-                 <v-divider></v-divider>
+              <v-card-title>Review Information</v-card-title>
+              <v-divider></v-divider>
               <v-card-text>
                 <div class="font-weight-normal mb-4">
                   <strong>Review Note:</strong>
-                  {{ singleGiftCardTransaction?.review_note ?? 'No data'}}
+                  {{ singleGiftCardTransaction?.review_note ?? "No data" }}
                 </div>
                 <div class="font-weight-normal mb-5">
                   <strong>Review By:</strong>
-                  <p class="my-1">Email: <span class="font-weight-bold">{{ singleGiftCardTransaction?.reviewer?.email ?? 'No data'}}</span></p>
-                  <p>Full name: <span class="font-weight-bold">{{ singleGiftCardTransaction?.reviewer?.firstname }}  {{ singleGiftCardTransaction?.reviewer?.lastname}}</span></p>
+                  <p class="my-1">
+                    Email:
+                    <span class="font-weight-bold">{{
+                      singleGiftCardTransaction?.reviewer?.email ?? "No data"
+                    }}</span>
+                  </p>
+                  <p>
+                    Full name:
+                    <span class="font-weight-bold"
+                      >{{ singleGiftCardTransaction?.reviewer?.firstname }}
+                      {{ singleGiftCardTransaction?.reviewer?.lastname }}</span
+                    >
+                  </p>
+                </div>
+                <div class="font-weight-normal mb-4">
+                  <strong>Review Rate:</strong>
+                  {{
+                    formatCurrency(
+                      singleGiftCardTransaction.payable_amount /
+                        singleGiftCardTransaction.amount
+                    )
+                  }}
                 </div>
                 <div class="font-weight-normal mb-4">
                   <strong>Review Amount:</strong>
-                  {{ singleGiftCardTransaction.review_rate ?? 'No data'}}
+                  {{
+                    formatCurrency(singleGiftCardTransaction.review_amount) ?? "No data"
+                  }}
                 </div>
                 <div class="font-weight-normal mb-4">
-                  <strong>Review At:</strong>
+                  <strong>Review At: </strong>
                   <span v-if="singleGiftCardTransaction.reviewed_at">
-                    {{ useDateFormat(
+                    {{
+                      useDateFormat(
                         singleGiftCardTransaction?.reviewed_at,
-                        "DD, MMMM-YYYY"
-                      ).value }}
+                        "DD, MMM YYYY - hh:mm a"
+                      ).value
+                    }}
                   </span>
                   <span v-else> No Data</span>
                 </div>
-                <div v-if="singleGiftCardTransaction.reviewed_at" class="font-weight-normal mb-4">
+                <div
+                  v-if="singleGiftCardTransaction.reviewed_at"
+                  class="font-weight-normal mb-4"
+                >
                   <strong>Review Proof:</strong>
-                   <v-btn  @click="view_img(singleGiftCardTransaction.review_proof)" color="secondary" class="ml-4 my-4">View Proof image</v-btn>
-                 
+                  <v-btn
+                    @click="view_img(singleGiftCardTransaction.review_proof)"
+                    color="secondary"
+                    class="ml-4 my-4"
+                    >View Proof image</v-btn
+                  >
                 </div>
               </v-card-text>
             </v-card>
-            </v-col>
+          </v-col>
 
-            <v-col cols="12" sm="12" lg="6">
-                <v-card :loading="loading" class="mx-auto my-12">
+          <v-col cols="12" sm="12" lg="6">
+            <v-card :loading="loading" class="mx-auto my-12">
               <template v-slot:loader="{ isActive }">
                 <v-progress-linear
                   :active="isActive"
@@ -425,121 +446,132 @@ onBeforeMount(async () => {
 
                 <div class="font-weight-normal mb-4">
                   <strong>Last name:</strong>
-                  {{ singleGiftCardTransaction.user?.lastname}}
+                  {{ singleGiftCardTransaction.user?.lastname }}
                 </div>
 
-                
-                  <div v-if="singleGiftCardTransaction.user_id" class="font-weight-normal mb-4">
-                    <strong class="mr-1">Email:</strong>
-                    <router-link :to="{name:'UserDetails', params: {id : singleGiftCardTransaction.user_id} }">
-                      {{ singleGiftCardTransaction.user?.email}}
-                    </router-link>
-                  </div>
+                <div
+                  v-if="singleGiftCardTransaction.user_id"
+                  class="font-weight-normal mb-4"
+                >
+                  <strong class="mr-1">Email:</strong>
+                  <router-link
+                    :to="{
+                      name: 'UserDetails',
+                      params: { id: singleGiftCardTransaction.user_id },
+                    }"
+                  >
+                    {{ singleGiftCardTransaction.user?.email }}
+                  </router-link>
+                </div>
               </v-card-text>
 
               <!-- <v-divider class="mx-4 mb-1"></v-divider> -->
-
-              
             </v-card>
-            
+
             <v-card>
               <v-card-title>Bank Information</v-card-title>
-                 <v-divider></v-divider>
+              <v-divider></v-divider>
               <v-card-text>
                 <div class="font-weight-normal mb-4">
                   <strong>Bank name:</strong>
-                  {{ singleGiftCardTransaction.bank?.name}}
+                  {{ singleGiftCardTransaction.bank?.name }}
                 </div>
 
                 <div class="font-weight-normal mb-4">
                   <strong>Account name:</strong>
-                  {{ singleGiftCardTransaction?.account_name}}
+                  {{ singleGiftCardTransaction?.account_name }}
                 </div>
 
                 <div class="font-weight-normal mb-4">
                   <strong>Account number:</strong>
-                  {{ singleGiftCardTransaction?.account_number}}
+                  {{ singleGiftCardTransaction?.account_number }}
                 </div>
               </v-card-text>
             </v-card>
 
             <v-card class="my-12">
               <v-card-title>Card Information</v-card-title>
-                 <v-divider></v-divider>
+              <v-divider></v-divider>
               <v-card-text>
-                <div  v-if="singleGiftCardTransaction?.cards" class="font-weight-normal mb-4">
+                <div
+                  v-if="singleGiftCardTransaction?.cards"
+                  class="font-weight-normal mb-4"
+                >
                   <strong v-if="img?.length > 0" class="mb-5">Card Image(s):</strong>
-                  
+
                   <v-row v-if="singleGiftCardTransaction?.cards?.length > 0">
-                    <v-col 
-                    v-for="(images, index) in singleGiftCardTransaction.cards"
-                    :key="index" cols="12" sm="6" md="4" lg="3">
-                    <v-img
-                      cover
-                      width="80"
-                      height="80"
-                      @click="onShow"
-                      :src="images.original_url"
-                      class="cursor-pointer mt-4"
+                    <v-col
+                      v-for="(images, index) in singleGiftCardTransaction.cards"
+                      :key="index"
+                      cols="12"
+                      sm="6"
+                      md="4"
+                      lg="3"
+                    >
+                      <v-img
+                        cover
+                        width="80"
+                        height="80"
+                        @click="onShow"
+                        :src="images.original_url"
+                        class="cursor-pointer mt-4"
                       ></v-img>
                     </v-col>
                   </v-row>
 
                   <p v-else class="text-center font-weight-bold">No card info</p>
                 </div>
-                <div v-if="singleGiftCardTransaction.code" class="font-weight-normal mb-4">
+                <div
+                  v-if="singleGiftCardTransaction.code"
+                  class="font-weight-normal mb-4"
+                >
                   <strong>Code:</strong>
-                  {{ singleGiftCardTransaction.code ?? "No Code"}}
+                  {{ singleGiftCardTransaction.code ?? "No Code" }}
                 </div>
 
                 <div v-if="singleGiftCardTransaction.pin" class="font-weight-normal mb-4">
                   <strong>Pin:</strong>
-                  {{ singleGiftCardTransaction.pin ?? "No Pin"}}
+                  {{ singleGiftCardTransaction.pin ?? "No Pin" }}
                 </div>
               </v-card-text>
             </v-card>
-            </v-col>
-            
+          </v-col>
         </v-row>
       </v-card>
     </v-col>
 
-      <v-dialog
-        v-if="dialog"
-        v-model="dialog"
-        max-width="500px"
-        width="100%"
-      >
-        <v-card max-width="500px">
-          <v-card-text>
-            <h3>Decline Request</h3>
-            <p>Enter Reasons for Declining 
-             this withdrawal request</p>
-          </v-card-text>
+    <v-dialog v-if="dialog" v-model="dialog" max-width="500px" width="100%">
+      <v-card max-width="500px">
+        <v-card-text>
+          <h3>Decline Request</h3>
+          <p>Enter Reasons for Declining this withdrawal request</p>
+        </v-card-text>
 
-          <v-container class="mt-7">
-            <v-textarea
-              label="Comments"
-              v-model="note"
-              variant="outlined"
-            ></v-textarea>
+        <v-container class="mt-7">
+          <v-textarea label="Comments" v-model="note" variant="outlined"></v-textarea>
 
-              <v-file-input @change="get_reproof" hint="Optional" persistent-hint label="Review proof" append-inner-icon="mdi-paperclip"
-                    prepend-icon=""></v-file-input>
+          <v-file-input
+            @change="get_reproof"
+            hint="Optional"
+            persistent-hint
+            label="Review proof"
+            append-inner-icon="mdi-paperclip"
+            prepend-icon=""
+          ></v-file-input>
 
-            <v-btn
-              color="secondary"
-              class="my-5"
-              block
-              :loading="declining"
-              @click="declineRequest(id, note, reproof)"
-              >Submit</v-btn
-            >
-          </v-container>
-        </v-card>
-      </v-dialog>
+          <v-btn
+            color="secondary"
+            class="my-5"
+            block
+            :loading="declining"
+            @click="declineRequest(id, note, reproof)"
+            >Submit</v-btn
+          >
+        </v-container>
+      </v-card>
+    </v-dialog>
 
-       <v-dialog v-model="dialog2" max-width="429px" min-height="476px">
+    <v-dialog v-model="dialog2" max-width="429px" min-height="476px">
       <v-card class="view-dialog pa-4">
         <div class="mb-3 d-flex justify-space-between">
           <h3 class="text-justify mt-7">Partial approval</h3>
@@ -582,16 +614,16 @@ onBeforeMount(async () => {
       </v-card>
     </v-dialog>
 
-                    <vue-easy-lightbox
-                      :visible="visibleRef"
-                      :imgs="image"
-                      :index="indexRef"
-                      @hide="onHide"
-                    ></vue-easy-lightbox>
+    <vue-easy-lightbox
+      :visible="visibleRef"
+      :imgs="image"
+      :index="indexRef"
+      @hide="onHide"
+    ></vue-easy-lightbox>
   </v-row>
 </template>
 
-<style lang='scss'>
+<style lang="scss">
 .ksb-border {
   border: 1px solid #cecccc;
 }
