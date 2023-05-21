@@ -6,6 +6,7 @@ import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
 import { useWithdrawalsStore } from "../../stores/withdrawals";
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
+import ksbTechApi from "axios";
 
 // check
 const {
@@ -15,6 +16,7 @@ const {
   getAllGiftCardTransactionByUserId,
   partialApproveRequest,
   giftCardTransactionQueries,
+  exportGiftcards,
 } = useGiftCardStore();
 
 const { getAllTransactionCount } = useWithdrawalsStore();
@@ -104,7 +106,7 @@ const header = ref([
     title: "Actions",
   },
 ]);
-// 
+//
 const breadcrumbs = ref([
   {
     text: "Cards",
@@ -171,9 +173,8 @@ const reset = async () => {
   );
 };
 
-
 let intervalId = ref<any>(null);
-onMounted(async() => {
+onMounted(async () => {
   await getAllTransactionCount();
   await getAllGiftCardTransaction(
     status.value,
@@ -184,8 +185,6 @@ onMounted(async() => {
     reference.value
   );
 });
-
-
 
 var pusher = new Pusher("2bd4bb8b30b7085ba28d", {
   cluster: "mt1",
@@ -199,15 +198,16 @@ channel.bind("new-giftcard", function (data: any) {
   }
 });
 
-
-
 onUnmounted(() => {
-  pusher.unsubscribe('giftcards')
-})
+  pusher.unsubscribe("giftcards");
+});
 </script>
 <template>
   <!-- <v-btn @click="add">click</v-btn> -->
-  <h3>Giftcard Transactions</h3>
+  <div class="d-flex justify-space-between">
+    <h3>Giftcard Transactions</h3>
+    <v-btn @click="exportGiftcards" width="200px" color="secondary">Export</v-btn>
+  </div>
   <v-row v-if="permissions?.length == 18" class="my-3">
     <v-col cols="12" sm="6" md="4">
       <v-card elevation="0" class="pa-6 h-100">
@@ -367,8 +367,11 @@ onUnmounted(() => {
               </th>
             </tr>
           </thead>
-          <TransitionGroup name="list" tag="tbody" v-if="gift_transactions?.data?.length > 0 && loading == false">
-         
+          <TransitionGroup
+            name="list"
+            tag="tbody"
+            v-if="gift_transactions?.data?.length > 0 && loading == false"
+          >
             <tr v-for="(item, index) in gift_transactions?.data" :key="item.id">
               <td>{{ index + 1 }}</td>
               <td
@@ -385,7 +388,17 @@ onUnmounted(() => {
               <td>{{ item?.giftcard_product?.giftcard_category?.name }}</td>
               <td>{{ item.reference }}</td>
               <td>{{ item.trade_type }}</td>
-              <td>₦‎ {{ item.amount.toLocaleString() }}</td>
+              <td>
+                ₦‎
+                {{
+                  formatCurrency(
+                    item.payable_amount *
+                      (item.children_count && item.children_count !== 0
+                        ? item.children_count + 1
+                        : 1)
+                  )
+                }}
+              </td>
 
               <td>
                 {{ useDateFormat(item?.created_at, "DD-MM-YYYY hh:mm a").value }}
@@ -417,7 +430,7 @@ onUnmounted(() => {
                       <v-list-item
                         :to="{
                           name:
-                            item.children_count > 0
+                            item.children_count && item.children_count > 0
                               ? 'RelatedGiftCards'
                               : 'ViewGiftCardTransaction',
                           params: { id: item.id },
@@ -426,7 +439,11 @@ onUnmounted(() => {
                         color="secondary"
                       >
                         <v-list-item-title>
-                          {{ item.children_count > 0 ? "View List" : "View giftcard" }}
+                          {{
+                            item.children_count && item.children_count > 0
+                              ? "View List"
+                              : "View giftcard"
+                          }}
                         </v-list-item-title>
                       </v-list-item>
                       <v-list-item
@@ -464,7 +481,6 @@ onUnmounted(() => {
                 </v-row>
               </td>
             </tr>
-          
           </TransitionGroup>
         </v-table>
 
