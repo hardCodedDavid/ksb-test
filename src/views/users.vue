@@ -4,7 +4,14 @@ import { useUserStore } from "../stores/user";
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useDateFormat, watchDebounced } from "@vueuse/core";
-const { getUsers, restoreUsers, blockUsers, financeUsers } = useUserStore();
+const {
+  getUsers,
+  restoreUsers,
+  blockUsers,
+  financeUsers,
+  exportUsers,
+  blockUser,
+} = useUserStore();
 const { user, loading, filterUserById, use_activity } = storeToRefs(useUserStore());
 
 const dialog = ref(false);
@@ -91,39 +98,40 @@ const reset_fields = async () => {
     (date1.value = ""),
     (date2.value = "");
 
-    await getUsers(page.value, name.value, email.value, date1.value, date2.value);
+  await getUsers(page.value, name.value, email.value, date1.value, date2.value);
 };
 
-
-const filtering = ref(false)
+const filtering = ref(false);
 const filter_by = async () => {
-  filtering.value = true
+  filtering.value = true;
   await getUsers(page.value, name.value, email.value, date1.value, date2.value);
-  filtering.value = false
+  filtering.value = false;
 };
 </script>
 
 <template>
   <div>
-    <h3 class="my-7">All Users</h3>
-
+    <div class="d-flex justify-space-between mb-4">
+      <h3>All Users</h3>
+      <v-btn @click="exportUsers" width="200px" color="secondary">Export</v-btn>
+    </div>
     <v-row>
       <v-col cols="12" sm="4">
         <v-card elevation="0" class="py-4 px-6">
           <h4>Active users</h4>
-          <h2 class="mt-6">{{use_activity?.active_users}}</h2>
+          <h2 class="mt-6">{{ use_activity?.active_users }}</h2>
         </v-card>
       </v-col>
       <v-col cols="12" sm="4">
         <v-card elevation="0" class="py-4 px-6">
           <h4>Inactive users</h4>
-          <h2 class="mt-6">{{use_activity?.inactive_users}}</h2>
+          <h2 class="mt-6">{{ use_activity?.inactive_users }}</h2>
         </v-card>
       </v-col>
       <v-col cols="12" sm="4">
         <v-card elevation="0" class="py-4 px-6">
           <h4>Blocked users</h4>
-          <h2 class="mt-6">{{use_activity?.blocked_users}}</h2>
+          <h2 class="mt-6">{{ use_activity?.blocked_users }}</h2>
         </v-card>
       </v-col>
     </v-row>
@@ -180,7 +188,7 @@ const filter_by = async () => {
         </v-col>
       </v-row>
     </v-card>
-    
+
     <v-card>
       <v-table>
         <thead>
@@ -195,7 +203,6 @@ const filter_by = async () => {
           <tr class="pa-3" v-for="(item, index) in user?.data" :key="item?.id">
             <td>{{ index + 1 }}</td>
             <td>
-
               <div class="d-flex align-center">
                 <div>
                   <span class="font-weight-bold">
@@ -249,6 +256,9 @@ const filter_by = async () => {
                       color="secondary"
                     >
                       <v-list-item-title> Finance user </v-list-item-title>
+                    </v-list-item>
+                    <v-list-item @click="blockUser(item?.id)" link color="secondary">
+                      <v-list-item-title> Block user </v-list-item-title>
                     </v-list-item>
                   </v-list>
                 </v-menu>
@@ -318,15 +328,3 @@ table tbody tr td {
   padding: 15px !important;
 }
 </style>
-
-
-<!-- 
-
-
- 
-
-
-
-
-
- -->
