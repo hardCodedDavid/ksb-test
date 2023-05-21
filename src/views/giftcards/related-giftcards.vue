@@ -1,11 +1,6 @@
 <template>
   <div>
-    <v-btn
-      link
-      size="small"
-      color="grey-darken-4"
-      :to="{ name: 'GiftCardTransaction' }"
-    >
+    <v-btn link size="small" color="grey-darken-4" :to="{ name: 'GiftCardTransaction' }">
       <v-icon size="small" start icon="mdi-arrow-left"></v-icon>
       GiftCard Transactions
     </v-btn>
@@ -41,24 +36,27 @@
           </td>
 
           <td>
-            {{
-              singleGiftCardTransaction?.giftcard_product?.giftcard_category
-                ?.name
-            }}
+            {{ singleGiftCardTransaction?.giftcard_product?.giftcard_category?.name }}
           </td>
 
           <td>{{ singleGiftCardTransaction?.reference }}</td>
           <td>{{ singleGiftCardTransaction?.trade_type }}</td>
           <td>
-            ₦‎ {{ singleGiftCardTransaction?.amount.toLocaleString() }}
+            {{
+              formatCurrency(
+                singleGiftCardTransaction.payable_amount *
+                  (singleGiftCardTransaction.children_count &&
+                  singleGiftCardTransaction.children_count !== 0
+                    ? singleGiftCardTransaction.children_count + 1
+                    : 1)
+              )
+            }}
           </td>
 
           <td>
             {{
-              useDateFormat(
-                singleGiftCardTransaction?.created_at,
-                "DD-MM-YYYY hh:mm a"
-              ).value
+              useDateFormat(singleGiftCardTransaction?.created_at, "DD-MM-YYYY hh:mm a")
+                .value
             }}
           </td>
 
@@ -99,9 +97,7 @@
 
                   <v-list-item
                     v-if="singleGiftCardTransaction?.status == 'pending'"
-                    @click="
-                      approveRequest(singleGiftCardTransaction?.id, page_no)
-                    "
+                    @click="approveRequest(singleGiftCardTransaction?.id, page_no)"
                     link
                     color="secondary"
                   >
@@ -134,11 +130,7 @@
             </v-row>
           </td>
         </tr>
-         <tr
-          class="pa-2"
-          v-for="(item, index) in relatedGiftCards"
-          :key="item.id"
-        >
+        <tr class="pa-2" v-for="(item, index) in relatedGiftCards" :key="item.id">
           <td>{{ index + 2 }}</td>
           <td
             class="font-weight-bold username"
@@ -154,7 +146,16 @@
           <td>{{ item?.giftcard_product?.giftcard_category?.name }}</td>
           <td>{{ item.reference }}</td>
           <td>{{ item.trade_type }}</td>
-          <td>₦‎ {{ item.amount.toLocaleString() }}</td>
+          <td>
+            {{
+              formatCurrency(
+                item.payable_amount *
+                  (item.children_count && item.children_count !== 0
+                    ? item.children_count + 1
+                    : 1)
+              )
+            }}
+          </td>
 
           <td>
             {{ useDateFormat(item?.created_at, "DD-MM-YYYY hh:mm a").value }}
@@ -233,11 +234,7 @@
       </tbody>
     </v-table>
 
-    
-    <v-layout
-      v-if="loading == true"
-      class="align-center justify-center w-100 my-5"
-    >
+    <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
       <v-progress-circular indeterminate></v-progress-circular>
     </v-layout>
     <p
@@ -247,12 +244,7 @@
       No related giftcard
     </p>
 
-    <v-dialog
-      v-if="dialog"
-      v-model="dialog"
-      max-width="429px"
-      min-height="476px"
-    >
+    <v-dialog v-if="dialog" v-model="dialog" max-width="429px" min-height="476px">
       <v-card class="view-dialog pa-4">
         <div class="mb-3 d-flex justify-space-between">
           <h3 class="text-justify mt-7">Partial approval</h3>
@@ -304,11 +296,7 @@
           </v-card-text>
 
           <v-container class="mt-7">
-            <v-textarea
-              label="Comments"
-              v-model="note"
-              variant="outlined"
-            ></v-textarea>
+            <v-textarea label="Comments" v-model="note" variant="outlined"></v-textarea>
 
             <v-file-input
               @change="get_reproof"
@@ -340,6 +328,7 @@ import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useGiftCardStore } from "@/stores/giftcard";
 import { useDateFormat } from "@vueuse/core";
+import useFormatter from "@/composables/useFormatter";
 export default defineComponent({
   setup() {
     const related_giftcard = ref([
@@ -419,11 +408,7 @@ export default defineComponent({
       dialog2.value = true;
     };
     // CHANGE STATUS COLOR
-    type StatusType =
-      | "pending"
-      | "approved"
-      | "declined"
-      | "partially_approved";
+    type StatusType = "pending" | "approved" | "declined" | "partially_approved";
 
     const status_color = (status: StatusType) => {
       return status == "pending"
@@ -444,6 +429,12 @@ export default defineComponent({
     onMounted(() => {
       getAllGiftCardTransactionByUserId(route.params.id);
     });
+
+    // const formatCurrency = (value: any) => {
+    //   return new Intl.NumberFormat().format(value);
+    // };
+
+    const { formatCurrency } = useFormatter();
 
     return {
       related_giftcard,
@@ -467,6 +458,7 @@ export default defineComponent({
       singleGiftCardTransaction,
       page_no,
       partial,
+      formatCurrency,
     };
   },
 });
