@@ -13,7 +13,6 @@ interface Admin {
   avatar: string;
   id: string;
   blocked_at: boolean;
-  
 }
 interface User {
   firstname: string;
@@ -44,11 +43,11 @@ interface State {
   dialog: boolean;
   dialog2: boolean;
   single_admin: any;
-  single_user:any;
-  bank_info:[];
-  banks:[];
-  use_activity:any,
-  search_users:[]
+  single_user: any;
+  bank_info: [];
+  banks: [];
+  use_activity: any;
+  search_users: [];
 }
 
 export const useUserStore = defineStore("user", {
@@ -59,36 +58,36 @@ export const useUserStore = defineStore("user", {
     loading: false,
     dialog: false,
     dialog2: false,
-    use_activity:{},
+    use_activity: {},
     fund: {
       type: "",
-      amount: "",
+      amount: ""
     },
     adminDetails: {
       firstname: "",
       lastname: "",
       email: "",
-      country: "",
+      country: ""
     },
     id: "",
     single_admin: "",
-    single_user:"",
-    bank_info:[],
-    banks:[],
-    search_users:[]
+    single_user: "",
+    bank_info: [],
+    banks: [],
+    search_users: []
   }),
   getters: {
     filterUserById: (state) => (id: string) =>
-      state.user?.data?.filter((selectedUser:any) => {
+      state.user?.data?.filter((selectedUser: any) => {
         return selectedUser["id"] == id;
       }),
-      getUsersByEmailAndId: (state) => 
-        state.user?.data?.map((selectedUser:any) => {
-          return  {
-            email:selectedUser.email,
-            id:selectedUser.id
-          }
-        }),
+    getUsersByEmailAndId: (state) =>
+      state.user?.data?.map((selectedUser: any) => {
+        return {
+          email: selectedUser.email,
+          id: selectedUser.id
+        };
+      }),
     country_id() {
       const store = useCountryStore();
       return store.countries.filter((country) => {
@@ -98,18 +97,18 @@ export const useUserStore = defineStore("user", {
       });
     },
     toggleActivationText: (state) =>
-      !state.single_admin?.blocked_at ? "block" : "restore access",
+      !state.single_admin?.blocked_at ? "block" : "restore access"
   },
   actions: {
     updateAdmin() {
       return (this.adminDetails = {
-        ...this.admin.filter((user) => user["id"] == this.id),
+        ...this.admin.filter((user) => user["id"] == this.id)
       });
     },
 
     async getUsers(
-      page:number  = 1,
-      name: string = '',
+      page: number = 1,
+      name: string = "",
       email: string = "",
       date1: string = "",
       date2: string = ""
@@ -122,12 +121,12 @@ export const useUserStore = defineStore("user", {
           .get(
             `${user}?filter[name]=${name}&filter[email]=${email}&filter[registration_date]=${date1}${
               date2 !== "" ? `,${date2}` : ""
-            }&page=${page}&per_page=${'100'}`,
+            }&page=${page}&per_page=${"100"}`,
             {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`,
-              },
+                Authorization: `Bearer ${store.token}`
+              }
             }
           )
           .then(
@@ -138,7 +137,7 @@ export const useUserStore = defineStore("user", {
               };
             }) => {
               this.loading = false;
-              this.use_activity = res.data.data
+              this.use_activity = res.data.data;
               this.user = res.data.data.users;
             }
           );
@@ -146,23 +145,18 @@ export const useUserStore = defineStore("user", {
         this.loading = false;
       }
     },
-    async searchUsers(
-      email: string = "",
-    ) {
+    async searchUsers(email: string = "") {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       try {
         await ksbTechApi
-          .get(
-            `${user}?filter[email]=${email}`,
-            {
-              headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${store.token}`,
-              },
+          .get(`${user}?filter[email]=${email}`, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`
             }
-          )
+          })
           .then(
             (res: {
               data: {
@@ -171,7 +165,7 @@ export const useUserStore = defineStore("user", {
               };
             }) => {
               this.loading = false;
-           
+
               this.search_users = res.data.data.users.data;
             }
           );
@@ -179,7 +173,7 @@ export const useUserStore = defineStore("user", {
         this.loading = false;
       }
     },
-    async getUser(id:string) {
+    async getUser(id: string) {
       const store = useAuthStore();
 
       this.loading = true;
@@ -188,8 +182,8 @@ export const useUserStore = defineStore("user", {
           .get(`/admin/users/${id}`, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -216,42 +210,8 @@ export const useUserStore = defineStore("user", {
           .get(`${admin}?include=roles,country`, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
-          })
-          .then(
-            (res: {
-              data: {
-                message: string;
-                data: any;
-              };
-            }) => {
-              this.loading = false;
-         
-              this.admin = res.data.data.admins.data;
+              Authorization: `Bearer ${store.token}`
             }
-          );
-      } catch (error:any) {
-        this.loading = false;
-        notify({
-          title: "An Error Occurred",
-          text: error.response.data.message,
-          type: "error",
-        });
-      }
-    },
-    async getSingleAdmin(id: string) {
-      const store = useAuthStore();
-      const { notify } = useNotification();
-      this.dialog2 = true;
-      this.loading = true;
-      try {
-        await ksbTechApi
-          .get(admin + "/" + id + '?include=country,roles,giftcardCategories', {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
           })
           .then(
             (res: {
@@ -262,7 +222,40 @@ export const useUserStore = defineStore("user", {
             }) => {
               this.loading = false;
 
-              
+              this.admin = res.data.data.admins.data;
+            }
+          );
+      } catch (error: any) {
+        this.loading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error"
+        });
+      }
+    },
+    async getSingleAdmin(id: string) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.dialog2 = true;
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(admin + "/" + id + "?include=country,roles,giftcardCategories", {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`
+            }
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.loading = false;
+
               this.single_admin = res.data.data.admin;
             }
           );
@@ -279,8 +272,8 @@ export const useUserStore = defineStore("user", {
           .patch(user + "/" + id + "/block", "", {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -293,9 +286,9 @@ export const useUserStore = defineStore("user", {
               notify({
                 title: "Successful",
                 text: res.data.message,
-                type: "success",
+                type: "success"
               });
-              this.getUsers(1,"", "", "", "");
+              this.getUsers(1, "", "", "", "");
             }
           );
       } catch (error) {
@@ -311,8 +304,8 @@ export const useUserStore = defineStore("user", {
           .post(user + id + "/block", "", {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -325,9 +318,9 @@ export const useUserStore = defineStore("user", {
               notify({
                 title: "Successful",
                 text: res.data.message,
-                type: "success",
+                type: "success"
               });
-              this.getUsers(1,"", "", "", "");
+              this.getUsers(1, "", "", "", "");
             }
           );
       } catch (error) {
@@ -357,8 +350,8 @@ export const useUserStore = defineStore("user", {
             {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`,
-              },
+                Authorization: `Bearer ${store.token}`
+              }
             }
           )
           .then(
@@ -373,9 +366,9 @@ export const useUserStore = defineStore("user", {
               notify({
                 title: "Success",
                 text: res.data.message,
-                type: "success",
+                type: "success"
               });
-              this.getUsers(1,"", "", "", "");
+              this.getUsers(1, "", "", "", "");
             }
           );
       } catch (error: any) {
@@ -383,7 +376,7 @@ export const useUserStore = defineStore("user", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error",
+          type: "error"
         });
       }
     },
@@ -403,8 +396,8 @@ export const useUserStore = defineStore("user", {
           .post(admin, formData, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -417,7 +410,7 @@ export const useUserStore = defineStore("user", {
               notify({
                 title: "Success",
                 text: res.data.message,
-                type: "success",
+                type: "success"
               });
               this.dialog = false;
               this.getAdmin();
@@ -428,7 +421,7 @@ export const useUserStore = defineStore("user", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error",
+          type: "error"
         });
       }
     },
@@ -449,8 +442,8 @@ export const useUserStore = defineStore("user", {
           .post(admin + "/" + id, formData, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -463,7 +456,7 @@ export const useUserStore = defineStore("user", {
               notify({
                 title: "Success",
                 text: res.data.message,
-                type: "success",
+                type: "success"
               });
               this.dialog = false;
               this.getAdmin();
@@ -474,7 +467,7 @@ export const useUserStore = defineStore("user", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error",
+          type: "error"
         });
       }
     },
@@ -489,8 +482,8 @@ export const useUserStore = defineStore("user", {
             .delete(admin + "/" + id, {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`,
-              },
+                Authorization: `Bearer ${store.token}`
+              }
             })
             .then(
               (res: {
@@ -502,7 +495,7 @@ export const useUserStore = defineStore("user", {
                 notify({
                   title: "Success",
                   text: "Admin deleted successfully",
-                  type: "success",
+                  type: "success"
                 });
                 this.getAdmin();
               }
@@ -511,7 +504,7 @@ export const useUserStore = defineStore("user", {
           notify({
             title: "An Error Occurred",
             text: error.response.data.message,
-            type: "error",
+            type: "error"
           });
         }
       }
@@ -526,8 +519,8 @@ export const useUserStore = defineStore("user", {
             .patch(admin + "/" + id + "/restore", "", {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`,
-              },
+                Authorization: `Bearer ${store.token}`
+              }
             })
             .then(
               (res: {
@@ -539,7 +532,7 @@ export const useUserStore = defineStore("user", {
                 notify({
                   title: "Successful",
                   text: res.data.message,
-                  type: "success",
+                  type: "success"
                 });
                 this.getAdmin();
               }
@@ -548,7 +541,7 @@ export const useUserStore = defineStore("user", {
           notify({
             title: "An Error Occurred",
             text: error.response.data.message,
-            type: "error",
+            type: "error"
           });
         }
       }
@@ -567,8 +560,8 @@ export const useUserStore = defineStore("user", {
             .patch(admin + "/" + id + "/block", "", {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`,
-              },
+                Authorization: `Bearer ${store.token}`
+              }
             })
             .then(
               (res: {
@@ -580,7 +573,7 @@ export const useUserStore = defineStore("user", {
                 notify({
                   title: "Successful",
                   text: res.data.message,
-                  type: "success",
+                  type: "success"
                 });
                 this.getAdmin();
                 this.dialog2 = false;
@@ -590,13 +583,13 @@ export const useUserStore = defineStore("user", {
           notify({
             title: "An Error Occurred",
             text: error.response.data.message,
-            type: "error",
+            type: "error"
           });
         }
       }
     },
 
-    async getSystemBanks(page:number) {
+    async getSystemBanks(page: number) {
       const store = useAuthStore();
 
       this.loading = true;
@@ -605,8 +598,8 @@ export const useUserStore = defineStore("user", {
           .get(`/admin/system-bank-accounts`, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -616,60 +609,59 @@ export const useUserStore = defineStore("user", {
               };
             }) => {
               this.loading = false;
-              console.log(res)
-              this.bank_info = res.data.data
+              console.log(res);
+              this.bank_info = res.data.data;
             }
           );
       } catch (error) {
         this.loading = false;
       }
     },
-    async deleteSystemBanks(id:string) {
+    async deleteSystemBanks(id: string) {
       const store = useAuthStore();
 
-      if(confirm('Are you sure you want to delete this record?')){
+      if (confirm("Are you sure you want to delete this record?")) {
         this.loading = true;
-      try {
-        await ksbTechApi
-          .delete(`/admin/system-bank-accounts/${id}`, {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
-          })
-          .then(
-            (res: {
-              data: {
-                message: string;
-                data: any;
-              };
-            }) => {
-              this.loading = false;
-             
-             this.getSystemBanks(1)
-            }
-          );
-      } catch (error) {
-        this.loading = false;
-      }
-      } else return
+        try {
+          await ksbTechApi
+            .delete(`/admin/system-bank-accounts/${id}`, {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${store.token}`
+              }
+            })
+            .then(
+              (res: {
+                data: {
+                  message: string;
+                  data: any;
+                };
+              }) => {
+                this.loading = false;
+
+                this.getSystemBanks(1);
+              }
+            );
+        } catch (error) {
+          this.loading = false;
+        }
+      } else return;
     },
-    async createSystemBanks(bank_details:{
-      bank_name:string,
-      account_number:number,
-      account_name:string
+    async createSystemBanks(bank_details: {
+      bank_name: string;
+      account_number: number;
+      account_name: string;
     }) {
       const store = useAuthStore();
 
       this.loading = true;
       try {
         await ksbTechApi
-          .post(`/admin/system-bank-accounts`, bank_details , {
+          .post(`/admin/system-bank-accounts`, bank_details, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
-            
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -679,19 +671,19 @@ export const useUserStore = defineStore("user", {
               };
             }) => {
               this.loading = false;
-              this.dialog2 = false
-              this.getSystemBanks(1)
+              this.dialog2 = false;
+              this.getSystemBanks(1);
             }
           );
       } catch (error) {
         this.loading = false;
       }
     },
-    async updateSystemBanks(bank_details:{
-      bank_name:string,
-      account_number:string,
-      account_name:string,
-      id:string
+    async updateSystemBanks(bank_details: {
+      bank_name: string;
+      account_number: string;
+      account_name: string;
+      id: string;
     }) {
       const store = useAuthStore();
 
@@ -705,11 +697,11 @@ export const useUserStore = defineStore("user", {
 
       try {
         await ksbTechApi
-          .post(`/admin/system-bank-accounts/${bank_details.id}`, formData ,{
+          .post(`/admin/system-bank-accounts/${bank_details.id}`, formData, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -719,8 +711,8 @@ export const useUserStore = defineStore("user", {
               };
             }) => {
               this.loading = false;
-              this.dialog2 = false
-              this.getSystemBanks(1)
+              this.dialog2 = false;
+              this.getSystemBanks(1);
             }
           );
       } catch (error) {
@@ -736,8 +728,8 @@ export const useUserStore = defineStore("user", {
           .get(`/banks?do_not_paginate=${1}`, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Authorization: `Bearer ${store.token}`
+            }
           })
           .then(
             (res: {
@@ -755,5 +747,78 @@ export const useUserStore = defineStore("user", {
         this.loading = false;
       }
     },
-  },
+    async exportUsers() {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(user + "/export", {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`
+            }
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              window.open(res.data.data.path);
+              this.loading = false;
+              notify({
+                title: "Successful",
+                text: res.data.message,
+                type: "success"
+              });
+            }
+          );
+      } catch (error: any) {
+        this.loading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error"
+        });
+      }
+    },
+    async blockUser(id: string) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .patch(`${user}/${id}/block`, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`
+            }
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.loading = false;
+              notify({
+                title: "Successful",
+                text: res.data.message,
+                type: "success"
+              });
+            }
+          );
+      } catch (error: any) {
+        this.loading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error"
+        });
+      }
+    }
+  }
 });
