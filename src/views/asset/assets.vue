@@ -439,7 +439,6 @@ const restoreItem = async (id: string) => {
                       variant="outlined"
                       label="Sell min amount*"
                       required
-                      
                       type="number"
                     ></v-text-field>
                   </v-col>
@@ -449,8 +448,8 @@ const restoreItem = async (id: string) => {
                       variant="outlined"
                       label="Sell max amount*"
                       required
-                      @update:modelValue="()=> formatCurrency(asset.sell_max_amount)"
-                      
+                      type="number"
+                      @update:modelValue="() => formatCurrency(asset.sell_max_amount)"
                     ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="12">
