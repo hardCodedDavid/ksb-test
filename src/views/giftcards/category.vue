@@ -108,14 +108,14 @@ const edit = ref(false);
 const btnText = ref("Create Item");
 const editItem = async (item: any) => {
   await getSingleGifCardCategories(item.id);
-
+  
   giftCard.value = {
     id:item.id,
     name: item.name,
     icon: item.icon,
     sale_term: item.sale_term,
     countries: item?.countries,
-    admins: giftCard.value?.admins,
+    admins: singleGiftCard?.value?.admins,
   }
 
   btnText.value = "Update category";

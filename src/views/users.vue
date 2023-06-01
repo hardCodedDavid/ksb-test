@@ -10,7 +10,6 @@ const {
   blockUsers,
   financeUsers,
   exportUsers,
-  blockUser,
 } = useUserStore();
 const { user, loading, filterUserById, use_activity } = storeToRefs(useUserStore());
 
@@ -257,8 +256,8 @@ const filter_by = async () => {
                     >
                       <v-list-item-title> Finance user </v-list-item-title>
                     </v-list-item>
-                    <v-list-item @click="blockUser(item?.id)" link color="secondary">
-                      <v-list-item-title> Block user </v-list-item-title>
+                    <v-list-item @click="blockUsers(item?.id)" link color="secondary">
+                      <v-list-item-title> {{ item?.blocked_at == null ? "Block user" : "Unblock user" }}</v-list-item-title>
                     </v-list-item>
                   </v-list>
                 </v-menu>
