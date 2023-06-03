@@ -6,6 +6,7 @@ import { useCountryStore } from "../../stores/country";
 import { useGiftProductStore } from "../../stores/products";
 import { useGiftCardStore } from "../../stores/giftcard";
 import { useDateFormat } from "@vueuse/core";
+import useFormatter from "@/composables/useFormatter";
 const { countries, giftCardCategories, currencies, giftCategories } = storeToRefs(useCountryStore());
 const { giftCard, loading, dialog, gift_products } = storeToRefs(useGiftProductStore());
 // const { giftCard:productCard } = storeToRefs(useGiftCardStore());
@@ -18,6 +19,7 @@ const {
   editGiftCardProduct,
   
 } = useGiftProductStore();
+const { sortItems } = useFormatter();
 
 
 const gCountries = computed<any>(() => {
@@ -199,7 +201,7 @@ const activation_status = ref("");
         </tr>
       </thead>
       <tbody v-if="loading == false && gift_products?.data?.length > 0">
-        <tr v-for="(item, index) in gift_products.data" :key="item?.id">
+        <tr v-for="(item, index) in sortItems(gift_products.data)" :key="item?.id">
           <td>{{ index + 1 }}</td>
           <td>{{ item?.name }}</td>
           <td>{{ item.sell_rate.toLocaleString() }}</td>

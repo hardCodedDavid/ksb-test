@@ -4,6 +4,7 @@ import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
 import  {useRouter} from 'vue-router'
 import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
+import useFormatter from "@/composables/useFormatter";
 import { useCountryStore } from "../../stores/country";
 import { useGiftCardStore } from "../../stores/giftcard";
 import  { useUserStore } from '../../stores/user'
@@ -25,6 +26,7 @@ const {
   editGiftCardCategory,
   purchaseActivationGifCardCategories,
 } = useGiftCardStore();
+const { sortItems } = useFormatter();
 const page = ref({ title: "Gift Cards" });
 
 const sale_activation = ref("");
@@ -236,7 +238,7 @@ const statusColor = (status: string | null) => {
         </tr>
       </thead>
       <tbody v-if="loading == false && gift_categories?.data?.length > 0">
-        <tr class="pa-2" v-for="(item, index) in gift_categories.data" :key="item.id">
+        <tr class="pa-2" v-for="(item, index) in sortItems(gift_categories.data)" :key="item.id">
           <td>{{ index + 1 }}</td>
           <td>
             <v-avatar size="50px">

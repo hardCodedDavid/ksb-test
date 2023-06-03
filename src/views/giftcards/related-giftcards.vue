@@ -2,7 +2,7 @@
   <div>
     <v-btn link size="small" color="grey-darken-4" :to="{ name: 'GiftCardTransaction' }">
       <v-icon size="small" start icon="mdi-arrow-left"></v-icon>
-      GiftCard Transactions
+      Giftcard Transactions
     </v-btn>
     <h4 class="my-5">Related Giftcards:</h4>
 
@@ -198,7 +198,7 @@
 
                   <v-list-item
                     v-if="item?.status == 'pending'"
-                    @click="approveRequest(item?.id, page_no)"
+                    @click="openConfirmationDialog('approve', item?.id)"
                     link
                     color="secondary"
                   >
@@ -206,10 +206,7 @@
                   </v-list-item>
                   <v-list-item
                     v-if="item?.status == 'pending'"
-                    @click="
-                      dialog = true;
-                      id = item.id;
-                    "
+                    @click="(dialog = true), (confirmationID = item?.id)"
                     link
                     color="secondary"
                   >
@@ -217,10 +214,7 @@
                   </v-list-item>
                   <v-list-item
                     v-if="item?.status == 'pending'"
-                    @click="
-                      id = item?.id;
-                      disapprove();
-                    "
+                    @click="(dialog2 = true), (confirmationID = item?.id)"
                     link
                     color="secondary"
                   >
@@ -278,7 +272,7 @@
           ></v-file-input>
           <v-btn
             :loading="approving"
-            @click="partialApproveRequest(id, partial_approve)"
+            @click="openConfirmationDialog('partial', confirmationID)"
             block
             color="secondary"
             >submit</v-btn
@@ -312,13 +306,46 @@
               class="my-5"
               block
               :loading="declining"
-              @click="declineRequest(id, note, reproof, page_no)"
+              @click="openConfirmationDialog('decline', confirmationID)"
               >Submit</v-btn
             >
           </v-container>
         </v-card>
       </v-dialog>
     </v-expand-transition>
+    <v-dialog v-model="confirmationDialog" width="500">
+      <v-card>
+        <v-toolbar dark dense flat>
+          <v-toolbar-title class="text-body-2 font-weight-bold grey--text">
+            Confirm
+          </v-toolbar-title>
+        </v-toolbar>
+        <v-card-text class="pa-4 black--text"
+          >Are you sure you want to
+          {{
+            confirmationStatus === "partial" ? "partially approve" : confirmationStatus
+          }}
+          this transaction?</v-card-text
+        >
+        <v-card-actions class="pt-3">
+          <v-spacer></v-spacer>
+          <v-btn
+            color="grey"
+            text
+            class="body-2 font-weight-bold"
+            @click.native="confirmationDialog = false"
+            >Cancel</v-btn
+          >
+          <v-btn
+            color="primary"
+            class="body-2 font-weight-bold"
+            outlined
+            @click.native="makeConfirmation(confirmationStatus)"
+            >Yes</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -436,6 +463,36 @@ export default defineComponent({
 
     const { formatCurrency } = useFormatter();
 
+    const refresh = async () => {
+      await getAllGiftCardTransactionByUserId(route.params.id);
+    };
+    const confirmationDialog = ref(false);
+    const confirmationID = ref("");
+    const confirmationStatus = ref("");
+    const openConfirmationDialog = (type: string, id?: any) => {
+      confirmationDialog.value = true;
+      confirmationID.value = id;
+      confirmationStatus.value = type;
+    };
+    const makeConfirmation = async (type: string) => {
+      if (type == "approve") {
+        await approveRequest(confirmationID.value);
+        refresh();
+        confirmationDialog.value = false;
+      } else if (type == "decline") {
+        declineRequest(confirmationID.value, note.value, reproof.value as any);
+        confirmationDialog.value = false;
+      } else if (type == "partial") {
+        partialApproveRequest(confirmationID.value, partial_approve);
+        confirmationDialog.value = false;
+      }
+      confirmationDialog.value = false;
+    };
+
+    watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
+      newDialog === false && oldDialog === false ? refresh() : "";
+    });
+
     return {
       related_giftcard,
       relatedGiftCards,
@@ -459,6 +516,11 @@ export default defineComponent({
       page_no,
       partial,
       formatCurrency,
+      makeConfirmation,
+      openConfirmationDialog,
+      confirmationID,
+      confirmationDialog,
+      confirmationStatus,
     };
   },
 });

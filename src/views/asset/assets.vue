@@ -3,6 +3,8 @@ import { ref, onMounted, watch } from "vue";
 import { useAssetStore } from "../../stores/asset";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
+import useFormatter from "@/composables/useFormatter";
+const { sortItems } = useFormatter();
 
 const {
   getAllAsset,
@@ -256,7 +258,7 @@ const restoreItem = async (id: string) => {
             </tr>
           </thead>
           <tbody v-if="assets?.data?.length > 0 && loading == false">
-            <tr v-for="(item, index) in assets.data" :key="item.id">
+            <tr v-for="(item, index) in sortItems(assets.data)" :key="item.id">
               <td>{{ index + 1 }}</td>
               <td>
                 <v-avatar size="50px">

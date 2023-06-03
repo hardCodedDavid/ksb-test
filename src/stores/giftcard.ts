@@ -98,6 +98,8 @@ export const useGiftCardStore = defineStore("giftcard", {
           .get(
             giftCardCategory +
               "?include=countries" +
+              "&sort=name" +
+              "&per_page=50" +
               "&page=" +
               page +
               "&filter[name]=" +
@@ -235,7 +237,8 @@ export const useGiftCardStore = defineStore("giftcard", {
         });
       }
     },
-    async approveRequest(id: string, page: number) {
+    // Alter Gift Card Transactionß
+    async approveRequest(id: string, page?: number) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.approving = true;
@@ -269,7 +272,6 @@ export const useGiftCardStore = defineStore("giftcard", {
                 type: "success"
               });
               this.getAllGiftCardTransactionByUserId(id);
-              this.getAllGiftCardTransaction("", "", this.page, "", "");
             }
           );
       } catch (error: any) {
@@ -313,7 +315,6 @@ export const useGiftCardStore = defineStore("giftcard", {
               this.dialog = false;
               this.dialog2 = false;
               this.getAllGiftCardTransactionByUserId(id);
-              this.getAllGiftCardTransaction("", "", this.page, "", "");
               notify({
                 title: "Approved Successfully",
                 text: res.data.message,
@@ -332,12 +333,7 @@ export const useGiftCardStore = defineStore("giftcard", {
         });
       }
     },
-    async declineRequest(
-      id: string,
-      note: string,
-      reproof: File,
-      page: number
-    ) {
+    async declineRequest(id: string, note: string, reproof: File) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.declining = true;
@@ -371,7 +367,6 @@ export const useGiftCardStore = defineStore("giftcard", {
                 type: "success"
               });
               this.getAllGiftCardTransactionByUserId(id);
-              this.getAllGiftCardTransaction("", "", this.page, "", "");
             }
           );
       } catch (error: any) {
@@ -383,7 +378,6 @@ export const useGiftCardStore = defineStore("giftcard", {
         });
       }
     },
-
     async getSingleGifCardCategories(id: string) {
       const { notify } = useNotification();
       const store = useAuthStore();
@@ -704,8 +698,13 @@ export const useGiftCardStore = defineStore("giftcard", {
               };
             }) => {
               // this.gift_categories = res.data.data.giftcard_categories;
-              console.log(res.data.data);
+              window.open(res.data.data.path);
               this.loading = false;
+              notify({
+                title: "Successful",
+                text: res.data.message,
+                type: "success"
+              });
             }
           );
       } catch (error: any) {

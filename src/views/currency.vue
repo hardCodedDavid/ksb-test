@@ -31,7 +31,7 @@
         <tbody v-if="loading === false">
           <tr
             class="pa-3"
-            v-for="(data, index) in currencies"
+            v-for="(data, index) in sortItems(currencies)"
             :key="data?.id"
           >
             <td>{{ index + 1 }}</td>
@@ -122,9 +122,11 @@ import { useCountryStore } from "../stores/country";
 import { storeToRefs } from "pinia";
 import { watchDebounced } from "@vueuse/core";
 const { getCurrency, updateCurrency } = useCountryStore();
+import useFormatter from "@/composables/useFormatter";
 const { currencies, loading, dialog, exchange_rate_to_ngn, sell_rate, buy_rate } = storeToRefs(
   useCountryStore()
 );
+const { sortItems } = useFormatter();
 const id = ref("");
 const search = ref("");
 onMounted(async () => {

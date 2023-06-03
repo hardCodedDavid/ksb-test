@@ -1,12 +1,10 @@
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed, watch, onUnmounted } from "vue";
+import { ref, onMounted, reactive, onUnmounted, watch } from "vue";
 import { useGiftCardStore } from "../../stores/giftcard";
 import { useAuthStore } from "../../stores/auth";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
 import { useWithdrawalsStore } from "../../stores/withdrawals";
-import BaseBreadcrumb from "@/components/BaseBreadcrumb.vue";
-import ksbTechApi from "axios";
 
 // check
 const {
@@ -53,12 +51,12 @@ const formatCurrency = (value: any) => {
 // const dialog2 = ref(false);
 const note = ref("");
 const id = ref("");
-const disapprove = () => {
-  if (dialog.value == true) {
-    dialog.value = false;
-  }
-  dialog2.value = true;
-};
+// const disapprove = () => {
+//   if (dialog.value == true) {
+//     dialog.value = false;
+//   }
+//   dialog2.value = true;
+// };
 function clearMessage() {
   reference.value = "";
 }
@@ -140,7 +138,7 @@ const status_options = ref(["Pending", "Approved", "Declined", "Partially_approv
 const status = ref("");
 const trade = ref("");
 const trade_type = ref(["Buy", "Sell"]);
-// const page_no = ref(1);
+// const page = ref(1);
 const date_from = ref("");
 const date_to = ref("");
 const reference = ref("");
@@ -201,9 +199,75 @@ channel.bind("new-giftcard", function (data: any) {
 onUnmounted(() => {
   pusher.unsubscribe("giftcards");
 });
+const refresh = async () => {
+  await getAllGiftCardTransaction(
+    status.value,
+    trade.value,
+    page.value,
+    date_from.value,
+    date_to.value,
+    reference.value
+  );
+};
+const confirmationDialog = ref(false);
+const confirmationID = ref("");
+const confirmationStatus = ref("");
+const openConfirmationDialog = (type: string, id?: any) => {
+  confirmationDialog.value = true;
+  confirmationID.value = id;
+  confirmationStatus.value = type;
+};
+const makeConfirmation = async (type: string) => {
+  if (type == "approve") {
+    await approveRequest(confirmationID.value);
+    refresh();
+    confirmationDialog.value = false;
+  } else if (type == "decline") {
+    declineRequest(confirmationID.value, note.value, reproof.value as any);
+    confirmationDialog.value = false;
+  } else if (type == "partial") {
+    partialApproveRequest(confirmationID.value, partial_approve);
+    confirmationDialog.value = false;
+  }
+  confirmationDialog.value = false;
+};
+
+watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
+  newDialog === false && oldDialog === false ? refresh() : "";
+});
 </script>
 <template>
-  <!-- <v-btn @click="add">click</v-btn> -->
+  <v-dialog v-model="confirmationDialog" width="500">
+    <v-card>
+      <v-toolbar dark dense flat>
+        <v-toolbar-title class="text-body-2 font-weight-bold grey--text">
+          Confirm
+        </v-toolbar-title>
+      </v-toolbar>
+      <v-card-text class="pa-4 black--text"
+        >Are you sure you want to
+        {{ confirmationStatus === "partial" ? "partially approve" : confirmationStatus }}
+        this transaction?</v-card-text
+      >
+      <v-card-actions class="pt-3">
+        <v-spacer></v-spacer>
+        <v-btn
+          color="grey"
+          text
+          class="body-2 font-weight-bold"
+          @click.native="confirmationDialog = false"
+          >Cancel</v-btn
+        >
+        <v-btn
+          color="primary"
+          class="body-2 font-weight-bold"
+          outlined
+          @click.native="makeConfirmation(confirmationStatus)"
+          >Yes</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
   <div class="d-flex justify-space-between">
     <h3>Giftcard Transactions</h3>
     <v-btn @click="exportGiftcards" width="200px" color="secondary">Export</v-btn>
@@ -399,7 +463,6 @@ onUnmounted(() => {
                   )
                 }}
               </td>
-
               <td>
                 {{ useDateFormat(item?.created_at, "DD-MM-YYYY hh:mm a").value }}
               </td>
@@ -447,8 +510,8 @@ onUnmounted(() => {
                         </v-list-item-title>
                       </v-list-item>
                       <v-list-item
-                        v-if="item?.status == 'pending' && item.children_count == 0"
-                        @click="approveRequest(item?.id, page_no)"
+                        v-if="item?.status == 'pending' && item?.children_count == 0"
+                        @click="openConfirmationDialog('approve', item?.id)"
                         link
                         color="secondary"
                       >
@@ -456,10 +519,7 @@ onUnmounted(() => {
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'pending' && item.children_count == 0"
-                        @click="
-                          dialog = true;
-                          id = item.id;
-                        "
+                        @click="(dialog = true), (confirmationID = item?.id)"
                         link
                         color="secondary"
                       >
@@ -467,10 +527,7 @@ onUnmounted(() => {
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'pending' && item.children_count == 0"
-                        @click="
-                          id = item?.id;
-                          disapprove();
-                        "
+                        @click="(dialog2 = true), (confirmationID = item?.id)"
                         link
                         color="secondary"
                       >
@@ -573,7 +630,7 @@ onUnmounted(() => {
           ></v-file-input>
           <v-btn
             :loading="approving"
-            @click="partialApproveRequest(id, partial_approve)"
+            @click="openConfirmationDialog('partial', confirmationID)"
             block
             color="secondary"
             >submit</v-btn
@@ -581,7 +638,6 @@ onUnmounted(() => {
         </v-form>
       </v-card>
     </v-dialog>
-
     <v-expand-transition>
       <v-dialog v-if="dialog2" v-model="dialog2" max-width="500px" width="100%">
         <v-card max-width="500px">
@@ -607,7 +663,7 @@ onUnmounted(() => {
               class="my-5"
               block
               :loading="declining"
-              @click="declineRequest(id, note, reproof, page_no)"
+              @click="openConfirmationDialog('decline', confirmationID)"
               >Submit</v-btn
             >
           </v-container>

@@ -21,7 +21,7 @@
           <v-avatar color="secondary" :size="80" class="my-4 position-relative">
             <v-img
               cover
-              v-if="single_user.avatar !== null && single_user.avatar !== '' "
+              v-if="single_user.avatar !== null && single_user.avatar !== ''"
               :src="single_user.avatar"
             ></v-img>
             <span v-else class="text-h5 text-uppercase">{{
@@ -75,6 +75,9 @@
               id = single_user?.id;
             "
             >Finance user</v-btn
+          >
+          <v-btn class="ml-4" color="error" @click="blockUser(single_user?.id)"
+            >{{ single_user?.blocked_at == null ? "Block user" : "Unblock user" }}</v-btn
           >
         </div>
         <v-tabs v-model="tab">
@@ -521,7 +524,13 @@ import { useGiftCardStore } from "../stores/giftcard";
 import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
 import { useDateFormat, watchDebounced } from "@vueuse/core";
-const { getUsers, restoreUsers, blockUsers, getUser, financeUsers } = useUserStore();
+const {
+  getUsers,
+  restoreUsers,
+  blockUsers,
+  getUser,
+  financeUsers
+} = useUserStore();
 const { user, filterUserById, single_user, dialog2 } = storeToRefs(useUserStore());
 const { allTransactions, loading, dialog } = storeToRefs(useAssetStore());
 const {
@@ -574,6 +583,13 @@ const search_by_reference = () => {
     { debounce: 1000, maxWait: 5000 }
   );
 };
+
+const blockUser = async(id: string) => {
+  await blockUsers(id);
+  await getUser(route.params.id);
+  userDetails.value = { ...filterUserById.value(route.params.id) };
+}
+
 const id = ref("");
 onMounted(async () => {
   await getAllAssetTransactionsByUserId(route.params.id);

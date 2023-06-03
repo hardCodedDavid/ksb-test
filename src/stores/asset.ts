@@ -82,7 +82,7 @@ export const useAssetStore = defineStore("asset", {
       date_form: string = "",
       date_to: string = ""
     ) {
-      console.log(status, page, type);
+      // console.log(status, page, type);
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
@@ -292,53 +292,6 @@ export const useAssetStore = defineStore("asset", {
         this.loading = false;
       }
     },
-    async partialApproveRequest(id: string, data: any) {
-      const store = useAuthStore();
-      const route: any = useRoute();
-      const { notify } = useNotification();
-      this.loading = true;
-
-      var formdata = new FormData();
-      formdata.append("complete_approval", "0");
-      formdata.append("review_amount", data.review_rate);
-      formdata.append("review_note", data.review_note);
-      formdata.append("review_proof", data.review_proof);
-      formdata.append("_method", "PATCH");
-
-      try {
-        await ksbTechApi
-          .post(asset + "/" + id + "/approve", formdata, {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
-          })
-          .then(
-            (res: {
-              data: {
-                message: string;
-                data: { withdrawal_requests: object };
-              };
-            }) => {
-              this.loading = false;
-              this.dialog2 = false;
-              this.getSingleAssetTransactions(id);
-              notify({
-                title: "Approved Successfully",
-                text: res.data.message,
-                type: "success"
-              });
-            }
-          );
-      } catch (error: any) {
-        this.loading = false;
-        notify({
-          title: "An Error Occurred",
-          text: error.response.data.message,
-          type: "error"
-        });
-      }
-    },
     async getSingleAssetTransactions(id: string, page: number = 1) {
       const store = useAuthStore();
       const { notify } = useNotification();
@@ -375,6 +328,7 @@ export const useAssetStore = defineStore("asset", {
         this.loading = false;
       }
     },
+    // Alter Asset Transaction
     async approveAssetTransactions(id: string) {
       const store = useAuthStore();
       const { notify } = useNotification();
@@ -398,12 +352,59 @@ export const useAssetStore = defineStore("asset", {
             }) => {
               this.loading = false;
               this.dialog = false;
+              this.getSingleAssetTransactions(id);
               notify({
                 title: "Approval Successful",
                 text: res.data.message,
                 type: "success"
               });
-              this.getAllAssetTransactions("", 1, "");
+            }
+          );
+      } catch (error: any) {
+        this.loading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error"
+        });
+      }
+    },
+    async partialApproveRequest(id: string, data: any) {
+      const store = useAuthStore();
+      const route: any = useRoute();
+      const { notify } = useNotification();
+      this.loading = true;
+
+      var formdata = new FormData();
+      formdata.append("complete_approval", "0");
+      formdata.append("review_amount", data.review_rate);
+      formdata.append("review_note", data.review_note);
+      formdata.append("review_proof", data.review_proof);
+      formdata.append("_method", "PATCH");
+
+      try {
+        await ksbTechApi
+          .post(asset + "/" + id + "/approve", formdata, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`
+            }
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { withdrawal_requests: object };
+              };
+            }) => {
+              this.loading = false;
+              this.dialog = false;
+              notify({
+                title: "Approved Successfully",
+                text: res.data.message,
+                type: "success"
+              });
+              this.getSingleAssetTransactions(id);
             }
           );
       } catch (error: any) {
@@ -421,39 +422,38 @@ export const useAssetStore = defineStore("asset", {
       this.loading = true;
       var formData = new FormData();
       formData.append("_method", "PATCH");
-      if (confirm("Are you sure you want to decline this asset item ?")) {
-        try {
-          await ksbTechApi
-            .post(asset + "/" + id + "/decline", formData, {
-              headers: {
-                Accept: "application/json",
-                Authorization: `Bearer ${store.token}`
-              }
-            })
-            .then(
-              (res: {
-                data: {
-                  message: string;
-                };
-              }) => {
-                this.loading = false;
-                this.dialog = false;
-                notify({
-                  title: "Decline Successful",
-                  text: res.data.message,
-                  type: "success"
-                });
-                this.getAllAssetTransactions("", 1, "");
-              }
-            );
-        } catch (error: any) {
-          this.loading = false;
-          notify({
-            title: "An Error Occurred",
-            text: error.response.data.message,
-            type: "error"
-          });
-        }
+      try {
+        await ksbTechApi
+          .post(asset + "/" + id + "/decline", formData, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`
+            }
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+              };
+            }) => {
+              this.loading = false;
+              this.dialog = false;
+              this.dialog2 = false;
+              this.getSingleAssetTransactions(id);
+              notify({
+                title: "Decline Successful",
+                text: res.data.message,
+                type: "success"
+              });
+            }
+          );
+      } catch (error: any) {
+        this.loading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error"
+        });
       }
     },
     // ASSETS

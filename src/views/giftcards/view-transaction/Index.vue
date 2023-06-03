@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onBeforeMount, computed, reactive } from "vue";
+import { ref, onBeforeMount, computed, reactive, watch } from "vue";
 import VueEasyLightbox from "vue-easy-lightbox";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
@@ -50,13 +50,6 @@ const partial_approve = reactive({
 // const partial_reproof = ref('')
 const partial = (e: any) => {
   partial_approve.review_proof = e.target.files[0];
-};
-
-// const dialog2 = ref(false);
-
-const disapprove = (selected: any) => {
-  dialog.value = true;
-  id.value = selected;
 };
 
 const view_img = (url: string) => {
@@ -168,9 +161,70 @@ console.log(route.params.id);
 onBeforeMount(async () => {
   await getAllGiftCardTransactionByUserId(prop.id);
 });
+
+const refresh = async () => {
+  await getAllGiftCardTransactionByUserId(prop.id);
+};
+const confirmationDialog = ref(false);
+const confirmationID = ref("");
+const confirmationStatus = ref("");
+const openConfirmationDialog = (type: string, id?: any) => {
+  confirmationDialog.value = true;
+  confirmationID.value = id;
+  confirmationStatus.value = type;
+};
+const makeConfirmation = async (type: string) => {
+  if (type == "approve") {
+    await approveRequest(confirmationID.value);
+    refresh();
+    confirmationDialog.value = false;
+  } else if (type == "decline") {
+    declineRequest(confirmationID.value, note.value, reproof.value as any);
+    confirmationDialog.value = false;
+  } else if (type == "partial") {
+    partialApproveRequest(confirmationID.value, partial_approve);
+    confirmationDialog.value = false;
+  }
+  confirmationDialog.value = false;
+};
+
+watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
+  newDialog === false && oldDialog === false ? refresh() : "";
+});
 </script>
 
 <template>
+  <v-dialog v-model="confirmationDialog" width="500">
+    <v-card>
+      <v-toolbar dark dense flat>
+        <v-toolbar-title class="text-body-2 font-weight-bold grey--text">
+          Confirm
+        </v-toolbar-title>
+      </v-toolbar>
+      <v-card-text class="pa-4 black--text"
+        >Are you sure you want to
+        {{ confirmationStatus === "partial" ? "partially approve" : confirmationStatus }}
+        this transaction?</v-card-text
+      >
+      <v-card-actions class="pt-3">
+        <v-spacer></v-spacer>
+        <v-btn
+          color="grey"
+          text
+          class="body-2 font-weight-bold"
+          @click.native="confirmationDialog = false"
+          >Cancel</v-btn
+        >
+        <v-btn
+          color="primary"
+          class="body-2 font-weight-bold"
+          outlined
+          @click.native="makeConfirmation(confirmationStatus)"
+          >Yes</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
   <v-row>
     <v-btn
       class="ml-4"
@@ -232,7 +286,7 @@ onBeforeMount(async () => {
                 <td>{{ singleGiftCardTransaction?.trade_type }}</td>
                 <td>{{ singleGiftCardTransaction?.giftcard_product?.country?.name }}</td>
                 <td>
-                  {{ singleGiftCardTransaction?.giftcard_product.currency.code }}
+                  {{ singleGiftCardTransaction?.giftcard_product?.currency?.code }}
                   <strong>{{ formatNumber(singleGiftCardTransaction.amount) }}</strong>
                 </td>
                 <td>{{ singleGiftCardTransaction?.rate }}</td>
@@ -292,7 +346,7 @@ onBeforeMount(async () => {
                 </div>
                 <div class="font-weight-normal mb-4">
                   <strong>Card Amount:</strong>
-                  {{ singleGiftCardTransaction?.giftcard_product.currency.code }}
+                  {{ singleGiftCardTransaction?.giftcard_product?.currency?.code }}
                   <strong>{{ formatNumber(singleGiftCardTransaction.amount) }}</strong>
                 </div>
                 <div class="font-weight-normal mb-4">
@@ -338,7 +392,9 @@ onBeforeMount(async () => {
                   color="green lighten-3"
                   :loading="approving"
                   variant="tonal"
-                  @click="approveRequest(singleGiftCardTransaction?.id)"
+                  @click="
+                    openConfirmationDialog('approve', singleGiftCardTransaction?.id)
+                  "
                 >
                   Approve
                 </v-btn>
@@ -346,11 +402,19 @@ onBeforeMount(async () => {
                 <v-btn
                   color="red lighten-3"
                   variant="tonal"
-                  @click="disapprove(singleGiftCardTransaction?.id)"
+                  @click="
+                    (dialog2 = true), (confirmationID = singleGiftCardTransaction?.id)
+                  "
                 >
                   Decline
                 </v-btn>
-                <v-btn color="purple lighten-3" variant="tonal" @click="dialog2 = true">
+                <v-btn
+                  color="purple lighten-3"
+                  variant="tonal"
+                  @click="
+                    (dialog = true), (confirmationID = singleGiftCardTransaction?.id)
+                  "
+                >
                   Partial approval
                 </v-btn>
               </v-card-actions>
@@ -540,7 +604,7 @@ onBeforeMount(async () => {
       </v-card>
     </v-col>
 
-    <v-dialog v-if="dialog" v-model="dialog" max-width="500px" width="100%">
+    <v-dialog v-if="dialog2" v-model="dialog2" max-width="500px" width="100%">
       <v-card max-width="500px">
         <v-card-text>
           <h3>Decline Request</h3>
@@ -564,19 +628,19 @@ onBeforeMount(async () => {
             class="my-5"
             block
             :loading="declining"
-            @click="declineRequest(id, note, reproof)"
+            @click="openConfirmationDialog('decline', confirmationID)"
             >Submit</v-btn
           >
         </v-container>
       </v-card>
     </v-dialog>
 
-    <v-dialog v-model="dialog2" max-width="429px" min-height="476px">
+    <v-dialog v-model="dialog" max-width="429px" min-height="476px">
       <v-card class="view-dialog pa-4">
         <div class="mb-3 d-flex justify-space-between">
           <h3 class="text-justify mt-7">Partial approval</h3>
           <v-btn
-            @click="dialog2 = false"
+            @click="dialog = false"
             icon="mdi-close"
             color="secondary"
             variant="text"
@@ -605,7 +669,7 @@ onBeforeMount(async () => {
           ></v-file-input>
           <v-btn
             :loading="approving"
-            @click="partialApproveRequest($route.params.id, partial_approve)"
+            @click="openConfirmationDialog('partial', confirmationID)"
             block
             color="secondary"
             >submit</v-btn

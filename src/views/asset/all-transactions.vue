@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted,onUnmounted, computed, reactive } from "vue";
+import { ref, onMounted, onUnmounted, computed, reactive, watch } from "vue";
 import { useAssetStore } from "../../stores/asset";
 import { useUserStore } from "../../stores/user";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
 import { watchDebounced } from "@vueuse/core";
 // import { storeToRefs } from "pinia";
-import { useAuthStore } from '../../stores/auth'
+import { useAuthStore } from "../../stores/auth";
 
 import { useWithdrawalsStore } from "../../stores/withdrawals";
 
@@ -87,7 +87,7 @@ const search_by_reference = () => {
 
 // Define the function that will be called every 2 minutes
 const fetchData = async () => {
-  await getAllTransactionCount()
+  await getAllTransactionCount();
   await getAllAssetTransactions(
     status.value,
     page.value,
@@ -96,12 +96,12 @@ const fetchData = async () => {
     date.value,
     date2.value
   );
-}
+};
 
 // Set up the interval on mount
 let intervalId = ref<any>(null);
 onMounted(() => {
-  fetchData()
+  fetchData();
   intervalId.value = setInterval(fetchData, 120000); // 120000 milliseconds = 2 minutes
 });
 
@@ -158,9 +158,78 @@ const reset = async () => {
     date2.value
   );
 };
+
+const refresh = async () => {
+  await getAllAssetTransactions(
+    status.value,
+    page.value,
+    type.value,
+    search.value,
+    date.value,
+    date2.value
+  );
+};
+
+const confirmationDialog = ref(false);
+const confirmationID = ref("");
+const confirmationStatus = ref("");
+const openConfirmationDialog = (type: string, id?: any) => {
+  confirmationDialog.value = true;
+  confirmationID.value = id;
+  confirmationStatus.value = type;
+};
+const makeConfirmation = async (type: string) => {
+  if (type == "approve") {
+    await approveAssetTransactions(confirmationID.value);
+    refresh();
+    confirmationDialog.value = false;
+  } else if (type == "decline") {
+    declineAssetTransactions(confirmationID.value);
+    confirmationDialog.value = false;
+  } else if (type == "partial") {
+    partialApproveRequest(confirmationID.value, partial_approve);
+    confirmationDialog.value = false;
+  }
+  confirmationDialog.value = false;
+};
+
+watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
+  newDialog === false && oldDialog === false ? refresh() : "";
+});
 </script>
 
 <template>
+  <v-dialog v-model="confirmationDialog" width="500">
+    <v-card>
+      <v-toolbar dark dense flat>
+        <v-toolbar-title class="text-body-2 font-weight-bold grey--text">
+          Confirm
+        </v-toolbar-title>
+      </v-toolbar>
+      <v-card-text class="pa-4 black--text"
+        >Are you sure you want to
+        {{ confirmationStatus === "partial" ? "partially approve" : confirmationStatus }}
+        this transaction?</v-card-text
+      >
+      <v-card-actions class="pt-3">
+        <v-spacer></v-spacer>
+        <v-btn
+          color="grey"
+          text
+          class="body-2 font-weight-bold"
+          @click.native="confirmationDialog = false"
+          >Cancel</v-btn
+        >
+        <v-btn
+          color="primary"
+          class="body-2 font-weight-bold"
+          outlined
+          @click.native="makeConfirmation(confirmationStatus)"
+          >Yes</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
   <v-row>
     <v-col cols="12" sm="12" class="mt-4">
       <h2 class="my-3">Asset transactions</h2>
@@ -172,7 +241,9 @@ const reset = async () => {
             </div>
 
             <div v-if="asset_total?.length > 0" class="mt-11">
-              <h2 class="mb-2">₦‎ {{formatCurrency(asset_total[0].total_approved_transactions_amount)}}</h2>
+              <h2 class="mb-2">
+                ₦‎ {{ formatCurrency(asset_total[0].total_approved_transactions_amount) }}
+              </h2>
               <span>All time</span>
             </div>
           </v-card>
@@ -189,7 +260,9 @@ const reset = async () => {
                 </v-avatar>
 
                 <div v-if="asset_total?.length > 0" class="pl-3 my-5">
-                  <h2 class="mb-2">{{asset_total[0].total_approved_transactions_count}}</h2>
+                  <h2 class="mb-2">
+                    {{ asset_total[0].total_approved_transactions_count }}
+                  </h2>
                   <span>Successful</span>
                 </div>
               </div>
@@ -202,7 +275,9 @@ const reset = async () => {
                 </v-avatar>
 
                 <div v-if="asset_total?.length > 0" class="pl-3 my-5">
-                  <h2 class="mb-2">{{asset_total[0].total_pending_transactions_count}}</h2>
+                  <h2 class="mb-2">
+                    {{ asset_total[0].total_pending_transactions_count }}
+                  </h2>
                   <span>pending</span>
                 </div>
               </div>
@@ -212,7 +287,9 @@ const reset = async () => {
                 </v-avatar>
 
                 <div v-if="asset_total?.length > 0" class="pl-3 my-5">
-                  <h2 class="mb-2">{{asset_total[0].total_declined_transactions_count}}</h2>
+                  <h2 class="mb-2">
+                    {{ asset_total[0].total_declined_transactions_count }}
+                  </h2>
                   <span>Failed</span>
                 </div>
               </div>
@@ -222,7 +299,9 @@ const reset = async () => {
                 </v-avatar>
 
                 <div v-if="asset_total?.length > 0" class="pl-3 my-5">
-                  <h2 class="mb-2">{{asset_total[0].total_partially_approved_transactions_count}}</h2>
+                  <h2 class="mb-2">
+                    {{ asset_total[0].total_partially_approved_transactions_count }}
+                  </h2>
                   <span>Partial</span>
                 </div>
               </div>
@@ -295,6 +374,13 @@ const reset = async () => {
         </v-row>
       </v-card>
       <v-card class="pa-5">
+        <v-tabs v-model="tab" bg-color="none" class="mb-5 border-bottom">
+          <v-tab @click="getAllAssetTransactions((status = ''))">All</v-tab>
+          <v-tab @click="getAllAssetTransactions((status = 'pending'))">Pending</v-tab>
+          <v-tab @click="getAllAssetTransactions((status = 'approved'))">Approved</v-tab>
+          <v-tab @click="getAllAssetTransactions((status = 'declined'))">Declined</v-tab>
+          <v-tab @click="getAllAssetTransactions((status = 'partial'))">Partial</v-tab>
+        </v-tabs>
         <v-table>
           <thead>
             <tr>
@@ -349,7 +435,7 @@ const reset = async () => {
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'transferred'"
-                        @click="approveAssetTransactions(item?.id)"
+                        @click="openConfirmationDialog('approve', item?.id)"
                         link
                         color="secondary"
                       >
@@ -357,25 +443,19 @@ const reset = async () => {
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'transferred'"
-                        @click="
-                          dialog = true;
-                          id = item?.id;
-                        "
-                        link
-                        color="secondary"
-                      >
-                        <v-list-item-title> Decline Request </v-list-item-title>
-                      </v-list-item>
-                      <v-list-item
-                        v-if="item?.status == 'transferred'"
-                        @click="
-                          dialog2 = true;
-                          id = item?.id;
-                        "
+                        @click="(dialog = true), (confirmationID = item?.id)"
                         link
                         color="secondary"
                       >
                         <v-list-item-title> Partial Approval </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        v-if="item?.status == 'transferred'"
+                        @click="(dialog2 = true), (confirmationID = item?.id)"
+                        link
+                        color="secondary"
+                      >
+                        <v-list-item-title> Decline Request </v-list-item-title>
                       </v-list-item>
                     </v-list>
                   </v-menu>
@@ -411,7 +491,7 @@ const reset = async () => {
       ></v-pagination>
     </v-col>
 
-    <v-dialog v-if="dialog" v-model="dialog" max-width="500px" width="100%">
+    <v-dialog v-if="dialog2" v-model="dialog2" max-width="500px" width="100%">
       <v-card max-width="500px">
         <v-card-text>
           <h3>Decline Transaction</h3>
@@ -435,18 +515,18 @@ const reset = async () => {
             class="my-5"
             block
             :loading="declining"
-            @click="declineAssetTransactions(id, note, reproof)"
+            @click="openConfirmationDialog('decline', confirmationID)"
             >Submit</v-btn
           >
         </v-container>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="dialog2" max-width="429px" min-height="476px">
+    <v-dialog v-model="dialog" max-width="429px" min-height="476px">
       <v-card class="view-dialog pa-4">
         <div class="mb-3 d-flex justify-space-between">
           <h3 class="text-justify mt-7">Partial approval</h3>
           <v-btn
-            @click="dialog2 = false"
+            @click="dialog = false"
             icon="mdi-close"
             color="secondary"
             variant="text"
@@ -475,7 +555,7 @@ const reset = async () => {
           ></v-file-input>
           <v-btn
             :loading="loading"
-            @click="partialApproveRequest(id, partial_approve)"
+            @click="openConfirmationDialog('partial', confirmationID)"
             block
             color="secondary"
             >submit</v-btn

@@ -11,5 +11,17 @@ export default () => {
       minimumFractionDigits: fraction
     }).format(value);
   const formatNumber = (value: number) => new Intl.NumberFormat().format(value);
-  return { formatCurrency, formatNumber };
+  const sortItems = (item: []) => {
+    return item.sort((a, b) => {
+      if (a.name > b.name) {
+        return 1;
+      }
+      if (a.name < b.name) {
+        return -1;
+      }
+
+      return 0;
+    });
+  }
+  return { formatCurrency, formatNumber, sortItems };
 };
