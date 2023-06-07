@@ -36,11 +36,10 @@ const partial_approve = reactive({
 const partial = (e: any) => {
   partial_approve.review_proof = e.target.files[0];
 };
-const { allTransactions, loading, dialog, dialog2, single_transactions } = storeToRefs(
+const { allTransactions, loading, dialog, dialog2, single_transactions, page, tab, status } = storeToRefs(
   useAssetStore()
 );
-const tab = ref(null);
-const page = ref(1);
+// const page = ref(1);
 
 const header = ref([
   {
@@ -70,7 +69,6 @@ const header = ref([
   },
 ]);
 
-const status = ref("");
 const search = ref("");
 const type = ref("");
 const date = ref("");

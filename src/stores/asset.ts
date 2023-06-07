@@ -38,6 +38,9 @@ interface State {
   assets: [];
   all_networks: [];
   asset_details: {};
+  page: number;
+  tab: string;
+  status: string;
 }
 
 export const useAssetStore = defineStore("asset", {
@@ -63,7 +66,10 @@ export const useAssetStore = defineStore("asset", {
     },
     assets: [],
     all_networks: [],
-    asset_details: {}
+    asset_details: {},
+    page: 1,
+    tab: null,
+    status: ""
   }),
   getters: {
     allTransactions: (state) => state.all_transactions,

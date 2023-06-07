@@ -130,6 +130,41 @@ export const useWithdrawalsStore = defineStore("withdrawals", {
         this.loading = false;
       }
     },
+    async getAllWithDrawalsByUserID(id: string) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(
+            withdrawals +
+              "?include=" +
+              "user" +
+              "&filter[user_id]=" +
+              id,
+            {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${store.token}`,
+              },
+            }
+          )
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { wallet_transactions: Data };
+              };
+            }) => {
+              this.loading = false;
+
+              this.withdrawal = res.data.data.wallet_transactions;
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
     async filterWithDrawalsByDateCreated(data_created: string) {
       const store = useAuthStore();
       const { notify } = useNotification();

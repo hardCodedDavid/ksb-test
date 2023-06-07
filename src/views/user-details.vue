@@ -82,9 +82,9 @@
         </div>
         <v-tabs v-model="tab">
           <v-tab value="one" class="font-weight-bold">User Information</v-tab>
-          <v-tab value="two" class="font-weight-bold">Asset Transactions</v-tab>
-          <v-tab class="font-weight-bold">Giftcard Transactions</v-tab>
-          <v-tab class="font-weight-bold">Wallet Transactions</v-tab>
+          <v-tab value="two" class="font-weight-bold">Asset</v-tab>
+          <v-tab class="font-weight-bold">Giftcard</v-tab>
+          <v-tab class="font-weight-bold">Wallet</v-tab>
         </v-tabs>
       </div>
     </v-card>
@@ -521,6 +521,7 @@ import { ref, onMounted, reactive } from "vue";
 import { useUserStore } from "../stores/user";
 import { useAssetStore } from "../stores/asset";
 import { useGiftCardStore } from "../stores/giftcard";
+import { useWithdrawalsStore } from "../stores/withdrawals";
 import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
 import { useDateFormat, watchDebounced } from "@vueuse/core";
@@ -549,9 +550,11 @@ const {
   getAllGiftCardTransaction,
   declineRequest,
   approveRequest,
-  getAllGiftCardTransactionByUserId,
+  filterAllGiftCardTransactionByUserId,
   partialApproveRequest,
 } = useGiftCardStore();
+
+const { getAllWithDrawalsByUserID } = useWithdrawalsStore();
 
 const tab = ref(null);
 const tab_one = ref(null);
@@ -593,7 +596,8 @@ const blockUser = async(id: string) => {
 const id = ref("");
 onMounted(async () => {
   await getAllAssetTransactionsByUserId(route.params.id);
-  // await getAllGiftCardTransactionByUserId(route.params.id);
+  // await filterAllGiftCardTransactionByUserId(route.params.id);
+  // await getAllWithDrawalsByUserID(route.params.id);
   // await getUsers(1, name.value, email.value, date1.value, date2.value);
   await getUser(route.params.id);
   userDetails.value = { ...filterUserById.value(route.params.id) };

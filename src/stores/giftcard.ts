@@ -31,6 +31,8 @@ interface GiftCard {
   update_category: boolean;
   update_admin: boolean;
   page: number;
+  tab: string;
+  status: string;
 }
 
 interface GiftCategoryPayload {
@@ -67,7 +69,9 @@ export const useGiftCardStore = defineStore("giftcard", {
     relatedGiftCards: [],
     update_category: false,
     update_admin: false,
-    page: 1
+    page: 1,
+    tab: null,
+    status: ""
   }),
   getters: {
     country_id: (state) =>
@@ -210,6 +214,40 @@ export const useGiftCardStore = defineStore("giftcard", {
       try {
         await ksbTechApi
           .get(`${giftCard}/${id}?include=user,bank,giftcardProduct,reviewer`, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`
+            }
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+            }) => {
+              this.singleGiftCardTransaction = res.data.data.giftcard;
+              this.singleGiftcardUnit = res.data.data.related_giftcards.length;
+              this.relatedGiftCards = res.data.data.related_giftcards;
+              this.loading = false;
+            }
+          );
+      } catch (error: any) {
+        this.loading = false;
+        notify({
+          title: "An Error Occurred",
+          text: error.response.data.message,
+          type: "error"
+        });
+      }
+    },
+    async filterAllGiftCardTransactionByUserId(id: string) {
+      const { notify } = useNotification();
+      const store = useAuthStore();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(`${giftCard}?filter[user_id]=${id}&include=user,bank,giftcardProduct,reviewer`, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`

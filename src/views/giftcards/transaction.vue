@@ -32,6 +32,8 @@ const {
   dialog,
   dialog2,
   page,
+  tab,
+  status
 } = storeToRefs(useGiftCardStore());
 
 const formatCurrency = (value: any) => {
@@ -135,7 +137,6 @@ const status_color = (status: StatusType) => {
 //
 
 const status_options = ref(["Pending", "Approved", "Declined", "Partially_approved"]);
-const status = ref("");
 const trade = ref("");
 const trade_type = ref(["Buy", "Sell"]);
 // const page = ref(1);
@@ -146,8 +147,6 @@ const reference = ref("");
 const nextPage = (val: any) => {
   page.value = val;
 };
-
-const tab = ref(null);
 
 const formate_text = (text: string) => {
   if (text === "partially_approved") return "Partial";
