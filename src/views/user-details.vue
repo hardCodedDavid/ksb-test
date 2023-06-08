@@ -13,7 +13,10 @@
     </v-btn>
     <v-card rounded="1">
       <div class="w-100">
-        <div class="w-100" style="height: 150px; background-color: #34384f"></div>
+        <div
+          class="w-100"
+          style="height: 150px; background-color: #34384f"
+        ></div>
         <div
           style="margin-top: -60px"
           class="d-flex align-center justify-center flex-column w-100"
@@ -67,7 +70,9 @@
       </div>
       <div class="d-flex align-center justify-space-between mt-8">
         <div class="my-4 ml-4">
-          <strong>Wallet balance:</strong> ₦<span>{{ single_user.wallet_balance }}</span>
+          <strong>Wallet balance:</strong> ₦<span>{{
+            single_user.wallet_balance
+          }}</span>
           <v-btn
             class="ml-4"
             @click="
@@ -76,15 +81,20 @@
             "
             >Finance user</v-btn
           >
-          <v-btn class="ml-4" color="error" @click="blockUser(single_user?.id)"
-            >{{ single_user?.blocked_at == null ? "Block user" : "Unblock user" }}</v-btn
+          <v-btn
+            class="ml-4"
+            color="error"
+            @click="blockUser(single_user?.id)"
+            >{{
+              single_user?.blocked_at == null ? "Block user" : "Unblock user"
+            }}</v-btn
           >
         </div>
         <v-tabs v-model="tab">
           <v-tab value="one" class="font-weight-bold">User Information</v-tab>
           <v-tab value="two" class="font-weight-bold">Asset</v-tab>
-          <v-tab class="font-weight-bold">Giftcard</v-tab>
-          <v-tab class="font-weight-bold">Wallet</v-tab>
+          <v-tab value="three" class="font-weight-bold">Giftcard</v-tab>
+          <v-tab value="four" class="font-weight-bold">Wallet</v-tab>
         </v-tabs>
       </div>
     </v-card>
@@ -114,7 +124,8 @@
                 </div>
 
                 <div class="mb-5">
-                  <strong>Email:</strong><span class="ml-2">{{ single_user.email }}</span>
+                  <strong>Email:</strong
+                  ><span class="ml-2">{{ single_user.email }}</span>
                 </div>
 
                 <div class="mb-5">
@@ -130,7 +141,10 @@
                 <div>
                   <strong>Created:</strong>
                   <span class="ml-2">{{
-                    useDateFormat(single_user?.created_at, "DD MMM YYYY-hh:mm a").value
+                    useDateFormat(
+                      single_user?.created_at,
+                      "DD MMM YYYY-hh:mm a"
+                    ).value
                   }}</span>
                 </div>
               </v-card-text>
@@ -144,18 +158,26 @@
                 <div class="mb-4">
                   <strong>Email verified at:</strong>
                   <span v-if="single_user.email_verified_at" class="ml-3">{{
-                    useDateFormat(single_user.email_verified_at, "DD MMM YYYY-hh:mm a")
-                      .value
+                    useDateFormat(
+                      single_user.email_verified_at,
+                      "DD MMM YYYY-hh:mm a"
+                    ).value
                   }}</span>
                   <span v-else class="ml-3">No data</span>
                 </div>
 
                 <div class="mb-5">
                   <strong>2FA activated at: </strong
-                  ><span v-if="single_user.two_fa_activated_at !== null" class="ml-2">{{
-                    useDateFormat(single_user.two_fa_activated_at, "DD MMM YYYY-hh:mm a")
-                      .value
-                  }}</span>
+                  ><span
+                    v-if="single_user.two_fa_activated_at !== null"
+                    class="ml-2"
+                    >{{
+                      useDateFormat(
+                        single_user.two_fa_activated_at,
+                        "DD MMM YYYY-hh:mm a"
+                      ).value
+                    }}</span
+                  >
                   <span v-else class="ml-3">No data</span>
                 </div>
                 <div class="mb-5">
@@ -164,7 +186,9 @@
                     :color="pin_status(single_user.transaction_pin_set)"
                     class="ml-2"
                     >{{
-                      single_user.transaction_pin_set ? "Activated" : "Not activated"
+                      single_user.transaction_pin_set
+                        ? "Activated"
+                        : "Not activated"
                     }}</v-chip
                   >
                 </div>
@@ -191,7 +215,9 @@
                 </div>
                 <div>
                   <strong>Reason for deletion: </strong
-                  ><span class="ml-2">{{ single_user.deleted_reason ?? "No data" }}</span>
+                  ><span class="ml-2">{{
+                    single_user.deleted_reason ?? "No data"
+                  }}</span>
                 </div>
               </v-card-text>
             </v-card>
@@ -251,7 +277,11 @@
           <v-table class="mt-5">
             <thead>
               <tr>
-                <th v-for="(headings, index) in header" :key="index" class="text-left">
+                <th
+                  v-for="(headings, index) in header"
+                  :key="index"
+                  class="text-left"
+                >
                   {{ headings.title }}
                 </th>
               </tr>
@@ -259,10 +289,6 @@
             <tbody v-if="allTransactions?.data?.length > 0 && loading == false">
               <tr v-for="(item, index) in allTransactions.data" :key="item.id">
                 <td>{{ index + 1 }}</td>
-                <td class="font-weight-bold">
-                  {{ item.user?.firstname ?? "No name" }}
-                  {{ item.user?.lastname ?? "No name" }}
-                </td>
                 <td>{{ item.reference }}</td>
                 <td>₦‎{{ item.asset_amount }}</td>
                 <td>
@@ -306,7 +332,9 @@
                           link
                           color="secondary"
                         >
-                          <v-list-item-title> Approve Request </v-list-item-title>
+                          <v-list-item-title>
+                            Approve Request
+                          </v-list-item-title>
                         </v-list-item>
                         <v-list-item
                           v-if="item?.status == 'transferred'"
@@ -314,7 +342,9 @@
                           link
                           color="secondary"
                         >
-                          <v-list-item-title> Decline Request </v-list-item-title>
+                          <v-list-item-title>
+                            Decline Request
+                          </v-list-item-title>
                         </v-list-item>
                       </v-list>
                     </v-menu>
@@ -331,7 +361,10 @@
             No data found
           </p>
 
-          <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
+          <v-layout
+            v-if="loading == true"
+            class="align-center justify-center w-100 my-5"
+          >
             <v-progress-circular indeterminate></v-progress-circular>
           </v-layout>
         </v-card>
@@ -349,6 +382,252 @@
           color="bg-secondary"
           rounded="circle"
         ></v-pagination>
+      </v-window-item>
+      <v-window-item value="three">
+        <v-card class="my-4">
+          <v-table>
+            <thead>
+              <tr>
+                <th
+                  v-for="(headings, index) in giftcardHeader"
+                  :key="index"
+                  class="text-left"
+                >
+                  {{ headings.title }}
+                </th>
+              </tr>
+            </thead>
+            <TransitionGroup
+              name="list"
+              tag="tbody"
+              v-if="gift_transactions?.data?.length > 0 && loading == false"
+            >
+              <tr
+                v-for="(item, index) in gift_transactions?.data"
+                :key="item.id"
+              >
+                <td>{{ index + 1 }}</td>
+                <td>{{ item?.giftcard_product?.giftcard_category?.name }}</td>
+                <td>{{ item.reference }}</td>
+                <td>{{ item.trade_type }}</td>
+                <td>
+                  ₦‎
+                  {{
+                    formatCurrency(
+                      item.payable_amount *
+                        (item.children_count && item.children_count !== 0
+                          ? item.children_count + 1
+                          : 1)
+                    )
+                  }}
+                </td>
+                <td>
+                  {{
+                    useDateFormat(item?.created_at, "DD-MM-YYYY hh:mm a").value
+                  }}
+                </td>
+                <!-- <td>{{ item.trade_type }}</td> -->
+                <td>
+                  <v-chip
+                    label
+                    size="small"
+                    class="text-capitalize font-weight-bold pa-3"
+                    :color="status_color(item?.status)"
+                    >{{ formate_text(item?.status) }}</v-chip
+                  >
+                </td>
+                <td>
+                  <v-row justify="center">
+                    <v-menu transition="scroll-y-transition">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          text
+                          icon="mdi-dots-vertical"
+                          color="transparent"
+                          class="ma-2"
+                          v-bind="props"
+                        >
+                        </v-btn>
+                      </template>
+                      <v-list>
+                        <v-list-item
+                          :to="{
+                            name:
+                              item.children_count && item.children_count > 0
+                                ? 'RelatedGiftCards'
+                                : 'ViewGiftCardTransaction',
+                            params: { id: item.id },
+                          }"
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title>
+                            {{
+                              item.children_count && item.children_count > 0
+                                ? "View List"
+                                : "View giftcard"
+                            }}
+                          </v-list-item-title>
+                        </v-list-item>
+                        <v-list-item
+                          v-if="
+                            item?.status == 'pending' &&
+                            item?.children_count == 0
+                          "
+                          @click="openConfirmationDialog('approve', item?.id)"
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title>
+                            Approve giftcard
+                          </v-list-item-title>
+                        </v-list-item>
+                        <v-list-item
+                          v-if="
+                            item?.status == 'pending' &&
+                            item.children_count == 0
+                          "
+                          @click="(dialog = true), (confirmationID = item?.id)"
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title>
+                            Partial approval
+                          </v-list-item-title>
+                        </v-list-item>
+                        <v-list-item
+                          v-if="
+                            item?.status == 'pending' &&
+                            item.children_count == 0
+                          "
+                          @click="(dialog2 = true), (confirmationID = item?.id)"
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title>
+                            Decline giftcard
+                          </v-list-item-title>
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
+                  </v-row>
+                </td>
+              </tr>
+            </TransitionGroup>
+          </v-table>
+
+          <v-layout
+            v-if="loading == true"
+            class="align-center justify-center w-100 my-5"
+          >
+            <v-progress-circular indeterminate></v-progress-circular>
+          </v-layout>
+          <p
+            class="font-weight-bold text-center my-3"
+            v-if="gift_transactions?.data?.length <= 0 && loading == false"
+          >
+            No data found
+          </p>
+        </v-card>
+      </v-window-item>
+      <v-window-item value="four">
+        <v-card class="my-4">
+          <v-table>
+            <thead>
+              <tr>
+                <th
+                  v-for="(headings, index) in withdrawalHeader"
+                  :key="index"
+                  class="text-left font-weight-bold"
+                >
+                  {{ headings.title }}
+                </th>
+              </tr>
+            </thead>
+            <tbody v-if="loading == false">
+              <tr
+                class="pa-3"
+                v-for="(withdrawal, index) in withdrawals?.data"
+                :key="withdrawal?.id"
+              >
+                <td>{{ index + 1 }}</td>
+                <td>₦‎ {{ withdrawal.amount.toLocaleString() }}</td>
+                <td>{{ withdrawal?.account_number ?? "---" }}</td>
+                <td>
+                  {{
+                    useDateFormat(withdrawal?.created_at, "DD, MMMM-YYYY").value
+                  }}
+                </td>
+                <!-- <td>{{ item.status }}</td> -->
+
+                <!-- <td>{{ item.service }}</td>
+              <td>{{ item.type }}</td>
+
+              <td>{{ item.date }}</td> -->
+                <td>
+                  <v-chip
+                    label
+                    class="text-capitalize font-weight-bold pa-3"
+                    :color="status_color(withdrawal?.status)"
+                    >{{ withdrawal?.status }}</v-chip
+                  >
+                </td>
+                <td>
+                  <!-- <v-icon icon="mdi-dots-vertical"></v-icon> -->
+                  <v-row justify="center">
+                    <v-menu transition="scroll-y-transition">
+                      <template v-slot:activator="{ props }">
+                        <v-btn
+                          text
+                          icon="mdi-dots-vertical"
+                          color="transparent"
+                          class="ma-2"
+                          v-bind="props"
+                        >
+                        </v-btn>
+                      </template>
+                      <v-list>
+                        <v-list-item
+                          :to="{
+                            name: 'viewWithdrawals',
+                            params: { id: withdrawal.id },
+                          }"
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title> View Details </v-list-item-title>
+                        </v-list-item>
+                        <v-list-item
+                          v-if="withdrawal?.status == 'pending'"
+                          @click="approveRequest(withdrawal?.id)"
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title>
+                            Approve Withdrawal Request
+                          </v-list-item-title>
+                        </v-list-item>
+                        <v-list-item
+                          v-if="withdrawal?.status == 'pending'"
+                          @click="
+                            id = withdrawal?.id;
+                            disapprove();
+                          "
+                          link
+                          color="secondary"
+                        >
+                          <v-list-item-title>
+                            Decline Withdrawal Request
+                          </v-list-item-title>
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
+                  </v-row>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card>
       </v-window-item>
     </v-window>
 
@@ -525,14 +804,11 @@ import { useWithdrawalsStore } from "../stores/withdrawals";
 import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
 import { useDateFormat, watchDebounced } from "@vueuse/core";
-const {
-  getUsers,
-  restoreUsers,
-  blockUsers,
-  getUser,
-  financeUsers
-} = useUserStore();
-const { user, filterUserById, single_user, dialog2 } = storeToRefs(useUserStore());
+const { getUsers, restoreUsers, blockUsers, getUser, financeUsers } =
+  useUserStore();
+const { user, filterUserById, single_user, dialog2 } = storeToRefs(
+  useUserStore()
+);
 const { allTransactions, loading, dialog } = storeToRefs(useAssetStore());
 const {
   getAllAssetTransactionsByUserId,
@@ -546,6 +822,8 @@ const {
   single_transactions,
 } = useAssetStore();
 
+const { gift_transactions } = storeToRefs(useGiftCardStore());
+
 const {
   getAllGiftCardTransaction,
   declineRequest,
@@ -554,12 +832,20 @@ const {
   partialApproveRequest,
 } = useGiftCardStore();
 
+const { withdrawals } = storeToRefs(useWithdrawalsStore());
 const { getAllWithDrawalsByUserID } = useWithdrawalsStore();
 
 const tab = ref(null);
 const tab_one = ref(null);
 const route: any = useRoute();
 
+const formatCurrency = (value: any) => {
+  return new Intl.NumberFormat().format(value);
+};
+const formate_text = (text: string) => {
+  if (text === "partially_approved") return "Partial";
+  return text;
+};
 const finance = reactive({
   type: "Select",
   amount: "",
@@ -587,38 +873,64 @@ const search_by_reference = () => {
   );
 };
 
-const blockUser = async(id: string) => {
+const blockUser = async (id: string) => {
   await blockUsers(id);
   await getUser(route.params.id);
   userDetails.value = { ...filterUserById.value(route.params.id) };
-}
+};
 
 const id = ref("");
 onMounted(async () => {
   await getAllAssetTransactionsByUserId(route.params.id);
-  // await filterAllGiftCardTransactionByUserId(route.params.id);
-  // await getAllWithDrawalsByUserID(route.params.id);
   // await getUsers(1, name.value, email.value, date1.value, date2.value);
   await getUser(route.params.id);
   userDetails.value = { ...filterUserById.value(route.params.id) };
+  await filterAllGiftCardTransactionByUserId(route.params.id);
+  await getAllWithDrawalsByUserID(route.params.id);
   // console.log(userDetails.value);
 });
-const giftCardCategoryHeader = reactive([
+const giftcardHeader = ref([
   {
-    title: "Icon",
+    title: "No.",
   },
   {
-    title: "Name",
+    title: "Category",
   },
   {
-    title: "Created At",
+    title: "Reference No.",
+  },
+  {
+    title: "Trade Type.",
   },
 
-  // {
-  //   title: "Restore",
-  // },
   {
-    title: "Toggle Activation",
+    title: "Amount",
+  },
+  {
+    title: "Date",
+  },
+  {
+    title: "Status",
+  },
+  {
+    title: "Actions",
+  },
+]);
+const withdrawalHeader = ref([
+  {
+    title: "No.",
+  },
+  {
+    title: "Amount (NGN)",
+  },
+  {
+    title: "Account number",
+  },
+  {
+    title: "Date and Time",
+  },
+  {
+    title: "Status",
   },
   {
     title: "Actions",
@@ -627,9 +939,6 @@ const giftCardCategoryHeader = reactive([
 const header = ref([
   {
     title: "No",
-  },
-  {
-    title: "Full name",
   },
   {
     title: "Reference No.",

@@ -166,7 +166,7 @@ const refresh = async () => {
   await getAllGiftCardTransactionByUserId(prop.id);
 };
 const confirmationDialog = ref(false);
-const confirmationID = ref("");
+let confirmationID = ref("");
 const confirmationStatus = ref("");
 const openConfirmationDialog = (type: string, id?: any) => {
   confirmationDialog.value = true;

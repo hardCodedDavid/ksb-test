@@ -247,7 +247,7 @@ export const useGiftCardStore = defineStore("giftcard", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(`${giftCard}?filter[user_id]=${id}&include=user,bank,giftcardProduct,reviewer`, {
+          .get(`${giftCard}?filter[user_id]=${id}&include=user,bank,giftcardProduct`, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`
@@ -260,9 +260,7 @@ export const useGiftCardStore = defineStore("giftcard", {
                 data: any;
               };
             }) => {
-              this.singleGiftCardTransaction = res.data.data.giftcard;
-              this.singleGiftcardUnit = res.data.data.related_giftcards.length;
-              this.relatedGiftCards = res.data.data.related_giftcards;
+              this.gift_transactions = res.data.data.giftcards;
               this.loading = false;
             }
           );
