@@ -1,10 +1,39 @@
 <template>
   <div>
-    <v-btn link size="small" color="grey-darken-4" :to="{ name: 'GiftCardTransaction' }">
+    <v-btn
+      link
+      size="small"
+      color="grey-darken-4"
+      :to="{ name: 'GiftCardTransaction' }"
+    >
       <v-icon size="small" start icon="mdi-arrow-left"></v-icon>
       Giftcard Transactions
     </v-btn>
-    <h4 class="my-5">Related Giftcards:</h4>
+    <div class="mb-5 md-mb-0 d-md-flex justify-space-between">
+      <h4 class="my-5">Related Giftcards:</h4>
+      <v-card-actions class="d-flex flex-wrap align-start" style="gap: 10px; padding: 0% !important;">
+        <v-btn
+          class="mr-2 md-mr-4"
+          color="green lighten-3"
+          :loading="approving"
+          variant="tonal"
+          @click="approveAll()"
+        >
+          Approve all
+        </v-btn>
+
+        <v-btn color="red lighten-3" variant="tonal" @click="disapproveAll()">
+          Decline all
+        </v-btn>
+        <v-btn
+          color="purple lighten-3"
+          variant="tonal"
+          @click="partialApproveAll()"
+        >
+          Partial approval all
+        </v-btn>
+      </v-card-actions>
+    </div>
 
     <v-table>
       <thead>
@@ -36,7 +65,10 @@
           </td>
 
           <td>
-            {{ singleGiftCardTransaction?.giftcard_product?.giftcard_category?.name }}
+            {{
+              singleGiftCardTransaction?.giftcard_product?.giftcard_category
+                ?.name
+            }}
           </td>
 
           <td>{{ singleGiftCardTransaction?.reference }}</td>
@@ -55,8 +87,10 @@
 
           <td>
             {{
-              useDateFormat(singleGiftCardTransaction?.created_at, "DD-MM-YYYY hh:mm a")
-                .value
+              useDateFormat(
+                singleGiftCardTransaction?.created_at,
+                "DD-MM-YYYY hh:mm a"
+              ).value
             }}
           </td>
 
@@ -97,7 +131,9 @@
 
                   <v-list-item
                     v-if="singleGiftCardTransaction?.status == 'pending'"
-                    @click="approveRequest(singleGiftCardTransaction?.id, page_no)"
+                    @click="
+                      approveRequest(singleGiftCardTransaction?.id, page_no)
+                    "
                     link
                     color="secondary"
                   >
@@ -130,7 +166,11 @@
             </v-row>
           </td>
         </tr>
-        <tr class="pa-2" v-for="(item, index) in relatedGiftCards" :key="item.id">
+        <tr
+          class="pa-2"
+          v-for="(item, index) in relatedGiftCards"
+          :key="item.id"
+        >
           <td>{{ index + 2 }}</td>
           <td
             class="font-weight-bold username"
@@ -206,7 +246,7 @@
                   </v-list-item>
                   <v-list-item
                     v-if="item?.status == 'pending'"
-                    @click="(dialog = true), (confirmationID = item?.id)"
+                    @click="(dialog = true), (id = item?.id)"
                     link
                     color="secondary"
                   >
@@ -214,7 +254,7 @@
                   </v-list-item>
                   <v-list-item
                     v-if="item?.status == 'pending'"
-                    @click="(dialog2 = true), (confirmationID = item?.id)"
+                    @click="(dialog2 = true), (id = item?.id)"
                     link
                     color="secondary"
                   >
@@ -228,7 +268,10 @@
       </tbody>
     </v-table>
 
-    <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
+    <v-layout
+      v-if="loading == true"
+      class="align-center justify-center w-100 my-5"
+    >
       <v-progress-circular indeterminate></v-progress-circular>
     </v-layout>
     <p
@@ -238,7 +281,12 @@
       No related giftcard
     </p>
 
-    <v-dialog v-if="dialog" v-model="dialog" max-width="429px" min-height="476px">
+    <v-dialog
+      v-if="dialog"
+      v-model="dialog"
+      max-width="429px"
+      min-height="476px"
+    >
       <v-card class="view-dialog pa-4">
         <div class="mb-3 d-flex justify-space-between">
           <h3 class="text-justify mt-7">Partial approval</h3>
@@ -264,15 +312,67 @@
             variant="outlined"
             label="Review Note"
           ></v-textarea>
-          <v-file-input
-            prepend-icon=""
-            variant="outlined"
-            @change="partial"
-            label="Review Proof"
-          ></v-file-input>
+          <label for="proof" class="cursor-pointer">
+            <p class="text-black">Upload transaction proof</p>
+          </label>
+          <label v-if="!previewList.length" for="proof" class="cursor-pointer">
+            <img
+              src="../../assets/images/card-placeholder.svg"
+              alt="card-placeholder"
+              class="mt-3 w-full object-fill max-h-[174px] rounded-xl"
+            />
+          </label>
+          <input
+            type="file"
+            multiple
+            id="proof"
+            ref="fileInput"
+            style="display: none"
+            accept="image/*"
+            @change="partial(($event.target as HTMLFormElement).files)"
+          />
+          <div
+            class="gap-5 mt-5"
+            style="
+              display: grid;
+              grid-template-columns: repeat(4, 80px);
+              gap: 12px;
+            "
+          >
+            <div v-for="(image, index) in previewList" :key="index">
+              <div style="position: relative">
+                <img
+                  class="w-full cursor-pointer"
+                  style="height: 75px; object-fit: cover; width: 100%"
+                  :src="image"
+                />
+                <img
+                  src="@/assets/images/cancel-svgrepo-com.svg"
+                  class="absolute rounded-full border border-red-700 -top-2 -right-2 bg-red-200 text-red-500 cursor-pointer"
+                  style="position: absolute; right: -5px; top: -5px"
+                  width="20"
+                  @click="removeImage(image, index)"
+                />
+              </div>
+            </div>
+          </div>
+          <div v-if="uploadingImage" class="pt-3 text-center">
+            <small class="p-2 block"
+              >Uploaded {{ startImage }} of {{ totalImage }}...</small
+            >
+          </div>
+          <label
+            v-if="previewList.length"
+            for="proof"
+            class="mt-4 d-flex align-center cursor-pointer"
+          >
+            <img src="../../assets/images/plus-icon.svg" alt="plus icon" />
+            <p class="ml-3 underline">Add more proof</p>
+          </label>
           <v-btn
             :loading="approving"
-            @click="openConfirmationDialog('partial', confirmationID)"
+            @click="openConfirmationDialog('partial', id)"
+            class="mt-5"
             block
             color="secondary"
             >submit</v-btn
@@ -290,23 +390,80 @@
           </v-card-text>
 
           <v-container class="mt-7">
-            <v-textarea label="Comments" v-model="note" variant="outlined"></v-textarea>
+            <v-textarea
+              label="Comments"
+              v-model="note"
+              variant="outlined"
+            ></v-textarea>
 
-            <v-file-input
-              @change="get_reproof"
-              hint="Optional"
-              persistent-hint
-              label="Review proof"
-              append-inner-icon="mdi-paperclip"
-              prepend-icon=""
-            ></v-file-input>
+            <label for="proof" class="cursor-pointer">
+              <p class="text-black">Upload transaction proof</p>
+            </label>
+            <label
+              v-if="!previewList.length"
+              for="proof"
+              class="cursor-pointer"
+            >
+              <img
+                src="../../assets/images/card-placeholder.svg"
+                alt="card-placeholder"
+                class="mt-3 w-full object-fill max-h-[174px] rounded-xl"
+              />
+            </label>
+            <input
+              type="file"
+              multiple
+              id="proof"
+              ref="fileInput"
+              style="display: none"
+              accept="image/*"
+              @change="get_reproof(($event.target as HTMLFormElement).files)"
+            />
+            <div
+              class="gap-5 mt-5"
+              style="
+                display: grid;
+                grid-template-columns: repeat(4, 80px);
+                gap: 12px;
+              "
+            >
+              <div v-for="(image, index) in previewList" :key="index">
+                <div style="position: relative">
+                  <img
+                    class="w-full cursor-pointer"
+                    style="height: 75px; object-fit: cover; width: 100%"
+                    :src="image"
+                  />
+                  <img
+                    src="@/assets/images/cancel-svgrepo-com.svg"
+                    class="absolute rounded-full border border-red-700 -top-2 -right-2 bg-red-200 text-red-500 cursor-pointer"
+                    style="position: absolute; right: -5px; top: -5px"
+                    width="20"
+                    @click="removeImageDecline(image, index)"
+                  />
+                </div>
+              </div>
+            </div>
+            <div v-if="uploadingImage" class="pt-3 text-center">
+              <small class="p-2 block"
+                >Uploaded {{ startImage }} of {{ totalImage }}...</small
+              >
+            </div>
+            <label
+              v-if="previewList.length"
+              for="proof"
+              class="mt-4 d-flex align-center cursor-pointer"
+            >
+              <img src="../../assets/images/plus-icon.svg" alt="plus icon" />
+              <p class="ml-3 underline">Add more proof</p>
+            </label>
 
             <v-btn
               color="secondary"
               class="my-5"
               block
               :loading="declining"
-              @click="openConfirmationDialog('decline', confirmationID)"
+              @click="openConfirmationDialog('decline', id)"
               >Submit</v-btn
             >
           </v-container>
@@ -323,7 +480,9 @@
         <v-card-text class="pa-4 black--text"
           >Are you sure you want to
           {{
-            confirmationStatus === "partial" ? "partially approve" : confirmationStatus
+            confirmationStatus === "partial"
+              ? "partially approve"
+              : confirmationStatus
           }}
           this transaction?</v-card-text
         >
@@ -354,6 +513,7 @@ import { defineComponent, ref, onMounted, reactive, watch } from "vue";
 import { useRoute } from "vue-router";
 import { storeToRefs } from "pinia";
 import { useGiftCardStore } from "@/stores/giftcard";
+import uploadImage from "@/composables/uploadImage";
 import { useDateFormat } from "@vueuse/core";
 import useFormatter from "@/composables/useFormatter";
 export default defineComponent({
@@ -390,8 +550,12 @@ export default defineComponent({
     ]);
 
     const note = ref("");
-    const id = ref("");
+    let id = ref("");
+    let is_single = ref(true);
     const route: any = useRoute();
+    let uploadingImage = ref<boolean>(false);
+    let startImage = ref<number>(1);
+    let totalImage = ref<number>(1);
 
     const {
       loading,
@@ -414,18 +578,62 @@ export default defineComponent({
       return text;
     };
     const page_no = ref(1);
-    const reproof = ref("");
-    const get_reproof = (e: any) => {
-      reproof.value = e.target.files[0];
+    const reproof = ref<any>([]);
+    const get_reproof = ($event: any) => {
+      uploadingImage.value = true;
+      let count = $event.length;
+      let index = 0;
+      if (event) {
+        totalImage.value = $event.length;
+        while (count--) {
+          // proofs.value.push($event[index]);
+          uploadImage($event[index]).then((response) => {
+            startImage.value++;
+            previewList.value.push(response.secure_url);
+            reproof.value.push(response.secure_url);
+          });
+          index++;
+        }
+        startImage.value = 0;
+        // totalImage.value = 1;
+        // uploadingImage.value = false;
+      }
     };
     const partial_approve = reactive({
       review_rate: "",
       review_note: "",
-      review_proof: null,
+      review_proof: <any>[],
     });
 
-    const partial = (e: any) => {
-      partial_approve.review_proof = e.target.files[0];
+    const removeImage = (id: any, index: number) => {
+      previewList.value = previewList.value.filter((item: any) => item !== id);
+      partial_approve.review_proof.splice(index, 1);
+    };
+    const removeImageDecline = (id: any, index: number) => {
+      previewList.value = previewList.value.filter((item: any) => item !== id);
+      reproof.value.splice(index, 1);
+    };
+    const previewList = ref<any>([]);
+    const partial = ($event: any) => {
+      uploadingImage.value = true;
+      let count = $event.length;
+      console.log($event);
+      let index = 0;
+      if (event) {
+        totalImage.value = $event.length;
+        while (count--) {
+          // proofs.value.push($event[index]);
+          uploadImage($event[index]).then((response) => {
+            startImage.value++;
+            previewList.value.push(response.secure_url);
+            partial_approve.review_proof.push(response.secure_url);
+          });
+          index++;
+        }
+        startImage.value = 0;
+        // totalImage.value = 1;
+        // uploadingImage.value = false;
+      }
     };
 
     const disapprove = () => {
@@ -434,8 +642,29 @@ export default defineComponent({
       }
       dialog2.value = true;
     };
+
+    const approveAll = () => {
+      is_single.value = false;
+      id.value = route.params.id;
+      openConfirmationDialog("approve", route.params.id);
+    };
+    const disapproveAll = () => {
+      is_single.value = false;
+      id.value = route.params.id;
+      disapprove();
+    };
+
+    const partialApproveAll = () => {
+      is_single.value = false;
+      id.value = route.params.id;
+      dialog.value = true;
+    };
     // CHANGE STATUS COLOR
-    type StatusType = "pending" | "approved" | "declined" | "partially_approved";
+    type StatusType =
+      | "pending"
+      | "approved"
+      | "declined"
+      | "partially_approved";
 
     const status_color = (status: StatusType) => {
       return status == "pending"
@@ -465,6 +694,8 @@ export default defineComponent({
 
     const refresh = async () => {
       await getAllGiftCardTransactionByUserId(route.params.id);
+      previewList.value = [];
+      uploadingImage.value = false;
     };
     const confirmationDialog = ref(false);
     let confirmationID = ref("");
@@ -476,22 +707,35 @@ export default defineComponent({
     };
     const makeConfirmation = async (type: string) => {
       if (type == "approve") {
-        await approveRequest(confirmationID.value);
+        await approveRequest(confirmationID.value, 1, is_single.value);
         refresh();
         confirmationDialog.value = false;
       } else if (type == "decline") {
-        declineRequest(confirmationID.value, note.value, reproof.value as any);
+        declineRequest(
+          confirmationID.value,
+          note.value,
+          reproof.value as any,
+          is_single.value
+        );
         confirmationDialog.value = false;
       } else if (type == "partial") {
-        partialApproveRequest(confirmationID.value, partial_approve);
+        partialApproveRequest(
+          confirmationID.value,
+          partial_approve,
+          is_single.value
+        );
         confirmationDialog.value = false;
       }
       confirmationDialog.value = false;
+      is_single.value = true;
     };
 
-    watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
-      newDialog === false && oldDialog === false ? refresh() : "";
-    });
+    watch(
+      [dialog, dialog2],
+      ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
+        newDialog === false && oldDialog === false ? refresh() : "";
+      }
+    );
 
     return {
       related_giftcard,
@@ -512,12 +756,21 @@ export default defineComponent({
       note,
       id,
       disapprove,
+      approveAll,
+      disapproveAll,
+      partialApproveAll,
       singleGiftCardTransaction,
       page_no,
       partial,
       formatCurrency,
       makeConfirmation,
       openConfirmationDialog,
+      previewList,
+      startImage,
+      totalImage,
+      uploadingImage,
+      removeImage,
+      removeImageDecline,
       confirmationID,
       confirmationDialog,
       confirmationStatus,

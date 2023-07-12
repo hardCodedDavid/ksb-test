@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { initializeApp } from "firebase/app";
+import { getMessaging, getToken, isSupported } from "firebase/messaging";
 import { ref, onMounted, provide } from "vue";
 import { useWithdrawalsStore } from "../../../stores/withdrawals";
 import WelcomeCard from "../dashboardComponents/analytical/welcome-card/WelcomeCard.vue";
@@ -53,7 +55,63 @@ const breadcrumbs = ref([
 
 const mark = ref([])
 
+const firebaseConfig = {
+  apiKey: "AIzaSyD8BOVBBzSuRE6XBG_9_oAOwG84oAp5Qnc",
+  authDomain: "ksbdatatech-a01c9.firebaseapp.com",
+  databaseURL: "https://ksbdatatech-a01c9-default-rtdb.firebaseio.com",
+  projectId: "ksbdatatech-a01c9",
+  storageBucket: "ksbdatatech-a01c9.appspot.com",
+  messagingSenderId: "1060149520292",
+  appId: "1:1060149520292:web:9d0858eb59527b00bec331",
+  measurementId: "G-7MTQ1QSPE6"
+};
+const app = initializeApp(firebaseConfig);
+const updateProfile = async (profile: any) => {
+  try {
+    const response = await action.updateAdminProfile(profile);
+    return Promise.resolve(response);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
+function requestPermission() {
+  isSupported().then(() => {
+    const messaging = getMessaging(app);
+    console.log("Requesting permission...");
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        console.log("Notification permission granted.");
+        getToken(messaging, {
+          vapidKey:
+            "BAYCwPz2x30IwyZEmLq6T5oHzyu9TTQCZtNvTnUgwk4B9ttL9ph51ziDAfJ0UMk2wp8jwPjL2bUiK0QnnASjU6k",
+        })
+          .then((currentToken) => {
+            if (currentToken) {
+              const payload = {
+                _method: "PATCH",
+                fcm_token: currentToken,
+              };
+              updateProfile(payload);
+            } else {
+              console.log(
+                "No registration token available. Request permission to generate one."
+              );
+            }
+          })
+          .catch((err) => {
+            console.log("An error occurred while retrieving token.", err);
+          });
+      } else {
+        console.log("Do not have permission");
+      }
+    });
+  });
+}
+requestPermission();
 
+isSupported().then(() => {
+  requestPermission();
+});
 
 onMounted(async ()=> {
    await getAllTransactionCount();

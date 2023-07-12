@@ -74,7 +74,8 @@ export const useUserStore = defineStore("user", {
     single_user: "",
     bank_info: [],
     banks: [],
-    search_users: []
+    search_users: [],
+    referrals: []
   }),
   getters: {
     filterUserById: (state) => (id: string) =>
@@ -145,6 +146,44 @@ export const useUserStore = defineStore("user", {
         this.loading = false;
       }
     },
+
+    async getAllReferralsByUserID(id: string) {
+      console.log('here')
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(
+            "admin/referrals?" +
+              "include=referred" +
+              "&filter[user_id]=" +
+              id,
+            {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${store.token}`,
+              },
+            }
+          )
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { referrals: Data };
+              };
+            }) => {
+              this.loading = false;
+
+              this.referrals = res.data.data.referrals;
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+        console.log(error)
+      }
+    },
+
     async searchUsers(email: string = "") {
       const store = useAuthStore();
       const { notify } = useNotification();
@@ -173,6 +212,7 @@ export const useUserStore = defineStore("user", {
         this.loading = false;
       }
     },
+
     async getUser(id: string) {
       const store = useAuthStore();
 

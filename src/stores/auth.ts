@@ -545,6 +545,43 @@ export const useAuthStore = defineStore("auth", {
         this.updating = false;
       }
     },
+    async updateAdminProfile(data: any) {
+
+      this.updating = true;
+      try {
+        await ksbTechApi
+          .post(update_profile, data, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${this.token}`,
+            },
+            redirect: "follow",
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: any;
+              };
+              message: string;
+            }) => {
+              const { notify } = useNotification();
+
+              notify({
+                title: "Success",
+                text: res.data.message,
+                type: "success",
+              });
+
+              this.updating = false;
+
+              this.GetProfile();
+            }
+          );
+      } catch (error) {
+        this.updating = false;
+      }
+    },
     async updatePassword(passwordDetails: object) {
       const { notify } = useNotification();
       this.updating = true;

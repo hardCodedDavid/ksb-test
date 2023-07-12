@@ -274,7 +274,7 @@ export const useGiftCardStore = defineStore("giftcard", {
       }
     },
     // Alter Gift Card Transactionß
-    async approveRequest(id: string, page?: number) {
+    async approveRequest(id: string, page?: number, single?= true) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.approving = true;
@@ -287,7 +287,7 @@ export const useGiftCardStore = defineStore("giftcard", {
 
       try {
         await ksbTechApi
-          .post(giftCard + "/" + id + "/approve", formdata, {
+          .post(giftCard + "/" + id + `${single? "/approve" : "/approve/all"}`, formdata, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`
@@ -319,22 +319,23 @@ export const useGiftCardStore = defineStore("giftcard", {
         });
       }
     },
-    async partialApproveRequest(id: string, data: any) {
+    async partialApproveRequest(id: string, data: any, single?= true) {
+      console.log(data);
       const store = useAuthStore();
       const route: any = useRoute();
       const { notify } = useNotification();
       this.approving = true;
 
-      var formdata = new FormData();
-      formdata.append("complete_approval", "0");
-      formdata.append("review_amount", data.review_rate);
-      formdata.append("review_note", data.review_note);
-      formdata.append("review_proof", data.review_proof);
-      formdata.append("_method", "PATCH");
+      var formdata = {
+        ...data,
+        _method: "PATCH",
+        complete_approval: "0"
+
+      };
 
       try {
         await ksbTechApi
-          .post(giftCard + "/" + id + "/approve", formdata, {
+          .post(giftCard + "/" + id + `${single? "/approve" : "/approve/all"}`, formdata, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`
@@ -369,18 +370,19 @@ export const useGiftCardStore = defineStore("giftcard", {
         });
       }
     },
-    async declineRequest(id: string, note: string, reproof: File) {
+    async declineRequest(id: string, note: string, reproof: File, single?= true) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.declining = true;
 
-      var formdata = new FormData();
-      formdata.append("review_note", note);
-      formdata.append("_method", "PATCH");
-      formdata.append("review_proof", reproof);
+      let formdata = {
+        _method: 'PATCH',
+        review_note: note,
+        review_proof: reproof
+      }
       try {
         await ksbTechApi
-          .post(giftCard + "/" + id + "/decline", formdata, {
+          .post(giftCard + "/" + id + `${single? "/decline" : "/decline/all"}`, formdata, {
             headers: {
               Accept: "application/json",
               Authorization: `Bearer ${store.token}`

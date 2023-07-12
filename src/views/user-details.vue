@@ -95,6 +95,7 @@
           <v-tab value="two" class="font-weight-bold">Asset</v-tab>
           <v-tab value="three" class="font-weight-bold">Giftcard</v-tab>
           <v-tab value="four" class="font-weight-bold">Wallet</v-tab>
+          <v-tab value="five" class="font-weight-bold">Referrals</v-tab>
         </v-tabs>
       </div>
     </v-card>
@@ -629,6 +630,54 @@
           </v-table>
         </v-card>
       </v-window-item>
+      <v-window-item value="five">
+        <v-card class="my-4">
+          <v-table>
+            <thead>
+              <tr>
+                <th
+                  v-for="(headings, index) in referralHeader"
+                  :key="index"
+                  class="text-left font-weight-bold"
+                >
+                  {{ headings.title }}
+                </th>
+              </tr>
+            </thead>
+            <tbody v-if="loading == false">
+              <tr
+                class="pa-3"
+                v-for="(referral, index) in referrals?.data"
+                :key="referral?.id"
+              >
+                <td>{{ index + 1 }}</td>
+                <td>₦‎ {{ referral.amount.toLocaleString() }}</td>
+                <td>{{ referral?.referred.firstname }} {{ referral?.referred.lastname }}</td>
+                <td>{{ referral.referred?.email }}</td>
+                <td>
+                  {{
+                    useDateFormat(referral?.created_at, "DD, MMMM-YYYY").value
+                  }}
+                </td>
+                <!-- <td>{{ item.status }}</td> -->
+
+                <!-- <td>{{ item.service }}</td>
+              <td>{{ item.type }}</td>
+
+              <td>{{ item.date }}</td> -->
+                <td>
+                  <v-chip
+                    label
+                    class="text-capitalize font-weight-bold pa-3"
+                    :color="status_color(referral?.paid ? 'approved' : 'pending')"
+                    >{{ referral.paid? 'Completed' : 'Pending' }}</v-chip
+                  >
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+        </v-card>
+      </v-window-item>
     </v-window>
 
     <v-dialog v-model="dialog" width="600">
@@ -804,9 +853,9 @@ import { useWithdrawalsStore } from "../stores/withdrawals";
 import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
 import { useDateFormat, watchDebounced } from "@vueuse/core";
-const { getUsers, restoreUsers, blockUsers, getUser, financeUsers } =
+const { getUsers, restoreUsers, blockUsers, getUser, financeUsers, getAllReferralsByUserID } =
   useUserStore();
-const { user, filterUserById, single_user, dialog2 } = storeToRefs(
+const { user, filterUserById, single_user, dialog2, referrals } = storeToRefs(
   useUserStore()
 );
 const { allTransactions, loading, dialog } = storeToRefs(useAssetStore());
@@ -881,6 +930,7 @@ const blockUser = async (id: string) => {
 
 const id = ref("");
 onMounted(async () => {
+  await getAllReferralsByUserID(route.params.id);
   await getAllAssetTransactionsByUserId(route.params.id);
   // await getUsers(1, name.value, email.value, date1.value, date2.value);
   await getUser(route.params.id);
@@ -934,6 +984,26 @@ const withdrawalHeader = ref([
   },
   {
     title: "Actions",
+  },
+]);
+const referralHeader = ref([
+  {
+    title: "No.",
+  },
+  {
+    title: "Amount (NGN)",
+  },
+  {
+    title: "Name",
+  },
+  {
+    title: "Email",
+  },
+  {
+    title: "Date and Time",
+  },
+  {
+    title: "Status",
   },
 ]);
 const header = ref([
