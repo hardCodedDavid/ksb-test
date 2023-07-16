@@ -173,7 +173,7 @@ export const useGiftCardStore = defineStore("giftcard", {
             giftCard +
               "?per_page=50" +
               "&include=user,giftcardProduct" +
-              `&filter[status]=${status}` +
+              `&status=${status}` +
               `&filter[reference]=${reference}` +
               `&filter[trade_type]=${trade_type.toLowerCase()}` +
               `&page=${page}` +

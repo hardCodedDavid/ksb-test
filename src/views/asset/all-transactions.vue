@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted, computed, reactive, watch } from "vue";
 import { useAssetStore } from "../../stores/asset";
 import { useUserStore } from "../../stores/user";
+import uploadImage from "@/composables/uploadImage";
 import { storeToRefs } from "pinia";
 import { useDateFormat } from "@vueuse/core";
 import { watchDebounced } from "@vueuse/core";
@@ -27,18 +28,47 @@ const {
   partialApproveRequest,
 } = useAssetStore();
 
+let uploadingImage = ref<boolean>(false);
+let startImage = ref<number>(1);
+let totalImage = ref<number>(1);
 // const { getAllUsers } = useUserStore();
 const partial_approve = reactive({
   review_rate: "",
   review_note: "",
-  review_proof: null,
+  review_proof: <any>[],
 });
-const partial = (e: any) => {
-  partial_approve.review_proof = e.target.files[0];
+const previewList = ref<any>([]);
+const removeImage = (id: any, index: number) => {
+  previewList.value = previewList.value.filter((item: any) => item !== id);
+  partial_approve.review_proof.splice(index, 1);
 };
-const { allTransactions, loading, dialog, dialog2, single_transactions, page, tab, status } = storeToRefs(
-  useAssetStore()
-);
+const partial = ($event: any) => {
+  uploadingImage.value = true;
+  let count = $event.length;
+  let index = 0;
+  if (event) {
+    totalImage.value = $event.length;
+    while (count--) {
+      uploadImage($event[index]).then((response) => {
+        startImage.value++;
+        previewList.value.push(response.secure_url);
+        partial_approve.review_proof.push(response.secure_url);
+      });
+      index++;
+    }
+    startImage.value = 0;
+  }
+};
+const {
+  allTransactions,
+  loading,
+  dialog,
+  dialog2,
+  single_transactions,
+  page,
+  tab,
+  status,
+} = storeToRefs(useAssetStore());
 // const page = ref(1);
 
 const header = ref([
@@ -206,7 +236,11 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
       </v-toolbar>
       <v-card-text class="pa-4 black--text"
         >Are you sure you want to
-        {{ confirmationStatus === "partial" ? "partially approve" : confirmationStatus }}
+        {{
+          confirmationStatus === "partial"
+            ? "partially approve"
+            : confirmationStatus
+        }}
         this transaction?</v-card-text
       >
       <v-card-actions class="pt-3">
@@ -240,7 +274,12 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
 
             <div v-if="asset_total?.length > 0" class="mt-11">
               <h2 class="mb-2">
-                ₦‎ {{ formatCurrency(asset_total[0].total_approved_transactions_amount) }}
+                ₦‎
+                {{
+                  formatCurrency(
+                    asset_total[0].total_approved_transactions_amount
+                  )
+                }}
               </h2>
               <span>All time</span>
             </div>
@@ -264,7 +303,9 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
                   <span>Successful</span>
                 </div>
               </div>
-              <div class="d-flex align-start justify-start flex-column w-100 flex-grow-1">
+              <div
+                class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
+              >
                 <v-avatar color="#FFF9C4" size="x-large">
                   <vue-feather
                     type="bar-chart"
@@ -279,9 +320,14 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
                   <span>pending</span>
                 </div>
               </div>
-              <div class="d-flex align-start justify-start flex-column w-100 flex-grow-1">
+              <div
+                class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
+              >
                 <v-avatar color="#FFCCBC" size="x-large">
-                  <vue-feather type="x-circle" class="text-dark text-error"></vue-feather>
+                  <vue-feather
+                    type="x-circle"
+                    class="text-dark text-error"
+                  ></vue-feather>
                 </v-avatar>
 
                 <div v-if="asset_total?.length > 0" class="pl-3 my-5">
@@ -291,14 +337,21 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
                   <span>Failed</span>
                 </div>
               </div>
-              <div class="d-flex align-start justify-start flex-column w-100 flex-grow-1">
+              <div
+                class="d-flex align-start justify-start flex-column w-100 flex-grow-1"
+              >
                 <v-avatar color="purple" size="x-large">
-                  <vue-feather type="check" class="purple-lighten-1"></vue-feather>
+                  <vue-feather
+                    type="check"
+                    class="purple-lighten-1"
+                  ></vue-feather>
                 </v-avatar>
 
                 <div v-if="asset_total?.length > 0" class="pl-3 my-5">
                   <h2 class="mb-2">
-                    {{ asset_total[0].total_partially_approved_transactions_count }}
+                    {{
+                      asset_total[0].total_partially_approved_transactions_count
+                    }}
                   </h2>
                   <span>Partial</span>
                 </div>
@@ -313,7 +366,9 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
           <div>
             <v-btn @click="reset" width="200px" class="mr-4">Reset</v-btn>
             <v-btn
-              @click="getAllAssetTransactions(status, page, type, search, date, date2)"
+              @click="
+                getAllAssetTransactions(status, page, type, search, date, date2)
+              "
               width="200px"
               color="secondary"
               >Filter</v-btn
@@ -374,15 +429,27 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
       <v-card class="pa-5">
         <v-tabs v-model="tab" bg-color="none" class="mb-5 border-bottom">
           <v-tab @click="getAllAssetTransactions((status = ''))">All</v-tab>
-          <v-tab @click="getAllAssetTransactions((status = 'pending'))">Pending</v-tab>
-          <v-tab @click="getAllAssetTransactions((status = 'approved'))">Approved</v-tab>
-          <v-tab @click="getAllAssetTransactions((status = 'declined'))">Declined</v-tab>
-          <v-tab @click="getAllAssetTransactions((status = 'partial'))">Partial</v-tab>
+          <v-tab @click="getAllAssetTransactions((status = 'pending'))"
+            >Pending</v-tab
+          >
+          <v-tab @click="getAllAssetTransactions((status = 'approved'))"
+            >Approved</v-tab
+          >
+          <v-tab @click="getAllAssetTransactions((status = 'declined'))"
+            >Declined</v-tab
+          >
+          <v-tab @click="getAllAssetTransactions((status = 'partial'))"
+            >Partial</v-tab
+          >
         </v-tabs>
         <v-table>
           <thead>
             <tr>
-              <th v-for="(headings, index) in header" :key="index" class="text-left">
+              <th
+                v-for="(headings, index) in header"
+                :key="index"
+                class="text-left"
+              >
                 {{ headings.title }}
               </th>
             </tr>
@@ -397,7 +464,9 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
               <td>{{ item.reference }}</td>
               <td>₦‎{{ item.payable_amount.toLocaleString() }}</td>
               <td>
-                {{ useDateFormat(item?.created_at, "DD, MMMM-YYYY hh:mm a").value }}
+                {{
+                  useDateFormat(item?.created_at, "DD, MMMM-YYYY hh:mm a").value
+                }}
               </td>
               <td>{{ item.trade_type }}</td>
 
@@ -425,7 +494,10 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
                     </template>
                     <v-list>
                       <v-list-item
-                        :to="{ name: 'ViewAssetsTransaction', params: { id: item?.id } }"
+                        :to="{
+                          name: 'ViewAssetsTransaction',
+                          params: { id: item?.id },
+                        }"
                         link
                         color="secondary"
                       >
@@ -445,7 +517,9 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
                         link
                         color="secondary"
                       >
-                        <v-list-item-title> Partial Approval </v-list-item-title>
+                        <v-list-item-title>
+                          Partial Approval
+                        </v-list-item-title>
                       </v-list-item>
                       <v-list-item
                         v-if="item?.status == 'transferred'"
@@ -470,7 +544,10 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
           No data found
         </p>
 
-        <v-layout v-if="loading == true" class="align-center justify-center w-100 my-5">
+        <v-layout
+          v-if="loading == true"
+          class="align-center justify-center w-100 my-5"
+        >
           <v-progress-circular indeterminate></v-progress-circular>
         </v-layout>
       </v-card>
@@ -497,7 +574,11 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
         </v-card-text>
 
         <v-container class="mt-7">
-          <v-textarea label="Comments" v-model="note" variant="outlined"></v-textarea>
+          <v-textarea
+            label="Comments"
+            v-model="note"
+            variant="outlined"
+          ></v-textarea>
 
           <v-file-input
             @change="get_reproof"
@@ -545,16 +626,68 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
             variant="outlined"
             label="Review Note"
           ></v-textarea>
-          <v-file-input
-            prepend-icon=""
-            variant="outlined"
-            @change="partial"
-            label="Review Proof"
-          ></v-file-input>
+          <label for="proof" class="cursor-pointer">
+            <p class="text-black">Upload transaction proof</p>
+          </label>
+          <label v-if="!previewList.length" for="proof" class="cursor-pointer">
+            <img
+              src="../../assets/images/card-placeholder.svg"
+              alt="card-placeholder"
+              class="mt-3 w-full object-fill max-h-[174px] rounded-xl"
+            />
+          </label>
+          <input
+            type="file"
+            multiple
+            id="proof"
+            ref="fileInput"
+            style="display: none"
+            accept="image/*"
+            @change="partial(($event.target as HTMLFormElement).files)"
+          />
+          <div
+            class="gap-5 mt-5"
+            style="
+              display: grid;
+              grid-template-columns: repeat(4, 80px);
+              gap: 12px;
+            "
+          >
+            <div v-for="(image, index) in previewList" :key="index">
+              <div style="position: relative">
+                <img
+                  class="w-full cursor-pointer"
+                  style="height: 75px; object-fit: cover; width: 100%"
+                  :src="image"
+                />
+                <img
+                  src="@/assets/images/cancel-svgrepo-com.svg"
+                  class="absolute rounded-full border border-red-700 -top-2 -right-2 bg-red-200 text-red-500 cursor-pointer"
+                  style="position: absolute; right: -5px; top: -5px"
+                  width="20"
+                  @click="removeImage(image, index)"
+                />
+              </div>
+            </div>
+          </div>
+          <div v-if="uploadingImage" class="pt-3 text-center">
+            <small class="p-2 block"
+              >Uploaded {{ startImage }} of {{ totalImage }}...</small
+            >
+          </div>
+          <label
+            v-if="previewList.length"
+            for="proof"
+            class="mt-4 d-flex align-center cursor-pointer"
+          >
+            <img src="../../assets/images/plus-icon.svg" alt="plus icon" />
+            <p class="ml-3 underline">Add more proof</p>
+          </label>
           <v-btn
             :loading="loading"
             @click="openConfirmationDialog('partial', confirmationID)"
             block
+            class="mt-5"
             color="secondary"
             >submit</v-btn
           >

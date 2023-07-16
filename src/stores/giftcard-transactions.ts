@@ -21,7 +21,7 @@ export const useGiftCardTransactionsStore = defineStore(
           `giftCard 
                 ?per_page=100
                 &include=user,giftcardProduct
-                &filter[status]=${status}
+                &status=${status}
                 &filter[reference]=${reference}
                 &filter[trade_type]=${trade_type.toLowerCase()}
                 &page=${page}
@@ -31,8 +31,8 @@ export const useGiftCardTransactionsStore = defineStore(
           {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Authorization: `Bearer ${store.token}`
+            }
           }
         );
         return data;
@@ -45,8 +45,8 @@ export const useGiftCardTransactionsStore = defineStore(
           {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Authorization: `Bearer ${store.token}`
+            }
           }
         );
         return data;
@@ -54,7 +54,7 @@ export const useGiftCardTransactionsStore = defineStore(
 
       async approveGiftCardTransactionRequest(id: string, page: number) {
         const store = useAuthStore();
-       
+
         var formdata = new FormData();
         formdata.append("complete_approval", "1");
         formdata.append("_method", "PATCH");
@@ -62,8 +62,8 @@ export const useGiftCardTransactionsStore = defineStore(
         const data = await ksbTechApi.post(`giftCard/${id}/approve`, formdata, {
           headers: {
             Accept: "application/json",
-            Authorization: `Bearer ${store.token}`,
-          },
+            Authorization: `Bearer ${store.token}`
+          }
         });
         return data;
       },
@@ -83,8 +83,8 @@ export const useGiftCardTransactionsStore = defineStore(
           {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
+              Authorization: `Bearer ${store.token}`
+            }
           }
         );
 
@@ -98,25 +98,25 @@ export const useGiftCardTransactionsStore = defineStore(
       ) {
         const store = useAuthStore();
         const { notify } = useNotification();
-  
+
         var formdata = new FormData();
-        formdata.append('review_note', note);
-        formdata.append('_method', 'PATCH');
-        formdata.append('review_proof', reproof);
+        formdata.append("review_note", note);
+        formdata.append("_method", "PATCH");
+        formdata.append("review_proof", reproof);
 
-        const data =  await ksbTechApi
-            .post(giftCard + '/' + id + '/decline', formdata, {
-              headers: {
-                Accept: 'application/json',
-                Authorization: `Bearer ${store.token}`
-              }
-            })
-            
+        const data = await ksbTechApi.post(
+          giftCard + "/" + id + "/decline",
+          formdata,
+          {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`
+            }
+          }
+        );
 
-            return data
-  
-      },
-
-    },
+        return data;
+      }
+    }
   }
 );

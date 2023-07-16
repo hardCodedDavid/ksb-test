@@ -2,6 +2,7 @@
 import { ref, onMounted, reactive, computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
+import uploadImage from "@/composables/uploadImage";
 // import { useGiftCardStore } from "@/stores/giftcard";
 import VueEasyLightbox from "vue-easy-lightbox";
 import { useAssetStore } from "../../stores/asset";
@@ -41,6 +42,9 @@ const transaction_header = ref([
   },
 ]);
 
+let uploadingImage = ref<boolean>(false);
+let startImage = ref<number>(1);
+let totalImage = ref<number>(1);
 const route: any = useRoute();
 const router: any = useRouter();
 
@@ -87,26 +91,54 @@ const view_img = (url: string) => {
 const partial_approve = reactive({
   review_rate: "",
   review_note: "",
-  review_proof: null,
+  review_proof: <any>[],
 });
 
-const partial = (e: any) => {
-  partial_approve.review_proof = e.target.files[0];
+const previewList = ref<any>([]);
+  const removeImage = (id: any, index: number) => {
+  previewList.value = previewList.value.filter((item: any) => item !== id);
+  partial_approve.review_proof.splice(index, 1);
+};
+const partial = ($event: any) => {
+  uploadingImage.value = true;
+  let count = $event.length;
+  let index = 0;
+  if (event) {
+    totalImage.value = $event.length;
+    while (count--) {
+      uploadImage($event[index]).then((response) => {
+        startImage.value++;
+        previewList.value.push(response.secure_url);
+        partial_approve.review_proof.push(response.secure_url);
+      });
+      index++;
+    }
+    startImage.value = 0;
+  }
 };
 
 onMounted(async () => {
   await getSingleAssetTransactions(route.params.id);
 });
 
+const reviewVisibleRef = ref(false);
 const visibleRef = ref(false);
 const onShow = () => {
   visibleRef.value = true;
 };
+const onShowReview = () => {
+  reviewVisibleRef.value = true;
+};
 const indexRef = ref(0);
-const onHide = () => (visibleRef.value = false);
+const reviewIndexRef = ref(0);
+const onHide = () => (visibleRef.value = false, reviewVisibleRef.value = false);
 
 const  image = computed(() => {
   return Array(single_transactions?.value?.proof)
+})
+
+const  reviewImage = computed(() => {
+  return Array(single_transactions?.value?.review_proof)
 })
 
 const refresh = async () => {
@@ -362,8 +394,26 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
                       ).value ?? 'No data' }}
                   </span>
                 </div> 
-              </v-card-text>  
-              <v-btn v-if="single_transactions?.review_proof" @click="view_img(single_transactions?.review_proof)" color="secondary" class="ml-6 mb-3">Review proof image</v-btn>
+              </v-card-text>
+              <v-row v-if="single_transactions?.review_proof.length > 0">
+              <v-col
+                v-for="(image, index) in single_transactions?.review_proof"
+                :key="index"
+                cols="12"
+                sm="6"
+                md="4"
+                lg="3"
+              >
+                <v-img
+                  cover
+                  width="100"
+                  height="100"
+                  @click="onShowReview"
+                  :src="image"
+                  class="cursor-pointer mt-4"
+                ></v-img>
+              </v-col>
+            </v-row>
             </v-card>
           </v-col>
           <v-col cols="12" sm="12" lg="6">
@@ -448,6 +498,12 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
       :index="indexRef"
       @hide="onHide"
     ></vue-easy-lightbox>
+    <vue-easy-lightbox
+      :visible="reviewVisibleRef"
+      :imgs="reviewImage"
+      :index="reviewIndexRef"
+      @hide="onHide"
+    ></vue-easy-lightbox>
     <v-dialog
       v-if="dialog2"
       v-model="dialog2"
@@ -505,16 +561,68 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
             variant="outlined"
             label="Review Note"
           ></v-textarea>
-          <v-file-input
-            prepend-icon=""
-            variant="outlined"
-            @change="partial"
-            label="Review Proof"
-          ></v-file-input>
+          <label for="proof" class="cursor-pointer">
+            <p class="text-black">Upload transaction proof</p>
+          </label>
+          <label v-if="!previewList.length" for="proof" class="cursor-pointer">
+            <img
+              src="../../assets/images/card-placeholder.svg"
+              alt="card-placeholder"
+              class="mt-3 w-full object-fill max-h-[174px] rounded-xl"
+            />
+          </label>
+          <input
+            type="file"
+            multiple
+            id="proof"
+            ref="fileInput"
+            style="display: none"
+            accept="image/*"
+            @change="partial(($event.target as HTMLFormElement).files)"
+          />
+          <div
+            class="gap-5 mt-5"
+            style="
+              display: grid;
+              grid-template-columns: repeat(4, 80px);
+              gap: 12px;
+            "
+          >
+            <div v-for="(image, index) in previewList" :key="index">
+              <div style="position: relative">
+                <img
+                  class="w-full cursor-pointer"
+                  style="height: 75px; object-fit: cover; width: 100%"
+                  :src="image"
+                />
+                <img
+                  src="@/assets/images/cancel-svgrepo-com.svg"
+                  class="absolute rounded-full border border-red-700 -top-2 -right-2 bg-red-200 text-red-500 cursor-pointer"
+                  style="position: absolute; right: -5px; top: -5px"
+                  width="20"
+                  @click="removeImage(image, index)"
+                />
+              </div>
+            </div>
+          </div>
+          <div v-if="uploadingImage" class="pt-3 text-center">
+            <small class="p-2 block"
+              >Uploaded {{ startImage }} of {{ totalImage }}...</small
+            >
+          </div>
+          <label
+            v-if="previewList.length"
+            for="proof"
+            class="mt-4 d-flex align-center cursor-pointer"
+          >
+            <img src="../../assets/images/plus-icon.svg" alt="plus icon" />
+            <p class="ml-3 underline">Add more proof</p>
+          </label>
           <v-btn
             :loading="loading"
             @click="openConfirmationDialog('partial', confirmationID)"
             block
+            class="mt-5"
             color="secondary"
             >submit</v-btn
           >

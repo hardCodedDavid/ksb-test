@@ -381,12 +381,13 @@ export const useAssetStore = defineStore("asset", {
       const { notify } = useNotification();
       this.loading = true;
 
-      var formdata = new FormData();
-      formdata.append("complete_approval", "0");
-      formdata.append("review_amount", data.review_rate);
-      formdata.append("review_note", data.review_note);
-      formdata.append("review_proof", data.review_proof);
-      formdata.append("_method", "PATCH");
+      var formdata = {
+        review_note: data.review_note,
+        review_proof: data.review_proof,
+        review_amount: data.review_rate,
+        complete_approval: "0",
+        _method: "PATCH"
+      };
 
       try {
         await ksbTechApi
