@@ -33,7 +33,7 @@ let startImage = ref<number>(1);
 let totalImage = ref<number>(1);
 // const { getAllUsers } = useUserStore();
 const partial_approve = reactive({
-  review_rate: "",
+  review_amount: "",
   review_note: "",
   review_proof: <any>[],
 });
@@ -616,7 +616,7 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
         <v-form class="my-10">
           <v-text-field
             prefix="₦‎"
-            v-model="partial_approve.review_rate"
+            v-model="partial_approve.review_amount"
             type="number"
             variant="outlined"
             label="Amount"

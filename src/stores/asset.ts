@@ -384,7 +384,7 @@ export const useAssetStore = defineStore("asset", {
       var formdata = {
         review_note: data.review_note,
         review_proof: data.review_proof,
-        review_amount: data.review_rate,
+        review_amount: data.review_amount,
         complete_approval: "0",
         _method: "PATCH"
       };

@@ -89,7 +89,7 @@ const view_img = (url: string) => {
   window.open(url);
 };
 const partial_approve = reactive({
-  review_rate: "",
+  review_amount: "",
   review_note: "",
   review_proof: <any>[],
 });
@@ -315,7 +315,7 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
                 </div> 
                 <div class="font-weight-normal mb-4">
                   <strong>Service Charge:</strong>
-                  &#x20A6{{ single_transactions.service_charge }}
+                  {{ formatCurrency(((single_transactions.service_charge / 100) * single_transactions.asset_amount) * single_transactions.rate) }}
                 </div>
                 <div class="font-weight-normal mb-4">
                   <strong>Rate:</strong>
@@ -383,7 +383,7 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
                 </div> 
                 <div class="font-weight-normal mb-4">
                   <strong>Review rate:</strong>
-                  {{ formatCurrency(single_transactions.review_rate) }}
+                  {{ formatCurrency(single_transactions.review_amount / single_transactions.asset_amount) }}
                 </div> 
                 <div class="font-weight-normal">
                   <strong>Review At: </strong>
@@ -395,7 +395,7 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
                   </span>
                 </div> 
               </v-card-text>
-              <v-row v-if="single_transactions?.review_proof.length > 0">
+              <v-row v-if="single_transactions?.review_proof?.length > 0">
               <v-col
                 v-for="(image, index) in single_transactions?.review_proof"
                 :key="index"
@@ -551,7 +551,7 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
         <v-form class="my-10">
           <v-text-field
             prefix="₦‎"
-            v-model="partial_approve.review_rate"
+            v-model="partial_approve.review_amount"
             type="number"
             variant="outlined"
             label="Amount"

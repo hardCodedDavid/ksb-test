@@ -48,7 +48,7 @@ const img = ref<string[]>([]);
 const proofimg = ref<string[]>([]);
 
 const partial_approve = reactive({
-  review_rate: "",
+  review_amount: "",
   review_note: "",
   review_proof: <any>[],
 });
@@ -439,7 +439,7 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
                 </div>
                 <div class="font-weight-normal mb-4">
                   <strong>Service Charge:</strong>
-                  {{ formatCurrency(singleGiftCardTransaction.service_charge) }}
+                  {{ formatCurrency(((singleGiftCardTransaction.service_charge / 100) * singleGiftCardTransaction.amount) * singleGiftCardTransaction.rate) }}
                 </div>
                 <div class="font-weight-normal mb-4">
                   <strong>Rate:</strong>
@@ -544,7 +544,7 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
                   <strong>Review Rate:</strong>
                   {{
                     formatCurrency(
-                      singleGiftCardTransaction.payable_amount /
+                      singleGiftCardTransaction.review_amount /
                         singleGiftCardTransaction.amount
                     )
                   }}
@@ -829,7 +829,7 @@ watch([dialog, dialog2], ([newDialog, oldDialog], [newDialog2, oldDialog2]) => {
         <v-form class="my-10">
           <v-text-field
             prefix="₦‎"
-            v-model="partial_approve.review_rate"
+            v-model="partial_approve.review_amount"
             type="number"
             variant="outlined"
             label="Review Amount"

@@ -52,7 +52,7 @@ export const useGiftCardStore = defineStore("giftcard", {
       countries: [],
       data: "",
 
-      admins: []
+      admins: [],
     },
     loading: false,
     declining: false,
@@ -63,7 +63,7 @@ export const useGiftCardStore = defineStore("giftcard", {
     singleGiftCard: {},
     gift_transactions: [],
     singleGiftCardTransaction: {
-      cards: []
+      cards: [],
     },
     singleGiftcardUnit: 0,
     relatedGiftCards: [],
@@ -71,7 +71,7 @@ export const useGiftCardStore = defineStore("giftcard", {
     update_admin: false,
     page: 1,
     tab: null,
-    status: ""
+    status: "",
   }),
   getters: {
     country_id: (state) =>
@@ -85,7 +85,7 @@ export const useGiftCardStore = defineStore("giftcard", {
         if (item.id) {
           return item.id;
         } else return item;
-      })
+      }),
   },
   actions: {
     async getAllGifCardCategories(
@@ -115,8 +115,8 @@ export const useGiftCardStore = defineStore("giftcard", {
             {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`
-              }
+                Authorization: `Bearer ${store.token}`,
+              },
             }
           )
           .then(
@@ -135,7 +135,7 @@ export const useGiftCardStore = defineStore("giftcard", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -150,8 +150,8 @@ export const useGiftCardStore = defineStore("giftcard", {
         {
           headers: {
             Accept: "application/json",
-            Authorization: `Bearer ${store.token}`
-          }
+            Authorization: `Bearer ${store.token}`,
+          },
         }
       );
       return data;
@@ -174,17 +174,25 @@ export const useGiftCardStore = defineStore("giftcard", {
               "?per_page=50" +
               "&include=user,giftcardProduct" +
               `&status=${status}` +
-              `&filter[reference]=${reference}` +
-              `&filter[trade_type]=${trade_type.toLowerCase()}` +
+              `${reference ? `&filter[reference]=${reference}` : ""}` +
+              `${
+                trade_type
+                  ? `&filter[trade_type]=${trade_type.toLowerCase()}`
+                  : ""
+              }` +
               `&page=${page}` +
-              `&filter[creation_date]=${date1}${
-                date2 !== "" ? "," + date2 : ""
+              `${
+                date1 || date2
+                  ? `&filter[creation_date]=${date1}${
+                      date2 !== "" ? "," + date2 : ""
+                    }`
+                  : ""
               }`,
             {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`
-              }
+                Authorization: `Bearer ${store.token}`,
+              },
             }
           )
           .then(
@@ -203,7 +211,7 @@ export const useGiftCardStore = defineStore("giftcard", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -216,8 +224,8 @@ export const useGiftCardStore = defineStore("giftcard", {
           .get(`${giftCard}/${id}?include=user,bank,giftcardProduct,reviewer`, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -237,7 +245,7 @@ export const useGiftCardStore = defineStore("giftcard", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -247,12 +255,15 @@ export const useGiftCardStore = defineStore("giftcard", {
       this.loading = true;
       try {
         await ksbTechApi
-          .get(`${giftCard}?filter[user_id]=${id}&include=user,bank,giftcardProduct`, {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
+          .get(
+            `${giftCard}?filter[user_id]=${id}&include=user,bank,giftcardProduct`,
+            {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${store.token}`,
+              },
             }
-          })
+          )
           .then(
             (res: {
               data: {
@@ -269,12 +280,12 @@ export const useGiftCardStore = defineStore("giftcard", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
     // Alter Gift Card Transactionß
-    async approveRequest(id: string, page?: number, single?= true) {
+    async approveRequest(id: string, page?: number, single? = true) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.approving = true;
@@ -287,12 +298,16 @@ export const useGiftCardStore = defineStore("giftcard", {
 
       try {
         await ksbTechApi
-          .post(giftCard + "/" + id + `${single? "/approve" : "/approve/all"}`, formdata, {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
+          .post(
+            giftCard + "/" + id + `${single ? "/approve" : "/approve/all"}`,
+            formdata,
+            {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${store.token}`,
+              },
             }
-          })
+          )
           .then(
             (res: {
               data: {
@@ -305,7 +320,7 @@ export const useGiftCardStore = defineStore("giftcard", {
               notify({
                 title: "Approved Successfully",
                 text: res.data.message,
-                type: "success"
+                type: "success",
               });
               this.getAllGiftCardTransactionByUserId(id);
             }
@@ -315,11 +330,11 @@ export const useGiftCardStore = defineStore("giftcard", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
-    async partialApproveRequest(id: string, data: any, single?= true) {
+    async partialApproveRequest(id: string, data: any, single? = true) {
       console.log(data);
       const store = useAuthStore();
       const route: any = useRoute();
@@ -329,18 +344,21 @@ export const useGiftCardStore = defineStore("giftcard", {
       var formdata = {
         ...data,
         _method: "PATCH",
-        complete_approval: "0"
-
+        complete_approval: "0",
       };
 
       try {
         await ksbTechApi
-          .post(giftCard + "/" + id + `${single? "/approve" : "/approve/all"}`, formdata, {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
+          .post(
+            giftCard + "/" + id + `${single ? "/approve" : "/approve/all"}`,
+            formdata,
+            {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${store.token}`,
+              },
             }
-          })
+          )
           .then(
             (res: {
               data: {
@@ -355,7 +373,7 @@ export const useGiftCardStore = defineStore("giftcard", {
               notify({
                 title: "Approved Successfully",
                 text: res.data.message,
-                type: "success"
+                type: "success",
               });
             }
           );
@@ -366,28 +384,37 @@ export const useGiftCardStore = defineStore("giftcard", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
-    async declineRequest(id: string, note: string, reproof: File, single?= true) {
+    async declineRequest(
+      id: string,
+      note: string,
+      reproof: File,
+      single? = true
+    ) {
       const store = useAuthStore();
       const { notify } = useNotification();
       this.declining = true;
 
       let formdata = {
-        _method: 'PATCH',
+        _method: "PATCH",
         review_note: note,
-        review_proof: reproof
-      }
+        review_proof: reproof,
+      };
       try {
         await ksbTechApi
-          .post(giftCard + "/" + id + `${single? "/decline" : "/decline/all"}`, formdata, {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
+          .post(
+            giftCard + "/" + id + `${single ? "/decline" : "/decline/all"}`,
+            formdata,
+            {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${store.token}`,
+              },
             }
-          })
+          )
           .then(
             (res: {
               data: {
@@ -402,7 +429,7 @@ export const useGiftCardStore = defineStore("giftcard", {
               notify({
                 title: "Declined Successfully",
                 text: res.data.message,
-                type: "success"
+                type: "success",
               });
               this.getAllGiftCardTransactionByUserId(id);
             }
@@ -412,7 +439,7 @@ export const useGiftCardStore = defineStore("giftcard", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -424,8 +451,8 @@ export const useGiftCardStore = defineStore("giftcard", {
           .get(giftCardCategory + "/" + id + "?include=countries,admins", {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -441,7 +468,7 @@ export const useGiftCardStore = defineStore("giftcard", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -455,8 +482,8 @@ export const useGiftCardStore = defineStore("giftcard", {
             .delete(giftCardCategory + "/" + id, {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`
-              }
+                Authorization: `Bearer ${store.token}`,
+              },
             })
             .then(
               (res: {
@@ -468,7 +495,7 @@ export const useGiftCardStore = defineStore("giftcard", {
                 notify({
                   title: "Successful",
                   text: "Item deleted successfully",
-                  type: "success"
+                  type: "success",
                 });
                 this.getAllGifCardCategories();
               }
@@ -477,7 +504,7 @@ export const useGiftCardStore = defineStore("giftcard", {
           notify({
             title: "An Error Occurred",
             text: error.response.data.message,
-            type: "error"
+            type: "error",
           });
         }
       }
@@ -492,8 +519,8 @@ export const useGiftCardStore = defineStore("giftcard", {
             .patch(giftCardCategory + "/" + id + "/restore", "", {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`
-              }
+                Authorization: `Bearer ${store.token}`,
+              },
             })
             .then(
               (res: {
@@ -505,7 +532,7 @@ export const useGiftCardStore = defineStore("giftcard", {
                 notify({
                   title: "Successful",
                   text: "Item restored successfully",
-                  type: "success"
+                  type: "success",
                 });
                 this.getSingleGifCardCategories(id);
               }
@@ -514,7 +541,7 @@ export const useGiftCardStore = defineStore("giftcard", {
           notify({
             title: "An Error Occurred",
             text: error.response.data.message,
-            type: "error"
+            type: "error",
           });
         }
       }
@@ -529,8 +556,8 @@ export const useGiftCardStore = defineStore("giftcard", {
           .patch(giftCardCategory + "/" + id + "/sale-activation", "", {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -542,7 +569,7 @@ export const useGiftCardStore = defineStore("giftcard", {
               notify({
                 title: "Successful",
                 text: res.data.message,
-                type: "success"
+                type: "success",
               });
               this.getSingleGifCardCategories(id);
             }
@@ -551,7 +578,7 @@ export const useGiftCardStore = defineStore("giftcard", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -565,8 +592,8 @@ export const useGiftCardStore = defineStore("giftcard", {
           .patch(giftCardCategory + "/" + id + "/purchase-activation", "", {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -578,7 +605,7 @@ export const useGiftCardStore = defineStore("giftcard", {
               notify({
                 title: "Successful",
                 text: res.data.message,
-                type: "success"
+                type: "success",
               });
               this.getSingleGifCardCategories(id);
             }
@@ -587,7 +614,7 @@ export const useGiftCardStore = defineStore("giftcard", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -619,8 +646,8 @@ export const useGiftCardStore = defineStore("giftcard", {
           .post(giftCardCategory, formData, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -632,7 +659,7 @@ export const useGiftCardStore = defineStore("giftcard", {
               notify({
                 title: "Successful",
                 text: res.data.message,
-                type: "success"
+                type: "success",
               });
               this.dialog = false;
               this.getAllGifCardCategories();
@@ -643,7 +670,7 @@ export const useGiftCardStore = defineStore("giftcard", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -686,8 +713,8 @@ export const useGiftCardStore = defineStore("giftcard", {
           .post(giftCardCategory + "/" + payload.id, formData, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -699,7 +726,7 @@ export const useGiftCardStore = defineStore("giftcard", {
               notify({
                 title: "Successful",
                 text: res.data.message,
-                type: "success"
+                type: "success",
               });
               this.dialog = false;
               this.update_admin = false;
@@ -712,7 +739,7 @@ export const useGiftCardStore = defineStore("giftcard", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -725,8 +752,8 @@ export const useGiftCardStore = defineStore("giftcard", {
           .get(giftCard + "/export", {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -741,7 +768,7 @@ export const useGiftCardStore = defineStore("giftcard", {
               notify({
                 title: "Successful",
                 text: res.data.message,
-                type: "success"
+                type: "success",
               });
             }
           );
@@ -750,9 +777,9 @@ export const useGiftCardStore = defineStore("giftcard", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
-    }
-  }
+    },
+  },
 });
