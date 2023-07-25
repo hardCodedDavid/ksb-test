@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import ksbTechApi from "../../axios";
 import { giftCardCategory, giftCardProducts, giftCard } from "../../apiRoute";
+import downloadFile from "../composables/filedownloader";
 import { useNotification } from "@kyvg/vue3-notification";
 import { useAuthStore } from "./auth";
 import { useCountryStore } from "./country";
@@ -744,41 +745,51 @@ export const useGiftCardStore = defineStore("giftcard", {
       }
     },
     async exportGiftcards() {
+      const limit = 5000;
+      let offset = 0;
+      let totalOffset = Math.ceil(this.gift_transactions?.total / limit);
       const store = useAuthStore();
       const { notify } = useNotification();
-      this.loading = true;
+      notify({
+        title: "Export",
+        text: "Preparing file to export",
+        type: "info",
+      });
       try {
-        await ksbTechApi
-          .get(giftCard + "/export", {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`,
-            },
-          })
-          .then(
-            (res: {
-              data: {
-                message: string;
-                data: any;
-              };
-            }) => {
-              // this.gift_categories = res.data.data.giftcard_categories;
-              window.open(res.data.data.path);
-              this.loading = false;
-              notify({
-                title: "Successful",
-                text: res.data.message,
-                type: "success",
-              });
-            }
-          );
+        while (totalOffset--) {
+          await ksbTechApi
+            .get(giftCard + `/export?limit=${limit}&offset=${offset}`, {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${store.token}`,
+              },
+            })
+            .then(
+              (res: {
+                data: {
+                  message: string;
+                  data: any;
+                };
+              }) => {
+                // this.gift_categories = res.data.data.giftcard_categories;
+                downloadFile(res.data.data.path, "file downloaded");
+              }
+            );
+          offset++;
+        }
+        notify({
+          title: "Successful",
+          text: "Giftcards exported successfully",
+          type: "success",
+        });
       } catch (error: any) {
         this.loading = false;
-        notify({
-          title: "An Error Occurred",
-          text: error.response.data.message,
-          type: "error",
-        });
+        console.log(error);
+        // notify({
+        //   title: "An Error Occurred",
+        //   text: error.response.data.message,
+        //   type: "error",
+        // });
       }
     },
   },

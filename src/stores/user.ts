@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import ksbTechApi from "../../axios";
 import { user, admin } from "../../apiRoute";
 import { useAuthStore } from "../stores/auth";
+import downloadFile from "@/composables/filedownloader";
 import { useCountryStore } from "../stores/country";
 import { useNotification } from "@kyvg/vue3-notification";
 
@@ -61,13 +62,13 @@ export const useUserStore = defineStore("user", {
     use_activity: {},
     fund: {
       type: "",
-      amount: ""
+      amount: "",
     },
     adminDetails: {
       firstname: "",
       lastname: "",
       email: "",
-      country: ""
+      country: "",
     },
     id: "",
     single_admin: "",
@@ -75,7 +76,7 @@ export const useUserStore = defineStore("user", {
     bank_info: [],
     banks: [],
     search_users: [],
-    referrals: []
+    referrals: [],
   }),
   getters: {
     filterUserById: (state) => (id: string) =>
@@ -86,7 +87,7 @@ export const useUserStore = defineStore("user", {
       state.user?.data?.map((selectedUser: any) => {
         return {
           email: selectedUser.email,
-          id: selectedUser.id
+          id: selectedUser.id,
         };
       }),
     country_id() {
@@ -98,12 +99,12 @@ export const useUserStore = defineStore("user", {
       });
     },
     toggleActivationText: (state) =>
-      !state.single_admin?.blocked_at ? "block" : "restore access"
+      !state.single_admin?.blocked_at ? "block" : "restore access",
   },
   actions: {
     updateAdmin() {
       return (this.adminDetails = {
-        ...this.admin.filter((user) => user["id"] == this.id)
+        ...this.admin.filter((user) => user["id"] == this.id),
       });
     },
 
@@ -126,8 +127,8 @@ export const useUserStore = defineStore("user", {
             {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`
-              }
+                Authorization: `Bearer ${store.token}`,
+              },
             }
           )
           .then(
@@ -148,17 +149,14 @@ export const useUserStore = defineStore("user", {
     },
 
     async getAllReferralsByUserID(id: string) {
-      console.log('here')
+      console.log("here");
       const store = useAuthStore();
       const { notify } = useNotification();
       this.loading = true;
       try {
         await ksbTechApi
           .get(
-            "admin/referrals?" +
-              "include=referred" +
-              "&filter[user_id]=" +
-              id,
+            "admin/referrals?" + "include=referred" + "&filter[user_id]=" + id,
             {
               headers: {
                 Accept: "application/json",
@@ -180,7 +178,7 @@ export const useUserStore = defineStore("user", {
           );
       } catch (error) {
         this.loading = false;
-        console.log(error)
+        console.log(error);
       }
     },
 
@@ -193,8 +191,8 @@ export const useUserStore = defineStore("user", {
           .get(`${user}?filter[email]=${email}`, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -222,8 +220,8 @@ export const useUserStore = defineStore("user", {
           .get(`/admin/users/${id}`, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -250,8 +248,8 @@ export const useUserStore = defineStore("user", {
           .get(`${admin}?include=roles,country`, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -270,7 +268,7 @@ export const useUserStore = defineStore("user", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -284,8 +282,8 @@ export const useUserStore = defineStore("user", {
           .get(admin + "/" + id + "?include=country,roles,giftcardCategories", {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -312,8 +310,8 @@ export const useUserStore = defineStore("user", {
           .patch(user + "/" + id + "/block", "", {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -326,7 +324,7 @@ export const useUserStore = defineStore("user", {
               notify({
                 title: "Successful",
                 text: res.data.message,
-                type: "success"
+                type: "success",
               });
               this.getUsers(1, "", "", "", "");
             }
@@ -344,8 +342,8 @@ export const useUserStore = defineStore("user", {
           .post(user + id + "/block", "", {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -358,7 +356,7 @@ export const useUserStore = defineStore("user", {
               notify({
                 title: "Successful",
                 text: res.data.message,
-                type: "success"
+                type: "success",
               });
               this.getUsers(1, "", "", "", "");
             }
@@ -390,8 +388,8 @@ export const useUserStore = defineStore("user", {
             {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`
-              }
+                Authorization: `Bearer ${store.token}`,
+              },
             }
           )
           .then(
@@ -406,7 +404,7 @@ export const useUserStore = defineStore("user", {
               notify({
                 title: "Success",
                 text: res.data.message,
-                type: "success"
+                type: "success",
               });
               this.getUsers(1, "", "", "", "");
             }
@@ -416,7 +414,7 @@ export const useUserStore = defineStore("user", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -436,8 +434,8 @@ export const useUserStore = defineStore("user", {
           .post(admin, formData, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -450,7 +448,7 @@ export const useUserStore = defineStore("user", {
               notify({
                 title: "Success",
                 text: res.data.message,
-                type: "success"
+                type: "success",
               });
               this.dialog = false;
               this.getAdmin();
@@ -461,7 +459,7 @@ export const useUserStore = defineStore("user", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -482,8 +480,8 @@ export const useUserStore = defineStore("user", {
           .post(admin + "/" + id, formData, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -496,7 +494,7 @@ export const useUserStore = defineStore("user", {
               notify({
                 title: "Success",
                 text: res.data.message,
-                type: "success"
+                type: "success",
               });
               this.dialog = false;
               this.getAdmin();
@@ -507,7 +505,7 @@ export const useUserStore = defineStore("user", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -522,8 +520,8 @@ export const useUserStore = defineStore("user", {
             .delete(admin + "/" + id, {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`
-              }
+                Authorization: `Bearer ${store.token}`,
+              },
             })
             .then(
               (res: {
@@ -535,7 +533,7 @@ export const useUserStore = defineStore("user", {
                 notify({
                   title: "Success",
                   text: "Admin deleted successfully",
-                  type: "success"
+                  type: "success",
                 });
                 this.getAdmin();
               }
@@ -544,7 +542,7 @@ export const useUserStore = defineStore("user", {
           notify({
             title: "An Error Occurred",
             text: error.response.data.message,
-            type: "error"
+            type: "error",
           });
         }
       }
@@ -559,8 +557,8 @@ export const useUserStore = defineStore("user", {
             .patch(admin + "/" + id + "/restore", "", {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`
-              }
+                Authorization: `Bearer ${store.token}`,
+              },
             })
             .then(
               (res: {
@@ -572,7 +570,7 @@ export const useUserStore = defineStore("user", {
                 notify({
                   title: "Successful",
                   text: res.data.message,
-                  type: "success"
+                  type: "success",
                 });
                 this.getAdmin();
               }
@@ -581,7 +579,7 @@ export const useUserStore = defineStore("user", {
           notify({
             title: "An Error Occurred",
             text: error.response.data.message,
-            type: "error"
+            type: "error",
           });
         }
       }
@@ -600,8 +598,8 @@ export const useUserStore = defineStore("user", {
             .patch(admin + "/" + id + "/block", "", {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`
-              }
+                Authorization: `Bearer ${store.token}`,
+              },
             })
             .then(
               (res: {
@@ -613,7 +611,7 @@ export const useUserStore = defineStore("user", {
                 notify({
                   title: "Successful",
                   text: res.data.message,
-                  type: "success"
+                  type: "success",
                 });
                 this.getAdmin();
                 this.dialog2 = false;
@@ -623,7 +621,7 @@ export const useUserStore = defineStore("user", {
           notify({
             title: "An Error Occurred",
             text: error.response.data.message,
-            type: "error"
+            type: "error",
           });
         }
       }
@@ -638,8 +636,8 @@ export const useUserStore = defineStore("user", {
           .get(`/admin/system-bank-accounts`, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -667,8 +665,8 @@ export const useUserStore = defineStore("user", {
             .delete(`/admin/system-bank-accounts/${id}`, {
               headers: {
                 Accept: "application/json",
-                Authorization: `Bearer ${store.token}`
-              }
+                Authorization: `Bearer ${store.token}`,
+              },
             })
             .then(
               (res: {
@@ -700,8 +698,8 @@ export const useUserStore = defineStore("user", {
           .post(`/admin/system-bank-accounts`, bank_details, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -740,8 +738,8 @@ export const useUserStore = defineStore("user", {
           .post(`/admin/system-bank-accounts/${bank_details.id}`, formData, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -768,8 +766,8 @@ export const useUserStore = defineStore("user", {
           .get(`/banks?do_not_paginate=${1}`, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -788,39 +786,47 @@ export const useUserStore = defineStore("user", {
       }
     },
     async exportUsers() {
+      const limit = 5000;
+      let offset = 0;
+      let totalOffset = Math.ceil(this.user?.total / limit);
       const store = useAuthStore();
       const { notify } = useNotification();
-      this.loading = true;
+      notify({
+        title: "Export",
+        text: "Preparing file to export",
+        type: "info",
+      });
       try {
-        await ksbTechApi
-          .get(user + "/export", {
-            headers: {
-              Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
-          })
-          .then(
-            (res: {
-              data: {
-                message: string;
-                data: any;
-              };
-            }) => {
-              window.open(res.data.data.path);
-              this.loading = false;
-              notify({
-                title: "Successful",
-                text: res.data.message,
-                type: "success"
-              });
-            }
-          );
+        while (totalOffset--) {
+          await ksbTechApi
+            .get(user + `/export?limit=${limit}&offset=${offset}`, {
+              headers: {
+                Accept: "application/json",
+                Authorization: `Bearer ${store.token}`,
+              },
+            })
+            .then(
+              (res: {
+                data: {
+                  message: string;
+                  data: any;
+                };
+              }) => {
+                downloadFile(res.data.data.path, "file downloaded");
+              }
+            );
+        }
+        notify({
+          title: "Successful",
+          text: "Users exported successfully",
+          type: "success",
+        });
       } catch (error: any) {
         this.loading = false;
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -833,8 +839,8 @@ export const useUserStore = defineStore("user", {
           .patch(`${user}/${id}/block`, {
             headers: {
               Accept: "application/json",
-              Authorization: `Bearer ${store.token}`
-            }
+              Authorization: `Bearer ${store.token}`,
+            },
           })
           .then(
             (res: {
@@ -847,7 +853,7 @@ export const useUserStore = defineStore("user", {
               notify({
                 title: "Successful",
                 text: res.data.message,
-                type: "success"
+                type: "success",
               });
             }
           );
@@ -856,9 +862,9 @@ export const useUserStore = defineStore("user", {
         notify({
           title: "An Error Occurred",
           text: error.response.data.message,
-          type: "error"
+          type: "error",
         });
       }
-    }
-  }
+    },
+  },
 });
