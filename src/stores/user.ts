@@ -815,6 +815,7 @@ export const useUserStore = defineStore("user", {
                 downloadFile(res.data.data.path, "file downloaded");
               }
             );
+          offset++;
         }
         notify({
           title: "Successful",
