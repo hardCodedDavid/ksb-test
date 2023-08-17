@@ -44,6 +44,12 @@ const router = createRouter({
           meta: { requiresAuth: true}
         },
         {
+          name: "TopTraders",
+          path: "/top-traders/transaction",
+          component: () => import("@/views/top-traders/all-transactions.vue"),
+          meta: { requiresAuth: true}
+        },
+        {
           name: "ViewAssetsTransaction",
           path: "/asset/transaction/:id",
           component: () => import("@/views/asset/transaction-view.vue"),

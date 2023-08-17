@@ -22,8 +22,10 @@ export const giftCardCategory = '/admin/giftcard-categories'
 
 export const giftCard = '/admin/giftcards'
 export const giftCardProducts = '/admin/giftcard-products'
+export const giftcardTraders = '/admin/giftcards/traders'
 export const asset = '/admin/asset-transactions'
 export const assets = '/admin/assets'
+export const assetTraders = '/admin/asset-transactions/traders'
 
 export const network = '/admin/networks'
 export const all_network = '/networks'
