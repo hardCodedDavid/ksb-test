@@ -373,9 +373,9 @@
         <v-pagination
           v-model="page"
           :length="allTransactions?.last_page"
-          @next="getSingleAssetTransactions(page)"
-          @prev="getSingleAssetTransactions(page)"
-          @update:modelValue="getSingleAssetTransactions(page)"
+          @next="filterAllAssetTransactionsByUserId(single_user.id, page)"
+          @prev="filterAllAssetTransactionsByUserId(single_user.id, page)"
+          @update:modelValue="filterAllAssetTransactionsByUserId(single_user.id, page)"
           active-color="red"
           :start="1"
           variant="flat"
@@ -488,7 +488,7 @@
                             item?.status == 'pending' &&
                             item.children_count == 0
                           "
-                          @click="(dialog = true), (confirmationID = item?.id)"
+                          @click="(dialog4 = true), (confirmationID = item?.id)"
                           link
                           color="secondary"
                         >
@@ -501,7 +501,7 @@
                             item?.status == 'pending' &&
                             item.children_count == 0
                           "
-                          @click="(dialog2 = true), (confirmationID = item?.id)"
+                          @click="(dialog3 = true), (confirmationID = item?.id)"
                           link
                           color="secondary"
                         >
@@ -530,6 +530,19 @@
             No data found
           </p>
         </v-card>
+        <v-pagination
+          v-model="page"
+          :length="gift_transactions?.last_page"
+          @next="filterAllGiftCardTransactionByUserId(single_user.id, page)"
+          @prev="filterAllGiftCardTransactionByUserId(single_user.id, page)"
+          @update:modelValue="filterAllGiftCardTransactionByUserId(single_user.id, page)"
+          active-color="red"
+          :start="1"
+          variant="flat"
+          class="mt-5"
+          color="bg-secondary"
+          rounded="circle"
+        ></v-pagination>
       </v-window-item>
       <v-window-item value="four">
         <v-card class="my-4">
@@ -841,6 +854,232 @@
         </v-form>
       </v-card>
     </v-dialog>
+
+    <v-dialog
+      v-if="dialog4"
+      v-model="dialog4"
+      max-width="429px"
+      min-height="476px"
+    >
+      <v-card class="view-dialog pa-4">
+        <div class="mb-3 d-flex justify-space-between">
+          <h3 class="text-justify mt-7">Partial approval</h3>
+          <v-btn
+            @click="dialog4 = false"
+            icon="mdi-close"
+            color="secondary"
+            variant="text"
+          >
+            <v-icon icon="mdi-close"></v-icon>
+          </v-btn>
+        </div>
+        <v-form class="my-10">
+          <v-text-field
+            prefix="₦‎"
+            v-model="partial_approve.review_amount"
+            type="number"
+            variant="outlined"
+            label="Review Amount"
+          ></v-text-field>
+          <v-textarea
+            v-model="partial_approve.review_note"
+            variant="outlined"
+            label="Review Note"
+          ></v-textarea>
+          <label for="proof" class="cursor-pointer">
+            <p class="text-black">Upload transaction proof</p>
+          </label>
+          <label v-if="!previewList.length" for="proof" class="cursor-pointer">
+            <img
+              src="../assets/images/card-placeholder.svg"
+              alt="card-placeholder"
+              class="mt-3 w-full object-fill max-h-[174px] rounded-xl"
+            />
+          </label>
+          <input
+            type="file"
+            multiple
+            id="proof"
+            ref="fileInput"
+            style="display: none"
+            accept="image/*"
+            @change="partial(($event.target as HTMLFormElement).files)"
+          />
+          <div
+            class="gap-5 mt-5"
+            style="
+              display: grid;
+              grid-template-columns: repeat(4, 80px);
+              gap: 12px;
+            "
+          >
+            <div v-for="(image, index) in previewList" :key="index">
+              <div style="position: relative">
+                <img
+                  class="w-full cursor-pointer"
+                  style="height: 75px; object-fit: cover; width: 100%"
+                  :src="image"
+                />
+                <img
+                  src="@/assets/images/cancel-svgrepo-com.svg"
+                  class="absolute rounded-full border border-red-700 -top-2 -right-2 bg-red-200 text-red-500 cursor-pointer"
+                  style="position: absolute; right: -5px; top: -5px"
+                  width="20"
+                  @click="removeImage(image, index)"
+                />
+              </div>
+            </div>
+          </div>
+          <div v-if="uploadingImage" class="pt-3 text-center">
+            <small class="p-2 block"
+              >Uploaded {{ startImage }} of {{ totalImage }}...</small
+            >
+          </div>
+          <label
+            v-if="previewList.length"
+            for="proof"
+            class="mt-4 d-flex align-center cursor-pointer"
+          >
+            <img src="../assets/images/plus-icon.svg" alt="plus icon" />
+            <p class="ml-3 underline">Add more proof</p>
+          </label>
+          <v-btn
+            :loading="approving"
+            @click="openConfirmationDialog('partial', confirmationID)"
+            class="mt-5"
+            block
+            color="secondary"
+            >submit</v-btn
+          >
+        </v-form>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="confirmationDialog" width="500">
+    <v-card>
+      <v-toolbar dark dense flat>
+        <v-toolbar-title class="text-body-2 font-weight-bold grey--text">
+          Confirm
+        </v-toolbar-title>
+      </v-toolbar>
+      <v-card-text class="pa-4 black--text"
+        >Are you sure you want to
+        {{
+          confirmationStatus === "partial"
+            ? "partially approve"
+            : confirmationStatus
+        }}
+        this transaction?</v-card-text
+      >
+      <v-card-actions class="pt-3">
+        <v-spacer></v-spacer>
+        <v-btn
+          color="grey"
+          text
+          class="body-2 font-weight-bold"
+          @click.native="confirmationDialog = false"
+          >Cancel</v-btn
+        >
+        <v-btn
+          color="primary"
+          class="body-2 font-weight-bold"
+          outlined
+          @click.native="makeConfirmation(confirmationStatus), confirmationDialog = false"
+          >Yes</v-btn
+        >
+      </v-card-actions>
+    </v-card>
+    </v-dialog>
+    
+    <v-expand-transition>
+      <v-dialog v-if="dialog3" v-model="dialog3" max-width="500px" width="100%">
+        <v-card max-width="500px">
+          <v-card-text>
+            <h3>Decline Request</h3>
+            <p>Enter Reasons for Declining this withdrawal request</p>
+          </v-card-text>
+
+          <v-container class="mt-7">
+            <v-textarea
+              label="Comments"
+              v-model="note"
+              variant="outlined"
+            ></v-textarea>
+
+            <label for="proof" class="cursor-pointer">
+              <p class="text-black">Upload transaction proof</p>
+            </label>
+            <label
+              v-if="!previewList.length"
+              for="proof"
+              class="cursor-pointer"
+            >
+              <img
+                src="../assets/images/card-placeholder.svg"
+                alt="card-placeholder"
+                class="mt-3 w-full object-fill max-h-[174px] rounded-xl"
+              />
+            </label>
+            <input
+              type="file"
+              multiple
+              id="proof"
+              ref="fileInput"
+              style="display: none"
+              accept="image/*"
+              @change="get_reproof(($event.target as HTMLFormElement).files)"
+            />
+            <div
+              class="gap-5 mt-5"
+              style="
+                display: grid;
+                grid-template-columns: repeat(4, 80px);
+                gap: 12px;
+              "
+            >
+              <div v-for="(image, index) in previewList" :key="index">
+                <div style="position: relative">
+                  <img
+                    class="w-full cursor-pointer"
+                    style="height: 75px; object-fit: cover; width: 100%"
+                    :src="image"
+                  />
+                  <img
+                    src="@/assets/images/cancel-svgrepo-com.svg"
+                    class="absolute rounded-full border border-red-700 -top-2 -right-2 bg-red-200 text-red-500 cursor-pointer"
+                    style="position: absolute; right: -5px; top: -5px"
+                    width="20"
+                    @click="removeImageDecline(image, index)"
+                  />
+                </div>
+              </div>
+            </div>
+            <div v-if="uploadingImage" class="pt-3 text-center">
+              <small class="p-2 block"
+                >Uploaded {{ startImage }} of {{ totalImage }}...</small
+              >
+            </div>
+            <label
+              v-if="previewList.length"
+              for="proof"
+              class="mt-4 d-flex align-center cursor-pointer"
+            >
+              <img src="../assets/images/plus-icon.svg" alt="plus icon" />
+              <p class="ml-3 underline">Add more proof</p>
+            </label>
+
+            <v-btn
+              color="secondary"
+              class="my-5"
+              block
+              :loading="declining"
+              @click="openConfirmationDialog('decline', confirmationID)"
+              >Submit</v-btn
+            >
+          </v-container>
+        </v-card>
+      </v-dialog>
+    </v-expand-transition>
   </div>
 </template>
 
@@ -853,6 +1092,7 @@ import { useWithdrawalsStore } from "../stores/withdrawals";
 import { storeToRefs } from "pinia";
 import { useRoute } from "vue-router";
 import { useDateFormat, watchDebounced } from "@vueuse/core";
+import uploadImage from "@/composables/uploadImage";
 const { getUsers, restoreUsers, blockUsers, getUser, financeUsers, getAllReferralsByUserID } =
   useUserStore();
 const { user, filterUserById, single_user, dialog2, referrals } = storeToRefs(
@@ -868,10 +1108,11 @@ const {
   getAllAssetTransactionByReference,
   getAllAssetTransactionsStatus,
   getAllAssetTransactionByTradeType,
+  filterAllAssetTransactionsByUserId,
   single_transactions,
 } = useAssetStore();
 
-const { gift_transactions } = storeToRefs(useGiftCardStore());
+const { gift_transactions, dialog3, approving, declining } = storeToRefs(useGiftCardStore());
 
 const {
   getAllGiftCardTransaction,
@@ -906,11 +1147,18 @@ const email = ref("");
 const date1 = ref("");
 const date2 = ref("");
 const page = ref(1);
+const note = ref("");
 
 const status = ref("");
 const search = ref("");
 const type = ref("");
 const date = ref("");
+
+let uploadingImage = ref<boolean>(false);
+let startImage = ref<number>(1);
+let totalImage = ref<number>(1);
+
+const dialog4 = ref<boolean>(false);
 
 const search_by_reference = () => {
   watchDebounced(
@@ -1030,6 +1278,90 @@ const header = ref([
     title: "Actions",
   },
 ]);
+
+const confirmationDialog = ref(false);
+let confirmationID = ref("");
+const confirmationStatus = ref("");
+const reproof = ref<any>([]);
+const previewList = ref<any>([]);
+
+const partial_approve = reactive({
+  review_amount: "",
+  review_note: "",
+  review_proof: <any>[],
+});
+
+const get_reproof = ($event: any) => {
+  uploadingImage.value = true;
+  let count = $event.length;
+  let index = 0;
+  if (event) {
+    totalImage.value = $event.length;
+    while (count--) {
+      // proofs.value.push($event[index]);
+      uploadImage($event[index]).then((response) => {
+        startImage.value++;
+        previewList.value.push(response.secure_url);
+        reproof.value.push(response.secure_url);
+      });
+      index++;
+    }
+    startImage.value = 0;
+    // totalImage.value = 1;
+    // uploadingImage.value = false;
+  }
+};
+const removeImage = (id: any, index: number) => {
+  previewList.value = previewList.value.filter((item: any) => item !== id);
+  partial_approve.review_proof.splice(index, 1);
+};
+const removeImageDecline = (id: any, index: number) => {
+  previewList.value = previewList.value.filter((item: any) => item !== id);
+  reproof.value.splice(index, 1);
+};
+
+const partial = ($event: any) => {
+  uploadingImage.value = true;
+  let count = $event.length;
+  console.log($event);
+  let index = 0;
+  if (event) {
+    totalImage.value = $event.length;
+    while (count--) {
+      // proofs.value.push($event[index]);
+      uploadImage($event[index]).then((response) => {
+        startImage.value++;
+        previewList.value.push(response.secure_url);
+        partial_approve.review_proof.push(response.secure_url);
+      });
+      index++;
+    }
+    startImage.value = 0;
+    // totalImage.value = 1;
+    // uploadingImage.value = false;
+  }
+};
+
+
+const openConfirmationDialog = (type: string, id?: any) => {
+  confirmationDialog.value = true;
+  confirmationID.value = id;
+  confirmationStatus.value = type;
+};
+const makeConfirmation = async (type: string) => {
+  if (type == "approve") {
+    await approveRequest(confirmationID.value);
+    await filterAllGiftCardTransactionByUserId(route.params.id);
+    confirmationDialog.value = false;
+  } else if (type == "decline") {
+    declineRequest(confirmationID.value, note.value, reproof.value as any);
+    confirmationDialog.value = false;
+  } else if (type == "partial") {
+    partialApproveRequest(confirmationID.value, partial_approve);
+    confirmationDialog.value = false;
+  }
+  confirmationDialog.value = false;
+};
 
 type StatusType = "pending" | "approved" | "declined";
 

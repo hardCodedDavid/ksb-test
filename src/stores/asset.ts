@@ -298,6 +298,34 @@ export const useAssetStore = defineStore("asset", {
         this.loading = false;
       }
     },
+    async filterAllAssetTransactionsByUserId(id: string, page: number = 1) {
+      const store = useAuthStore();
+      const { notify } = useNotification();
+      this.loading = true;
+      try {
+        await ksbTechApi
+          .get(asset + `?filter[user_id]=${id}&include=user&page=${page}&per_page=${"15"}`, {
+            headers: {
+              Accept: "application/json",
+              Authorization: `Bearer ${store.token}`
+            }
+          })
+          .then(
+            (res: {
+              data: {
+                message: string;
+                data: { asset_transactions: { data: Data } };
+              };
+            }) => {
+              this.loading = false;
+
+              this.all_transactions = res.data.data.asset_transactions;
+            }
+          );
+      } catch (error) {
+        this.loading = false;
+      }
+    },
     async getSingleAssetTransactions(id: string, page: number = 1) {
       const store = useAuthStore();
       const { notify } = useNotification();

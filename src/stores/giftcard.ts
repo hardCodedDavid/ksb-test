@@ -23,6 +23,7 @@ interface GiftCard {
   gift_transactions: [];
   dialog: boolean;
   dialog2: boolean;
+  dialog3: boolean;
   singleGiftCard: any;
   singleGiftCardTransaction: {
     cards: string[];
@@ -61,6 +62,7 @@ export const useGiftCardStore = defineStore("giftcard", {
     gift_categories: [],
     dialog: false,
     dialog2: false,
+    dialog3: false,
     singleGiftCard: {},
     gift_transactions: [],
     singleGiftCardTransaction: {
@@ -250,14 +252,17 @@ export const useGiftCardStore = defineStore("giftcard", {
         });
       }
     },
-    async filterAllGiftCardTransactionByUserId(id: string) {
+    async filterAllGiftCardTransactionByUserId(
+      id: string,
+      page: number = 1,
+      ) {
       const { notify } = useNotification();
       const store = useAuthStore();
       this.loading = true;
       try {
         await ksbTechApi
           .get(
-            `${giftCard}?filter[user_id]=${id}&include=user,bank,giftcardProduct`,
+            `${giftCard}?filter[user_id]=${id}&include=user,bank,giftcardProduct&page=${page}&per_page=${"20"}`,
             {
               headers: {
                 Accept: "application/json",
@@ -370,6 +375,7 @@ export const useGiftCardStore = defineStore("giftcard", {
               this.approving = false;
               this.dialog = false;
               this.dialog2 = false;
+              this.dialog3 = false;
               this.getAllGiftCardTransactionByUserId(id);
               notify({
                 title: "Approved Successfully",
@@ -426,6 +432,7 @@ export const useGiftCardStore = defineStore("giftcard", {
               this.declining = false;
               this.dialog = false;
               this.dialog2 = false;
+              this.dialog3 = false;
 
               notify({
                 title: "Declined Successfully",
